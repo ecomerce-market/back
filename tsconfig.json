@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "target": "ES6",
+        "baseUrl": "./src",
+        "outDir": "./dist",
+        "incremental": true
+    },
+    "include": ["src/**/*"]
+}

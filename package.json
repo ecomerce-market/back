@@ -4,8 +4,11 @@
     "description": "",
     "main": "src/main.js",
     "scripts": {
+        "prebuild": "rm -rf ./dist",
+        "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node src/main.js"
+        "prestart": "npm run build",
+        "start": "node dist/main.js"
     },
     "author": "",
     "license": "ISC",
@@ -13,7 +16,6 @@
         "@types/express": "^5.0.0",
         "@types/node": "^22.13.0",
         "express": "^4.21.2",
-        "tsc": "^2.0.4",
         "typescript": "^5.7.3"
     },
     "devDependencies": {
