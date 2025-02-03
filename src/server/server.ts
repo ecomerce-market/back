@@ -1,7 +1,7 @@
 import openapiSpecification from "../swagger/swagger.provider";
 import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
-import homeRouter from "../home/home.router";
+import homeRouter from "../router/home/home.router";
 import MongooseProvider from "../database/mongoose.provider";
 
 class Server {
