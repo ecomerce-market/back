@@ -3,6 +3,7 @@ import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
 import homeRouter from "../router/home/home.router";
 import MongooseProvider from "../database/mongoose.provider";
+import userRouter from "../router/user/user.router";
 
 class Server {
     app: express.Express;
@@ -34,6 +35,7 @@ class Server {
     }
     setRouter() {
         this.app.use(homeRouter);
+        this.app.use(userRouter);
     }
 
     start(): void {
