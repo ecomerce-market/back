@@ -1,19 +1,15 @@
 import { json } from "stream/consumers";
 import { userModel } from "./user.scheme";
 import { Request, Response } from "express";
+import userRepository from "./user.repository";
 class UserService {
     constructor() {}
 
     async signupUser(req: Request, res: Response) {
         const body: UserSignupReqDto = req.body;
-
-        const found = await userModel
-            .find()
-            .where({
-                email: { $eq: body.email },
-                deleteAt: { $eq: null },
-            })
-            .exec();
+        const found = await userRepository.findByEmailAndDeleteAtNull(
+            body.email
+        );
 
         console.log(found);
 
