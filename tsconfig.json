@@ -9,7 +9,10 @@
         "target": "ES6",
         "baseUrl": "./src",
         "outDir": "./dist",
-        "incremental": true
+        "incremental": true,
+        "allowSyntheticDefaultImports": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
     },
     "include": ["src/**/*"]
 }
