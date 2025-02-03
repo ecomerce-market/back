@@ -2,10 +2,12 @@ import openapiSpecification from "../swagger/swagger.provider";
 import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
 import homeRouter from "../home/home.router";
+import MongooseProvider from "../database/mongoose.provider";
 
 class Server {
     app: express.Express;
     port?: number;
+    mongo: MongooseProvider;
 
     constructor(port: number | undefined) {
         if (!port || isNaN(port)) {
@@ -14,6 +16,7 @@ class Server {
             this.port = port;
         }
         this.app = express();
+        this.mongo = new MongooseProvider(process.env.MONGO_URI as string);
     }
 
     init() {
@@ -24,6 +27,10 @@ class Server {
             swaggerUI.setup(openapiSpecification)
         );
         this.setRouter();
+        this.dbconnect();
+    }
+    dbconnect() {
+        this.mongo.openConnection();
     }
     setRouter() {
         this.app.use(homeRouter);
