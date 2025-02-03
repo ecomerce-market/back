@@ -2,6 +2,8 @@ import { json } from "stream/consumers";
 import { userModel } from "./user.scheme";
 import { Request, Response } from "express";
 import userRepository from "./user.repository";
+import * as bcrypt from "bcrypt";
+
 class UserService {
     constructor() {}
 
@@ -17,11 +19,27 @@ class UserService {
             return res.status(400).json({
                 error: "email already exists",
             });
-        } else {
-            return res.status(200).json({
-                message: "success",
-            });
         }
+
+        const { hashedPassword, salt } = this.hashPassword(body.loginPw);
+
+        const newUser = new userModel({
+            ...body,
+            salt,
+            loginPw: hashedPassword,
+        });
+
+        const user = await userRepository.save(newUser);
+        console.log("user", user);
+        return res.status(200).json({
+            message: "success",
+        });
+    }
+
+    hashPassword(password: string) {
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
+        return { hashedPassword, salt };
     }
 }
 
