@@ -2,6 +2,7 @@ import openapiSpecification from "../swagger/swagger.provider";
 import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
 import homeRouter from "../home/home.router";
+import MongooseProvider from "../database/mongoose.provider";
 
 class Server {
     app: express.Express;
@@ -24,6 +25,14 @@ class Server {
             swaggerUI.setup(openapiSpecification)
         );
         this.setRouter();
+        this.dbconnect();
+    }
+    dbconnect() {
+        const mongo: MongooseProvider = new MongooseProvider(
+            process.env.MONGO_URI as string
+        );
+
+        mongo.openConnection();
     }
     setRouter() {
         this.app.use(homeRouter);
