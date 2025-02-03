@@ -7,6 +7,7 @@ import MongooseProvider from "../database/mongoose.provider";
 class Server {
     app: express.Express;
     port?: number;
+    mongo: MongooseProvider;
 
     constructor(port: number | undefined) {
         if (!port || isNaN(port)) {
@@ -15,6 +16,7 @@ class Server {
             this.port = port;
         }
         this.app = express();
+        this.mongo = new MongooseProvider(process.env.MONGO_URI as string);
     }
 
     init() {
@@ -28,11 +30,7 @@ class Server {
         this.dbconnect();
     }
     dbconnect() {
-        const mongo: MongooseProvider = new MongooseProvider(
-            process.env.MONGO_URI as string
-        );
-
-        mongo.openConnection();
+        this.mongo.openConnection();
     }
     setRouter() {
         this.app.use(homeRouter);
