@@ -10,6 +10,7 @@ export const userSchema: Schema = new Schema(
         phone: String,
         birth: String,
         deleteAt: Schema.Types.Date,
+        salt: String,
     },
     {
         autoCreate: true,
