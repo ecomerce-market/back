@@ -1,5 +1,6 @@
 import Server from "./server/server";
 
-const server: Server = new Server(3000);
+const port: number = Number(process.env.SERVER_PORT);
+const server: Server = new Server(port);
 server.init();
 server.start();
