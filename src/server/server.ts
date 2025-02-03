@@ -7,8 +7,12 @@ class Server {
     app: express.Express;
     port?: number;
 
-    constructor(port: number) {
-        this.port = port ?? 3000;
+    constructor(port: number | undefined) {
+        if (!port || isNaN(port)) {
+            this.port = 3000;
+        } else {
+            this.port = port;
+        }
         this.app = express();
     }
 
