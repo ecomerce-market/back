@@ -1,4 +1,5 @@
 import * as express from "express";
+import homeRouter from "../home/home.router";
 
 class Server {
     app: express.Express;
@@ -7,6 +8,14 @@ class Server {
     constructor(port: number) {
         this.port = port ?? 3000;
         this.app = express();
+    }
+
+    init() {
+        this.app.use(express.json());
+        this.setRouter();
+    }
+    setRouter() {
+        this.app.use(homeRouter);
     }
 
     start(): void {
