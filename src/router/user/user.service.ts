@@ -48,7 +48,7 @@ class UserService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserSignupReqDto = req.body;
+        const body: UserReqDto.UserSignUp = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
             body.loginId,
             body.email
@@ -96,7 +96,7 @@ class UserService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserSignInReqDto = req.body;
+        const body: UserReqDto.UserSignIn = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
             body.loginId
         );
