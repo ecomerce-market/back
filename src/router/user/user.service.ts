@@ -11,6 +11,8 @@ import { userAddressModel } from "./model/userAddress.schema";
 import userAddressRepository from "./repository/userAddress.repository";
 
 class UserService {
+    constructor() {}
+
     async existsUser(
         req: Request<
             import("express-serve-static-core").ParamsDictionary,
@@ -41,7 +43,6 @@ class UserService {
             });
         }
     }
-    constructor() {}
 
     async signupUser(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
@@ -119,6 +120,24 @@ class UserService {
                 email: found.email,
             }),
             name: found.name,
+        });
+    }
+
+    async getProfiles(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        console.log("loginId: ", loginId);
+        return res.status(200).json({
+            message: "success",
+            loginId,
         });
     }
 

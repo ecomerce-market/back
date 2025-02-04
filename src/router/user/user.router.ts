@@ -2,6 +2,7 @@ import { PATH_USERS } from "./../router.constants";
 import { Router, Request, Response } from "express";
 import UserService from "./user.service";
 import { body } from "express-validator";
+import jwtMiddleware from "../../middleware/jwt.middleware";
 
 const userRouter: Router = Router();
 
@@ -43,6 +44,14 @@ userRouter.post(
     body("loginPw").isString().isLength({ min: 8, max: 32 }),
     (req: Request, res: Response) => {
         userService.signinUser(req, res);
+    }
+);
+
+userRouter.get(
+    PATH_USERS + "/profiles",
+    jwtMiddleware.jwtMiddleWare,
+    (req: Request, res: Response) => {
+        userService.getProfiles(req, res);
     }
 );
 
