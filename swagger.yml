@@ -65,10 +65,10 @@ paths:
                                 properties:
                                     message:
                                         type: string
-                                        example: email or loginId already exists
+                                        example: request validation failed | email or loginId already exists
                                     code:
                                         type: string
-                                        example: E001
+                                        example: E000 | E001
     /api/v1/users/signin:
         post:
             description: 사용자 로그인
@@ -108,7 +108,7 @@ paths:
                                 properties:
                                     message:
                                         type: string
-                                        example: user not found | password is incorrect
+                                        example: request validation failed | user not found | password is incorrect
                                     code:
                                         type: string
-                                        example: E002 | E003
+                                        example: E000 | E002 | E003
