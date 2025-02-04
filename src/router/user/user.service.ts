@@ -17,7 +17,8 @@ class UserService {
 
         if (found.length > 0) {
             return res.status(400).json({
-                error: "email already exists",
+                message: "email already exists",
+                code: "E001",
             });
         }
 
