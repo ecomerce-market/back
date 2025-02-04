@@ -7,6 +7,10 @@ const userRouter: Router = Router();
 
 const userService: UserService = new UserService();
 
+userRouter.get(PATH_USERS + "/exists", (req: Request, res: Response) => {
+    userService.existsUser(req, res);
+});
+
 userRouter.post(
     PATH_USERS + "/signup",
     body("loginId")
