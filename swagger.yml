@@ -53,9 +53,22 @@ paths:
                             schema:
                                 type: object
                                 properties:
-                                    cmd:
+                                    message:
                                         type: string
-                                        example: create user
+                                        example: success
+                400:
+                    description: 사용자 생성 실패
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: email or loginId already exists
+                                    code:
+                                        type: string
+                                        example: E001
     /api/v1/users/signin:
         post:
             description: 사용자 로그인
