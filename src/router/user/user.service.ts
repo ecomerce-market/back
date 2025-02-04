@@ -4,11 +4,15 @@ import { Request, Response } from "express";
 import userRepository from "./user.repository";
 import * as bcrypt from "bcrypt";
 import jwtService from "../../common/jwt.service";
+import validateMiddleware from "../../middleware/validate.middleware";
 
 class UserService {
     constructor() {}
 
     async signupUser(req: Request, res: Response) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
         const body: UserSignupReqDto = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
             body.loginId,
@@ -37,6 +41,9 @@ class UserService {
     }
 
     async signinUser(req: Request, res: Response) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
         const body: UserSignInReqDto = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
             body.loginId
