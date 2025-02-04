@@ -10,7 +10,8 @@ class UserService {
 
     async signupUser(req: Request, res: Response) {
         const body: UserSignupReqDto = req.body;
-        const found = await userRepository.findByEmailAndDeleteAtNull(
+        const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
+            body.loginId,
             body.email
         );
 
@@ -18,7 +19,7 @@ class UserService {
 
         if (found.length > 0) {
             return res.status(400).json({
-                message: "email already exists",
+                message: "email or loginId already exists",
                 code: "E001",
             });
         }
@@ -44,8 +45,6 @@ class UserService {
             body.loginId
         );
 
-        console.log(found);
-
         if (!found) {
             return res.status(400).json({
                 message: "user not found",
@@ -64,6 +63,7 @@ class UserService {
                 loginId: found.loginId,
                 email: found.email,
             }),
+            name: found.name,
         });
     }
 

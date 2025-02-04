@@ -15,11 +15,11 @@ class UserRepository {
         return userModel.create(user);
     }
 
-    async findByEmailAndDeleteAtNull(email: string): Promise<any> {
+    async findByLoginIdOrEmailAndDeleteAtNull(loginId: string, email: string): Promise<any> {
         return userModel
             .find()
             .where({
-                email: { $eq: email },
+                $or: [{ loginId: { $eq: loginId } }, { email: { $eq: email } }],
                 deleteAt: { $eq: null },
             })
             .exec();
