@@ -147,7 +147,7 @@ class UserService {
             phone: userFullData.phone,
             birth: userFullData.birth,
             points: userFullData.inventory.points,
-            couponCnt: 0, // todo: 임시, 나중에 변경해야 함
+            couponCnt: userFullData.inventory.coupons?.length ?? null,
         };
 
         return res.status(200).json({
