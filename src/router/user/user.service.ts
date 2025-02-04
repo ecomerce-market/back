@@ -15,8 +15,6 @@ class UserService {
             body.email
         );
 
-        console.log(found);
-
         if (found.length > 0) {
             return res.status(400).json({
                 message: "email or loginId already exists",
@@ -28,12 +26,11 @@ class UserService {
 
         const newUser = new userModel({
             ...body,
-            salt,
             loginPw: hashedPassword,
         });
 
         const user = await userRepository.save(newUser);
-        console.log("user", user);
+
         return res.status(200).json({
             message: "success",
         });
