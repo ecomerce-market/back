@@ -27,6 +27,7 @@ class Server {
             swaggerUI.serve,
             swaggerUI.setup(swaggerDocs)
         );
+        this.app.use(express.urlencoded({ extended: true }));
         this.setRouter();
         this.dbconnect();
     }
