@@ -8,7 +8,7 @@
         "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
         "prestart": "npm run build",
-        "start:dev": "node --env-file=.env dist/main.js",
+        "start:dev": "tsc-watch --onSuccess \"node --env-file=.env dist/main.js\"",
         "start": "node --env-file=.env.production dist/main.js"
     },
     "author": "",
@@ -25,6 +25,7 @@
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui": "^5.18.3",
         "swagger-ui-express": "^5.0.1",
+        "tsc-watch": "^6.2.1",
         "typescript": "^5.7.3",
         "yamljs": "^0.3.0"
     },
