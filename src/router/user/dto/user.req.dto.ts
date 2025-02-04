@@ -14,4 +14,8 @@ namespace UserReqDto {
         loginId: string;
         loginPw: string;
     }
+
+    export interface UserCheckPassword {
+        loginPw: string;
+    }
 }

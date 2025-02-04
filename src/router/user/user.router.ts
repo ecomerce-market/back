@@ -55,4 +55,13 @@ userRouter.get(
     }
 );
 
+userRouter.post(
+    PATH_USERS + "/passwords",
+    jwtMiddleware.jwtMiddleWare,
+    body("loginPw").isString().isLength({ min: 8, max: 32 }),
+    (req: Request, res: Response) => {
+        userService.checkPassword(req, res);
+    }
+);
+
 export default userRouter;

@@ -156,6 +156,36 @@ class UserService {
         });
     }
 
+    async checkPassword(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
+        const loginId = req.headers["X-Request-user-id"] as string;
+
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        const dto: UserReqDto.UserCheckPassword = req.body;
+
+        if (!this.comparePassword(dto.loginPw, user.loginPw)) {
+            return res.status(400).json({
+                message: "password is incorrect",
+                code: "E003",
+            });
+        }
+        return res.status(200).json({
+            message: "password is correct",
+        });
+    }
+
     hashPassword(password: string) {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
