@@ -1,17 +1,16 @@
+import { PATH_USERS } from "./../router.constants";
 import { Router, Request, Response } from "express";
 import UserService from "./user.service";
 
 const userRouter: Router = Router();
 
-const prefix = "/api/v1/users";
-
 const userService: UserService = new UserService();
 
-userRouter.post(prefix + "/signup", (req: Request, res: Response) => {
+userRouter.post(PATH_USERS + "/signup", (req: Request, res: Response) => {
     userService.signupUser(req, res);
 });
 
-userRouter.post(prefix + "/signin", (req: Request, res: Response) => {
+userRouter.post(PATH_USERS + "/signin", (req: Request, res: Response) => {
     userService.signinUser(req, res);
 });
 
