@@ -11,7 +11,23 @@ export const userInventorySchema: Schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "userTier",
         },
-        // coupons: [],
+        coupons: [
+            {
+                coupon: {
+                    type: Schema.Types.ObjectId,
+                    ref: "coupon",
+                    unique: false,
+                },
+                createAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                useAt: {
+                    type: Date,
+                    default: null,
+                },
+            },
+        ],
     },
     {
         autoCreate: true,
