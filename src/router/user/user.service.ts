@@ -79,10 +79,9 @@ class UserService {
 
         const userInventory = new userInventoryModel({
             userId: user._id,
+            coupons: [],
         });
         user.inventory = userInventory._id;
-
-        userInventoryModel;
 
         await userInventoryRepository.save(userInventory);
         await userRepository.update(user);
