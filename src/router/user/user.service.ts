@@ -7,6 +7,36 @@ import jwtService from "../../common/jwt.service";
 import validateMiddleware from "../../middleware/validate.middleware";
 
 class UserService {
+    async existsUser(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const loginId = req.query.loginId as string;
+        if (!loginId) {
+            return res.status(400).json({
+                message: "loginId is required",
+                code: "E004",
+            });
+        }
+        const found =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        if (!found) {
+            return res.status(200).json({
+                message: "user not found",
+            });
+        } else {
+            return res.status(400).json({
+                message: "user exists",
+                code: "E005",
+            });
+        }
+    }
     constructor() {}
 
     async signupUser(req: Request, res: Response) {
