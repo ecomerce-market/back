@@ -1,8 +1,11 @@
-import openapiSpecification from "../swagger/swagger.provider";
+import swaggerDocs from "../swagger/swagger.provider";
 import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
-import homeRouter from "../home/home.router";
+import homeRouter from "../router/home/home.router";
 import MongooseProvider from "../database/mongoose.provider";
+import userRouter from "../router/user/user.router";
+import validateMiddleware from "../middleware/validate.middleware";
+import authRouter from "../router/auth/auth.router";
 
 class Server {
     app: express.Express;
@@ -24,8 +27,9 @@ class Server {
         this.app.use(
             "/api-docs",
             swaggerUI.serve,
-            swaggerUI.setup(openapiSpecification)
+            swaggerUI.setup(swaggerDocs)
         );
+        this.app.use(express.urlencoded({ extended: true }));
         this.setRouter();
         this.dbconnect();
     }
@@ -34,6 +38,8 @@ class Server {
     }
     setRouter() {
         this.app.use(homeRouter);
+        this.app.use(userRouter);
+        this.app.use(authRouter);
     }
 
     start(): void {

@@ -5,6 +5,7 @@ class MongooseProvider {
     constructor(path: string) {
         this.path = path;
         mongoose.set("strictQuery", false);
+        mongoose.set("debug", true);
         mongoose.connection.on("open", () => {
             console.log("Mongoose connection open");
         });

@@ -1,0 +1,160 @@
+openapi: 3.0.0
+info:
+    title: My API
+    version: 1.0.0
+paths:
+    /api/v1/users/signup:
+        post:
+            tags:
+              - Users
+            summary: "새로운 사용자 생성"
+            description: 새로운 사용자 생성
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                loginId:
+                                    type: string
+                                    description: 사용자 로그인 아이디
+                                loginPw:
+                                    type: string
+                                    description: 사용자 로그인 비밀번호
+                                name:
+                                    type: string
+                                    description: 사용자 이름
+                                email:
+                                    type: string
+                                    description: 사용자 이메일
+                                phone:
+                                    type: string
+                                    description: 사용자 전화번호
+                                address:
+                                    type: string
+                                    description: 사용자 주소
+                                extraAddr:
+                                    type: string
+                                    description: 사용자 상세주소 (선택)
+                                birth:
+                                    type: string
+                                    description: 사용자 생년월일
+                            required:
+                                - loginId
+                                - loginPw
+                                - name
+                                - email
+                                - phone
+                                - address
+                                - birth
+            responses:
+                200:
+                    description: 사용자 생성 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: success
+                400:
+                    description: 사용자 생성 실패
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: request validation failed | email or loginId already exists
+                                    code:
+                                        type: string
+                                        example: E000 | E001
+    /api/v1/users/signin:
+        post:
+            tags:
+              - Users
+            summary: "사용자 로그인"
+            description: 사용자 로그인
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                loginId:
+                                    type: string
+                                    description:: 사용자 로그인 아이디
+                                loginPw:
+                                    type: string
+                                    description: 사용자 로그인 비밀번호
+                            required:
+                                - loginId
+                                - loginPw
+            responses:
+                200:
+                    description: 로그인 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    token:
+                                        type: string
+                                        example: jwt_token
+                400:
+                    description: 로그인 실패
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: request validation failed | user not found | password is incorrect
+                                    code:
+                                        type: string
+                                        example: E000 | E002 | E003
+    /api/v1/auth/validate:
+        post:
+            tags:
+              - Auth
+            summary: "JWT 토큰 유효성 검증"
+            description: JWT 토큰 유효성 검증
+            parameters:
+                - in: header
+                  name: Authorization
+                  required: true
+                  schema:
+                      type: string
+                  description: Bearer jwt_token
+            responses:
+                200:
+                    description: 토큰 검증 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: validation success
+                401:
+                    description: 인증 실패
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: Unauthorized
+                                    code:
+                                        type: string
+                                        example: E009
+                                    error:
+                                        type: string
+                                        description: 에러 메시지 (jwt expired, jwt malformed, jwt signature is invalid 등 jwt 검증 에러 메시지)
