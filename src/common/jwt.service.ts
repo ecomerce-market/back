@@ -1,6 +1,9 @@
 import * as jwt from "jsonwebtoken";
 
 class JwtService {
+    readToken(token: string): any {
+        return jwt.decode(token);
+    }
     readonly secret: string;
     constructor() {
         this.secret = Buffer.from(
