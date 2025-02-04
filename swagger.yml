@@ -2,11 +2,52 @@ openapi: 3.0.0
 info:
     title: My API
     version: 1.0.0
+servers:
+    - url: http://localhost:3001
+      description: Local development server
 paths:
+    /api/v1/users/exists:
+        get:
+            tags:
+                - Users
+            summary: "사용자 아이디 중복 확인"
+            description: 사용자 아이디 중복 확인<br>
+                중복 시 400 에러, 중복되지 않으면 200 응답
+            parameters:
+                - in: query
+                  name: loginId
+                  required: true
+                  schema:
+                      type: string
+                  description: 사용자 로그인 아이디 (필수)
+            responses:
+                200:
+                    description: 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "User exists"
+                400:
+                    description: 중복된 아이디
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "User already exists"
+                                    code:
+                                        type: string
+                                        example: "E001"
     /api/v1/users/signup:
         post:
             tags:
-              - Users
+                - Users
             summary: "새로운 사용자 생성"
             description: 새로운 사용자 생성
             requestBody:
@@ -18,38 +59,23 @@ paths:
                             properties:
                                 loginId:
                                     type: string
-                                    description: 사용자 로그인 아이디
                                 loginPw:
                                     type: string
-                                    description: 사용자 로그인 비밀번호
                                 name:
                                     type: string
-                                    description: 사용자 이름
                                 email:
                                     type: string
-                                    description: 사용자 이메일
                                 phone:
                                     type: string
-                                    description: 사용자 전화번호
-                                address:
-                                    type: string
-                                    description: 사용자 주소
-                                extraAddr:
-                                    type: string
-                                    description: 사용자 상세주소 (선택)
                                 birth:
                                     type: string
-                                    description: 사용자 생년월일
                             required:
                                 - loginId
                                 - loginPw
                                 - name
                                 - email
-                                - phone
-                                - address
-                                - birth
             responses:
-                200:
+                201:
                     description: 사용자 생성 성공
                     content:
                         application/json:
@@ -58,9 +84,9 @@ paths:
                                 properties:
                                     message:
                                         type: string
-                                        example: success
+                                        example: "User created successfully"
                 400:
-                    description: 사용자 생성 실패
+                    description: 잘못된 요청
                     content:
                         application/json:
                             schema:
@@ -68,14 +94,14 @@ paths:
                                 properties:
                                     message:
                                         type: string
-                                        example: request validation failed | email or loginId already exists
+                                        example: "Invalid request"
                                     code:
                                         type: string
-                                        example: E000 | E001
+                                        example: "E002"
     /api/v1/users/signin:
         post:
             tags:
-              - Users
+                - Users
             summary: "사용자 로그인"
             description: 사용자 로그인
             requestBody:
@@ -87,7 +113,7 @@ paths:
                             properties:
                                 loginId:
                                     type: string
-                                    description:: 사용자 로그인 아이디
+                                    description: 사용자 로그인 아이디
                                 loginPw:
                                     type: string
                                     description: 사용자 로그인 비밀번호
@@ -121,7 +147,7 @@ paths:
     /api/v1/auth/validate:
         post:
             tags:
-              - Auth
+                - Auth
             summary: "JWT 토큰 유효성 검증"
             description: JWT 토큰 유효성 검증
             parameters:
