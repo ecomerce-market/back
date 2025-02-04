@@ -1,4 +1,3 @@
-import { userModel } from "./user.scheme";
 import { Router, Request, Response } from "express";
 import UserService from "./user.service";
 

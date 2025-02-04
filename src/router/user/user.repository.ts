@@ -1,4 +1,4 @@
-import { model, Model } from "mongoose";
+import { Model } from "mongoose";
 import { userModel } from "./user.scheme";
 
 class UserRepository {
@@ -15,7 +15,10 @@ class UserRepository {
         return userModel.create(user);
     }
 
-    async findByLoginIdOrEmailAndDeleteAtNull(loginId: string, email: string): Promise<any> {
+    async findByLoginIdOrEmailAndDeleteAtNull(
+        loginId: string,
+        email: string
+    ): Promise<any> {
         return userModel
             .find()
             .where({
