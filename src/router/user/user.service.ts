@@ -7,6 +7,8 @@ import * as bcrypt from "bcrypt";
 import jwtService from "../../common/jwt.service";
 import validateMiddleware from "../../middleware/validate.middleware";
 import userInventoryRepository from "./repository/userInventory.repository";
+import { userAddressModel } from "./model/userAddress.schema";
+import userAddressRepository from "./repository/userAddress.repository";
 
 class UserService {
     async existsUser(
@@ -63,6 +65,13 @@ class UserService {
         const newUser = new userModel({
             ...body,
             loginPw: hashedPassword,
+            addresses: [
+                new userAddressModel({
+                    address: body.address,
+                    extraAddress: body.extraAddr ?? null,
+                    defaultAddr: true,
+                }),
+            ],
         });
 
         const user = await userRepository.save(newUser);
@@ -76,6 +85,7 @@ class UserService {
 
         await userInventoryRepository.save(userInventory);
         await userRepository.update(user);
+        await userAddressRepository.save(newUser.addresses[0]);
         return res.status(200).json({
             message: "success",
         });

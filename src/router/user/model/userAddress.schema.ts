@@ -5,7 +5,7 @@ export const userAddressSchema: Schema = new Schema(
         addressId: Schema.Types.ObjectId,
         zipcode: {
             type: String,
-            required: true,
+            required: false,
         },
         address: {
             type: String,
