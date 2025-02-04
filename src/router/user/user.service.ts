@@ -134,10 +134,26 @@ class UserService {
         res: Response<any, Record<string, any>>
     ) {
         const loginId = req.headers["X-Request-user-id"] as string;
-        console.log("loginId: ", loginId);
+
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userFullData = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        const resDto: UserResDto.UserProfile = {
+            tier: userFullData.inventory.tier ?? "기본",
+            name: userFullData.name,
+            loginId: userFullData.loginId,
+            email: userFullData.email,
+            phone: userFullData.phone,
+            birth: userFullData.birth,
+            points: userFullData.inventory.points,
+            couponCnt: 0, // todo: 임시, 나중에 변경해야 함
+        };
+
         return res.status(200).json({
             message: "success",
-            loginId,
+            data: resDto,
         });
     }
 
