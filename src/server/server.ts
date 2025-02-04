@@ -1,4 +1,4 @@
-import openapiSpecification from "../swagger/swagger.provider";
+import swaggerDocs from "../swagger/swagger.provider";
 import * as express from "express";
 import * as swaggerUI from "swagger-ui-express";
 import homeRouter from "../router/home/home.router";
@@ -25,7 +25,7 @@ class Server {
         this.app.use(
             "/api-docs",
             swaggerUI.serve,
-            swaggerUI.setup(openapiSpecification)
+            swaggerUI.setup(swaggerDocs)
         );
         this.setRouter();
         this.dbconnect();
