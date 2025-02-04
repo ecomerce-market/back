@@ -3,6 +3,7 @@ import { userModel } from "./user.scheme";
 import { Request, Response } from "express";
 import userRepository from "./user.repository";
 import * as bcrypt from "bcrypt";
+import jwtService from "../../common/jwt.service";
 
 class UserService {
     constructor() {}
@@ -37,10 +38,43 @@ class UserService {
         });
     }
 
+    async signinUser(req: Request, res: Response) {
+        const body: UserSignInReqDto = req.body;
+        const found = await userRepository.findByLoginIdAndDeleteAtNull(
+            body.loginId
+        );
+
+        console.log(found);
+
+        if (!found) {
+            return res.status(400).json({
+                message: "user not found",
+                code: "E002",
+            });
+        }
+        if (!this.comparePassword(body.loginPw, found.loginPw)) {
+            return res.status(400).json({
+                message: "password is incorrect",
+                code: "E003",
+            });
+        }
+
+        return res.status(200).json({
+            jwt: jwtService.writeToken({
+                loginId: found.loginId,
+                email: found.email,
+            }),
+        });
+    }
+
     hashPassword(password: string) {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
         return { hashedPassword, salt };
+    }
+
+    comparePassword(rawPassword: string, hashedPassword: string) {
+        return bcrypt.compareSync(rawPassword, hashedPassword);
     }
 }
 

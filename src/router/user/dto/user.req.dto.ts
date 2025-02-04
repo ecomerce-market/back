@@ -8,3 +8,8 @@ type UserSignupReqDto = {
     extraAddr: string;
     birth: string;
 };
+
+interface UserSignInReqDto {
+    loginId: string;
+    loginPw: string;
+}
