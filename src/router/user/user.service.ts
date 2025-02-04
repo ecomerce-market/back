@@ -1,10 +1,12 @@
+import { userInventoryModel } from "./model/userInventory.schema";
 import { json } from "stream/consumers";
 import { userModel } from "./model/user.scheme";
 import { Request, Response } from "express";
-import userRepository from "./user.repository";
+import userRepository from "./repository/user.repository";
 import * as bcrypt from "bcrypt";
 import jwtService from "../../common/jwt.service";
 import validateMiddleware from "../../middleware/validate.middleware";
+import userInventoryRepository from "./repository/userInventory.repository";
 
 class UserService {
     async existsUser(
@@ -65,6 +67,15 @@ class UserService {
 
         const user = await userRepository.save(newUser);
 
+        const userInventory = new userInventoryModel({
+            userId: user._id,
+        });
+        user.inventory = userInventory._id;
+
+        userInventoryModel;
+
+        await userInventoryRepository.save(userInventory);
+        await userRepository.update(user);
         return res.status(200).json({
             message: "success",
         });

@@ -1,7 +1,15 @@
 import { Model } from "mongoose";
-import { userModel } from "./model/user.scheme";
+import { userModel } from "../model/user.scheme";
 
 class UserRepository {
+    async update(user: any) {
+        return userModel.updateOne(
+            { _id: user._id },
+            { $set: user },
+            { upsert: false }
+        );
+    }
+
     async findByLoginIdAndDeleteAtNull(loginId: string): Promise<any> {
         return userModel
             .findOne()
