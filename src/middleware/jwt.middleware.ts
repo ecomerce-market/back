@@ -32,10 +32,14 @@ class JwtMiddleware {
                 code: "E009",
             });
         } else {
-            const decoded = jwtService.readToken(token);
-            req.headers["X-Request-user-id"] = decoded.loginId;
+            this.setDecodedHeader(req, token);
             next();
         }
+    }
+
+    setDecodedHeader(req: express.Request, token: string) {
+        const decoded = jwtService.readToken(token);
+        req.headers["X-Request-user-id"] = decoded.loginId;
     }
 }
 
