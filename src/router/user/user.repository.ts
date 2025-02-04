@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { userModel } from "./user.scheme";
+import { userModel } from "./model/user.scheme";
 
 class UserRepository {
     async findByLoginIdAndDeleteAtNull(loginId: string): Promise<any> {

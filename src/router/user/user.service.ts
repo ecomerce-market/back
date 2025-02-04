@@ -1,5 +1,5 @@
 import { json } from "stream/consumers";
-import { userModel } from "./user.scheme";
+import { userModel } from "./model/user.scheme";
 import { Request, Response } from "express";
 import userRepository from "./user.repository";
 import * as bcrypt from "bcrypt";
