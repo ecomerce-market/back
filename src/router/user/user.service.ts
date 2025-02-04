@@ -1,12 +1,18 @@
+import { userInventoryModel } from "./model/userInventory.schema";
 import { json } from "stream/consumers";
-import { userModel } from "./user.scheme";
+import { userModel } from "./model/user.scheme";
 import { Request, Response } from "express";
-import userRepository from "./user.repository";
+import userRepository from "./repository/user.repository";
 import * as bcrypt from "bcrypt";
 import jwtService from "../../common/jwt.service";
 import validateMiddleware from "../../middleware/validate.middleware";
+import userInventoryRepository from "./repository/userInventory.repository";
+import { userAddressModel } from "./model/userAddress.schema";
+import userAddressRepository from "./repository/userAddress.repository";
 
 class UserService {
+    constructor() {}
+
     async existsUser(
         req: Request<
             import("express-serve-static-core").ParamsDictionary,
@@ -37,13 +43,12 @@ class UserService {
             });
         }
     }
-    constructor() {}
 
     async signupUser(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserSignupReqDto = req.body;
+        const body: UserReqDto.UserSignUp = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
             body.loginId,
             body.email
@@ -61,10 +66,26 @@ class UserService {
         const newUser = new userModel({
             ...body,
             loginPw: hashedPassword,
+            addresses: [
+                new userAddressModel({
+                    address: body.address,
+                    extraAddress: body.extraAddr ?? null,
+                    defaultAddr: true,
+                }),
+            ],
         });
 
         const user = await userRepository.save(newUser);
 
+        const userInventory = new userInventoryModel({
+            userId: user._id,
+            coupons: [],
+        });
+        user.inventory = userInventory._id;
+
+        await userInventoryRepository.save(userInventory);
+        await userRepository.update(user);
+        await userAddressRepository.save(newUser.addresses[0]);
         return res.status(200).json({
             message: "success",
         });
@@ -74,7 +95,7 @@ class UserService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserSignInReqDto = req.body;
+        const body: UserReqDto.UserSignIn = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
             body.loginId
         );
@@ -98,6 +119,40 @@ class UserService {
                 email: found.email,
             }),
             name: found.name,
+        });
+    }
+
+    async getProfiles(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userFullData = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        const resDto: UserResDto.UserProfile = {
+            tier: userFullData.inventory.tier ?? "기본",
+            name: userFullData.name,
+            loginId: userFullData.loginId,
+            email: userFullData.email,
+            phone: userFullData.phone,
+            birth: userFullData.birth,
+            points: userFullData.inventory.points,
+            couponCnt: userFullData.inventory.coupons?.length ?? null,
+        };
+
+        return res.status(200).json({
+            message: "success",
+            data: resDto,
         });
     }
 

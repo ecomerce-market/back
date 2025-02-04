@@ -1,15 +1,17 @@
-type UserSignupReqDto = {
-    loginId: string;
-    loginPw: string;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    extraAddr: string;
-    birth: string;
-};
+namespace UserReqDto {
+    export interface UserSignUp {
+        loginId: string;
+        loginPw: string;
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        extraAddr: string;
+        birth: string;
+    }
 
-interface UserSignInReqDto {
-    loginId: string;
-    loginPw: string;
+    export interface UserSignIn {
+        loginId: string;
+        loginPw: string;
+    }
 }

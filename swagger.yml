@@ -144,6 +144,64 @@ paths:
                                     code:
                                         type: string
                                         example: E000 | E002 | E003
+    /api/v1/users/profiles:
+        get:
+            tags:
+                - Users
+            summary: "사용자 프로필 정보 조회"
+            description: 사용자 프로필 정보 조회
+            parameters:
+                - in: header
+                  name: Authorization
+                  required: true
+                  schema:
+                      type: string
+                  description: Bearer jwt_token
+            responses:
+                200:
+                    description: 사용자 프로필 조회 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "success"
+                                        description:: 요청 성공 메시지
+                                    tier:
+                                        type: string
+                                        example: "기본"
+                                        description: 사용자 등급
+                                    name:
+                                        type: string
+                                        example: "이름"
+                                        description: 사용자 이름
+                                    email:
+                                        type: string
+                                        example: "이메일"
+                                        description: 사용자 이메일
+                                    loginId:
+                                        type: string
+                                        example: "아이디"
+                                        description: 사용자 아이디
+                                    phone:
+                                        type: string
+                                        example: "전화번호"
+                                        description: 사용자 전화번호
+                                    birth:
+                                        type: string
+                                        example: "생년월일"
+                                        description: 사용자 생년월일
+                                    points:
+                                        type: integer
+                                        example: 100
+                                        description: 사용자 적립금
+                                    couponCnt:
+                                        type: integer
+                                        example: 3
+                                        description: 사용자 보유 쿠폰 수
+
     /api/v1/auth/validate:
         post:
             tags:
