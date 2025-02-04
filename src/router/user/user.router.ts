@@ -17,11 +17,7 @@ userRouter.post(
         .exists({ values: "null" })
         .isString()
         .isLength({ min: 8, max: 32 }),
-    body("name")
-        .exists({ values: "null" })
-        .isString()
-        .isLength({ max: 16 })
-        .isAscii(),
+    body("name").exists({ values: "null" }).isString().isLength({ max: 16 }),
     body("email").exists({ values: "null" }).isString().isEmail(),
     body("phone").exists({ values: "null" }).isString(),
     body("address")

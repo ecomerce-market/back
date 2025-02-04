@@ -8,7 +8,7 @@ class ValidateMiddleWare {
             return res.status(400).json({
                 message: "request validation failed",
                 code: "E000",
-                errors,
+                ...errors,
             });
         }
     }
