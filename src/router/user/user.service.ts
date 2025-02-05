@@ -196,6 +196,10 @@ class UserService {
         >,
         res: Response<any, Record<string, any>>
     ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
+
         const dto: UserReqDto.UserUpdateProfile = req.body;
 
         const loginId = req.headers["X-Request-user-id"] as string;

@@ -24,7 +24,10 @@ userRouter.post(
         .isLength({ min: 8, max: 32 }),
     body("name").exists({ values: "null" }).isString().isLength({ max: 16 }),
     body("email").exists({ values: "null" }).isString().isEmail(),
-    body("phone").exists({ values: "null" }).isString(),
+    body("phone")
+        .exists({ values: "null" })
+        .isString()
+        .isLength({ min: 3, max: 16 }),
     body("address")
         .exists({ values: "null" })
         .isString()
@@ -58,6 +61,12 @@ userRouter.get(
 userRouter.patch(
     PATH_USERS + "/profiles",
     jwtMiddleware.jwtMiddleWare,
+    body("loginPw").optional().isString().isLength({ min: 8, max: 32 }),
+    body("name").optional().isString().isLength({ max: 16 }),
+    body("email").optional().isString().isEmail(),
+    body("phone").optional().isString().isLength({ min: 3, max: 16 }),
+    body("birth").optional().isString().isLength({ min: 10, max: 10 }),
+    body("loginPw").optional().isString().isLength({ min: 8, max: 32 }),
     (req: Request, res: Response) => {
         userService.updateProfile(req, res);
     }
@@ -66,7 +75,6 @@ userRouter.patch(
 userRouter.post(
     PATH_USERS + "/passwords",
     jwtMiddleware.jwtMiddleWare,
-    body("loginPw").isString().isLength({ min: 8, max: 32 }),
     (req: Request, res: Response) => {
         userService.checkPassword(req, res);
     }
