@@ -41,8 +41,11 @@ export const procuctSchema = new Schema(
         },
         discount: {
             discountName: String, // 할인명
-            discountPer: Number, // 할인율
-            discountWon: Number, // 할인금액
+            discountAmount: Number, // 할인금액
+            discountType: {
+                type: String,
+                enum: ["won", "per"],
+            },
             startAt: Date, // 할인 시작일
             endAt: Date, // 할인 종료일
         },
