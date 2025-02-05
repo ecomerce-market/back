@@ -1,0 +1,25 @@
+import { ProductModel } from "../model/product.schema";
+
+class ProductRepository {
+    async getWeekendDealProducts(
+        now: Date,
+        pageSize: number,
+        pageNumer: number
+    ) {
+        return ProductModel.find({
+            // 할인 정보가 있는 상품
+            discount: { $exists: true, $ne: null },
+            // 현재 진행중인 할인
+            "discount.endAt": { $gte: now },
+            "discount.discountName": "주말 특가",
+            // 재고가 있는 상품
+            amount: { $gt: 0 },
+        })
+            .sort({ createAt: -1 })
+            .limit(pageSize)
+            .skip(pageSize * (pageNumer - 1));
+    }
+}
+
+const productRepository: ProductRepository = new ProductRepository();
+export default productRepository;

@@ -1,0 +1,340 @@
+/api/v1/users/exists:
+    get:
+        tags:
+            - Users
+        summary: "사용자 아이디 중복 확인"
+        description: 사용자 아이디 중복 확인<br>
+            중복 시 400 에러, 중복되지 않으면 200 응답
+        parameters:
+            - in: query
+              name: loginId
+              required: true
+              schema:
+                  type: string
+              description: 사용자 로그인 아이디 (필수)
+        responses:
+            200:
+                description: 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "User exists"
+            400:
+                description: 중복된 아이디
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "User already exists"
+                                code:
+                                    type: string
+                                    example: "E001"
+/api/v1/users/signup:
+    post:
+        tags:
+            - Users
+        summary: "새로운 사용자 생성"
+        description: 새로운 사용자 생성
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            loginId:
+                                type: string
+                            loginPw:
+                                type: string
+                            name:
+                                type: string
+                            email:
+                                type: string
+                            phone:
+                                type: string
+                            birth:
+                                type: string
+                        required:
+                            - loginId
+                            - loginPw
+                            - name
+                            - email
+        responses:
+            201:
+                description: 사용자 생성 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "User created successfully"
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Invalid request"
+                                code:
+                                    type: string
+                                    example: "E002"
+/api/v1/users/signin:
+    post:
+        tags:
+            - Users
+        summary: "사용자 로그인"
+        description: 사용자 로그인
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            loginId:
+                                type: string
+                                description: 사용자 로그인 아이디
+                            loginPw:
+                                type: string
+                                description: 사용자 로그인 비밀번호
+                        required:
+                            - loginId
+                            - loginPw
+        responses:
+            200:
+                description: 로그인 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                token:
+                                    type: string
+                                    example: jwt_token
+            400:
+                description: 로그인 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: request validation failed | user not found | password is incorrect
+                                code:
+                                    type: string
+                                    example: E000 | E002 | E003
+/api/v1/users/profiles:
+    get:
+        tags:
+            - Users
+        summary: "사용자 프로필 정보 조회"
+        description: 사용자 프로필 정보 조회
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: Bearer jwt_token
+        responses:
+            200:
+                description: 사용자 프로필 조회 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "success"
+                                    description:: 요청 성공 메시지
+                                tier:
+                                    type: string
+                                    example: "기본"
+                                    description: 사용자 등급
+                                name:
+                                    type: string
+                                    example: "이름"
+                                    description: 사용자 이름
+                                email:
+                                    type: string
+                                    example: "이메일"
+                                    description: 사용자 이메일
+                                loginId:
+                                    type: string
+                                    example: "아이디"
+                                    description: 사용자 아이디
+                                phone:
+                                    type: string
+                                    example: "전화번호"
+                                    description: 사용자 전화번호
+                                birth:
+                                    type: string
+                                    example: "생년월일"
+                                    description: 사용자 생년월일
+                                points:
+                                    type: integer
+                                    example: 100
+                                    description: 사용자 적립금
+                                couponCnt:
+                                    type: integer
+                                    example: 3
+                                    description: 사용자 보유 쿠폰 수
+            401:
+                description: 인증 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
+    patch:
+        tags:
+            - Users
+        summary: "사용자 프로필 정보 수정"
+        description: 사용자 프로필 정보 수정<br>수정 할 정보만 body에 넣어서 요청
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: Bearer jwt_token
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            name:
+                                type: string
+                                description: 사용자 이름
+                            email:
+                                type: string
+                                description: 사용자 이메일
+                            phone:
+                                type: string
+                                description: 사용자 전화번호
+                            birth:
+                                type: string
+                                description: 사용자 생년월일
+                            loginPw:
+                                type: string
+                                description: 사용자 로그인 비밀번호
+        responses:
+            200:
+                description: 사용자 프로필 수정 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "update success"
+                                updatedColumns:
+                                    type: array
+                                    items:
+                                        type: string
+                                    example:
+                                        [
+                                            "name",
+                                            "email",
+                                            "phone",
+                                            "birth",
+                                            "loginPw",
+                                        ]
+            401:
+                description: 인증 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
+/api/v1/users/passwords:
+    post:
+        tags:
+            - Users
+        summary: "사용자 비밀번호 올바른지 확인"
+        description: 사용자 비밀번호 올바른지 확인<br>jwt 토큰 필수, body 필수<br>올바를 시 200, 틀리면 400
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: Bearer jwt_token
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            loginPw:
+                                type: string
+                                description: 사용자 로그인 비밀번호
+                        required:
+                            - loginPw
+        responses:
+            200:
+                description: 비밀번호가 올바름
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Password is correct"
+            400:
+                description: 비밀번호가 올바르지 않음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Password is incorrect"
+                                code:
+                                    type: string
+                                    example: "E003"
+            401:
+                description: 인증 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"

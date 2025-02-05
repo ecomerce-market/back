@@ -6,6 +6,7 @@ import MongooseProvider from "../database/mongoose.provider";
 import userRouter from "../router/user/user.router";
 import validateMiddleware from "../middleware/validate.middleware";
 import authRouter from "../router/auth/auth.router";
+import productRouter from "../router/product/product.route";
 
 class Server {
     app: express.Express;
@@ -40,6 +41,7 @@ class Server {
         this.app.use(homeRouter);
         this.app.use(userRouter);
         this.app.use(authRouter);
+        this.app.use(productRouter);
     }
 
     start(): void {

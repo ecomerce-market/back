@@ -1,0 +1,86 @@
+api/v1/products/weekend-deals:
+    get:
+        tags:
+            - Products
+        summary: "주말 특가 상품 목록 조회"
+        description: 주말 특가 상품 목록 조회<br>상품 목록 조회<br>pageSize, pageNumber로 페이지 조회 (미입력시 기본 값 pageSize=10, pageNumber=1)
+        parameters:
+            - in: query
+              name: pageSize
+              schema:
+                  type: integer
+              description: 페이지 크기
+            - in: query
+              name: pageNumber
+              schema:
+                  type: integer
+              description: 페이지 번호
+        responses:
+            200:
+                description: 주말 특가 상품 목록 조회 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: success
+                                endDate:
+                                    type: string
+                                    example: "2025-12-31T23:59:59.999Z"
+                                products:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            productId:
+                                                type: string
+                                                example: 65f2d1234567890123456794
+                                            orgPrice:
+                                                type: number
+                                                example: 10000
+                                                description: 정가
+                                            finalPrice:
+                                                type: integer
+                                                example: 9000
+                                                description: 할인된 가격
+                                            discount:
+                                                type: object
+                                                properties:
+                                                    type:
+                                                        type: string
+                                                        example: "rate"
+                                                        description: 할인 타입 (per=할인율, won=할인 금액)
+                                                    discountAmount:
+                                                        type: number
+                                                        example: 10
+                                                        description: 할인량 (할인율 또는 할인 금액)
+                                            mainImgUrl:
+                                                type: string
+                                                example: "https://image.url"
+                                                description: 상품 대표 이미지 URL
+                                            commentCnt:
+                                                type: integer
+                                                example: 0
+                                                description: 후기 수
+            400:
+                description: 페이지 크기, 페이지 번호는 1 이상의 정수만 가능
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "pageSize, pageNumber는 1 이상의 정수만 가능"
+            500:
+                description: 서버 에러
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "서버 에러"
