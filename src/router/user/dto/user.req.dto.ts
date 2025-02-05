@@ -18,4 +18,12 @@ namespace UserReqDto {
     export interface UserCheckPassword {
         loginPw: string;
     }
+
+    export interface UserUpdateProfile {
+        loginPw?: string;
+        name?: string;
+        email?: string;
+        phone?: string;
+        birth?: string;
+    }
 }

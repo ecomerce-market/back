@@ -214,6 +214,76 @@ paths:
                                     code:
                                         type: string
                                         example: "E009"
+        patch:
+            tags:
+                - Users
+            summary: "사용자 프로필 정보 수정"
+            description: 사용자 프로필 정보 수정<br>수정 할 정보만 body에 넣어서 요청
+            parameters:
+                - in: header
+                  name: Authorization
+                  required: true
+                  schema:
+                      type: string
+                  description: Bearer jwt_token
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                    description: 사용자 이름
+                                email:
+                                    type: string
+                                    description: 사용자 이메일
+                                phone:
+                                    type: string
+                                    description: 사용자 전화번호
+                                birth:
+                                    type: string
+                                    description: 사용자 생년월일
+                                loginPw:
+                                    type: string
+                                    description: 사용자 로그인 비밀번호
+            responses:
+                200:
+                    description: 사용자 프로필 수정 성공
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "update success"
+                                    updatedColumns:
+                                        type: array
+                                        items:
+                                            type: string
+                                        example:
+                                            [
+                                                "name",
+                                                "email",
+                                                "phone",
+                                                "birth",
+                                                "loginPw",
+                                            ]
+                401:
+                    description: 인증 실패
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    message:
+                                        type: string
+                                        example: "Unauthorized"
+                                    code:
+                                        type: string
+                                        example: "E009"
     /api/v1/users/passwords:
         post:
             tags:
