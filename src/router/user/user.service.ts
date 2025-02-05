@@ -210,9 +210,10 @@ class UserService {
         user.email = dto.email ?? user.email;
         user.phone = dto.phone ?? user.phone;
         user.birth = dto.birth ?? user.birth;
-        user.loginPW = dto.loginPw
-            ? this.hashPassword(dto.loginPw).hashedPassword
-            : user.loginPw;
+        if (dto.loginPw) {
+            const { hashedPassword, salt } = this.hashPassword(dto.loginPw);
+            user.loginPw = hashedPassword;
+        }
 
         await userRepository.update(user);
 
