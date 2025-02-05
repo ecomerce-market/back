@@ -17,7 +17,7 @@ class ProductService {
         products.forEach((product) => {
             productDto.push({
                 productId: product.productId,
-                name: product.name,
+                name: product.productName,
                 orgPrice: product.orgPrice,
                 finalPrice: product.finalPrice,
                 commentCnt: product.commentCnt,
