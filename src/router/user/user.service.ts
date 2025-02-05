@@ -186,6 +186,44 @@ class UserService {
         });
     }
 
+    async updateProfile(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const dto: UserReqDto.UserUpdateProfile = req.body;
+
+        const loginId = req.headers["X-Request-user-id"] as string;
+
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        user.name = dto.name ?? user.name;
+        user.email = dto.email ?? user.email;
+        user.phone = dto.phone ?? user.phone;
+        user.birth = dto.birth ?? user.birth;
+        user.loginPW = dto.loginPw
+            ? this.hashPassword(dto.loginPw).hashedPassword
+            : user.loginPw;
+
+        await userRepository.update(user);
+
+        return res.status(200).json({
+            message: "update success",
+            updatedColumns: [
+                dto.name ? "name" : null,
+                dto.email ? "email" : null,
+                dto.phone ? "phone" : null,
+                dto.birth ? "birth" : null,
+                dto.loginPw ? "loginPw" : null,
+            ].filter((v) => v !== null),
+        });
+    }
+
     hashPassword(password: string) {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);

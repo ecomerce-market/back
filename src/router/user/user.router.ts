@@ -55,6 +55,14 @@ userRouter.get(
     }
 );
 
+userRouter.patch(
+    PATH_USERS + "/profiles",
+    jwtMiddleware.jwtMiddleWare,
+    (req: Request, res: Response) => {
+        userService.updateProfile(req, res);
+    }
+);
+
 userRouter.post(
     PATH_USERS + "/passwords",
     jwtMiddleware.jwtMiddleWare,
