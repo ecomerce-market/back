@@ -8,6 +8,7 @@ const mergeYamlFiles = () => {
     const userPath = YAML.load("swagger/paths/users.yml");
     const authPath = YAML.load("swagger/paths/auth.yml");
     const productPath = YAML.load("swagger/paths/products.yml");
+    const bannerPath = YAML.load("swagger/paths/banners.yml");
 
     return {
         ...baseSwagger,
@@ -15,6 +16,7 @@ const mergeYamlFiles = () => {
             ...authPath,
             ...userPath,
             ...productPath,
+            ...bannerPath,
         },
     };
 };
