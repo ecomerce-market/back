@@ -3,5 +3,6 @@ namespace ProductReqDto {
         categoryId?: number;
         child?: boolean;
         name?: string;
+        depth?: number;
     }
 }

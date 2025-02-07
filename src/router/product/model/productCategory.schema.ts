@@ -2,7 +2,12 @@ import { Model, model, Schema } from "mongoose";
 
 export const productCategorySchema = new Schema(
     {
-        categoryId: Schema.Types.ObjectId,
+        // categoryId: {
+        //     type: Schema.Types.ObjectId,
+        //     unique: true,
+        //     required: true,
+        // },
+        _id: Schema.Types.ObjectId,
         depth: {
             type: Number,
             required: true,
@@ -12,10 +17,16 @@ export const productCategorySchema = new Schema(
             type: String,
             required: true,
         },
-        parentCategory: {
-            type: Schema.Types.ObjectId,
-            ref: "productCategory",
-        },
+        // parentCategory: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: "productCategory",
+        // },
+        childCategories: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "productCategory",
+            },
+        ],
         // categoryCoupon: {},
     },
     {

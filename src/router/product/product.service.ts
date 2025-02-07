@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
+import productCategoryRepository from "./repository/productCategory.repository";
 
 class ProductService {
     async getWeekendDeals(req: Request, res: Response) {
@@ -92,8 +93,13 @@ class ProductService {
     async getCategories(req: Request, res: Response) {
         const categoryReqParam: ProductReqDto.GetCategoryParam = req.query;
         console.log(categoryReqParam);
+
+        const categories: Array<any> =
+            await productCategoryRepository.getCategories(categoryReqParam);
+
         return res.status(200).json({
             message: "success",
+            categories,
         });
     }
 }
