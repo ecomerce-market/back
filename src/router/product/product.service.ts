@@ -88,6 +88,14 @@ class ProductService {
 
         return sunday;
     }
+
+    async getCategories(req: Request, res: Response) {
+        const categoryReqParam: ProductReqDto.GetCategoryParam = req.query;
+        console.log(categoryReqParam);
+        return res.status(200).json({
+            message: "success",
+        });
+    }
 }
 
 export default ProductService;
