@@ -17,6 +17,7 @@
         "@types/express": "^5.0.0",
         "@types/node": "^22.13.0",
         "bcrypt": "^5.1.1",
+        "cors": "^2.8.5",
         "express": "^4.21.2",
         "express-validator": "^7.2.1",
         "jsonwebtoken": "^9.0.2",
@@ -31,6 +32,7 @@
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.2",
+        "@types/cors": "^2.8.17",
         "@types/dotenv": "^8.2.3",
         "@types/express-validator": "^3.0.2",
         "@types/jsonwebtoken": "^9.0.8",

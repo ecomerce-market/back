@@ -8,6 +8,7 @@ import validateMiddleware from "../middleware/validate.middleware";
 import authRouter from "../router/auth/auth.router";
 import productRouter from "../router/product/product.route";
 import bannerRouter from "../router/banner/banner.route";
+import * as cors from "cors";
 
 class Server {
     app: express.Express;
@@ -26,12 +27,20 @@ class Server {
 
     init() {
         this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(
+            cors({
+                origin: ["http://localhost:3000"],
+                credentials: true,
+                methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+                allowedHeaders: ["Content-Type", "Authorization"],
+            })
+        );
         this.app.use(
             "/api-docs",
             swaggerUI.serve,
             swaggerUI.setup(swaggerDocs)
         );
-        this.app.use(express.urlencoded({ extended: true }));
         this.setRouter();
         this.dbconnect();
     }
