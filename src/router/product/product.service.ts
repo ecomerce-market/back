@@ -40,6 +40,41 @@ class ProductService {
         });
     }
 
+    async getNewProducts(req: Request, res: Response) {
+        const pageSize = Number(req.query.pageSize) || 10;
+        const pageNumber = Number(req.query.pageNumber) || 1;
+        const products: Array<any> = await productRepository.getNewProducts(
+            pageSize,
+            pageNumber
+        );
+
+        const productDto: Array<ProductResDto.ProductPreview> = [];
+
+        products.forEach((product) => {
+            productDto.push({
+                productId: product.productId,
+                name: product.productName,
+                orgPrice: product.orgPrice,
+                finalPrice: product.finalPrice,
+                commentCnt: product.commentCnt,
+                mainImgUrl: product.mainImgUrl,
+                discount: {
+                    discountAmount: product.discount.discountAmount,
+                    discountType: product.discount.discountType,
+                },
+            });
+        });
+
+        const resDto: ProductResDto.NewProducts = {
+            products: productDto,
+        };
+
+        return res.status(200).json({
+            message: "success",
+            ...resDto,
+        });
+    }
+
     getWeekendDealDate(): Date {
         const now = new Date();
 

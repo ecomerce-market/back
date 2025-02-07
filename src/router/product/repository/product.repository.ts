@@ -19,6 +19,15 @@ class ProductRepository {
             .limit(pageSize)
             .skip(pageSize * (pageNumer - 1));
     }
+
+    async getNewProducts(pageSize: number, pageNumber: number) {
+        return ProductModel.find({
+            amount: { $gt: 0 },
+        })
+            .sort({ createAt: -1 })
+            .limit(pageSize)
+            .skip(pageSize * (pageNumber - 1));
+    }
 }
 
 const productRepository: ProductRepository = new ProductRepository();

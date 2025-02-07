@@ -16,4 +16,8 @@ namespace ProductResDto {
             discountType: string;
         };
     }
+
+    export interface NewProducts {
+        products: Array<ProductPreview>;
+    }
 }
