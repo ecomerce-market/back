@@ -1,6 +1,6 @@
 namespace ProductReqDto {
     export interface GetCategoryParam {
-        categoryId?: number;
+        id?: number;
         child?: boolean;
         name?: string;
         depth?: number;

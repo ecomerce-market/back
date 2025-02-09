@@ -5,8 +5,8 @@ class ProductCategoryRepository {
         categoryReqParam: ProductReqDto.GetCategoryParam
     ): Promise<any> {
         const where: any = {};
-        if (categoryReqParam.categoryId) {
-            where.categoryId = categoryReqParam.categoryId;
+        if (categoryReqParam.id) {
+            where._id = categoryReqParam.id;
         }
         if (categoryReqParam.name) {
             where.name = categoryReqParam.name;

@@ -108,17 +108,30 @@ class ProductService {
     }
 
     private async transformCategory(category: any): Promise<any> {
-        return {
-            _id: category._id,
-            name: category.name,
-            depth: category.depth,
-            fullPath: await this.buildFullPath(category),
-            childCategories: await Promise.all(
-                category.childCategories.map((child: any) =>
-                    this.transformCategory(child)
-                )
-            ),
-        };
+        const categoryChild: Array<any> = category.childCategories;
+        if (
+            categoryChild.length > 0 &&
+            categoryChild.some((category) => "depth" in category)
+        ) {
+            return {
+                _id: category._id,
+                name: category.name,
+                depth: category.depth,
+                fullPath: await this.buildFullPath(category),
+                childCategories: await Promise.all(
+                    category.childCategories.map((child: any) =>
+                        this.transformCategory(child)
+                    )
+                ),
+            };
+        } else {
+            return {
+                _id: category._id,
+                name: category.name,
+                depth: category.depth,
+                fullPath: await this.buildFullPath(category),
+            };
+        }
     }
 
     private async buildFullPath(category: any): Promise<string> {
