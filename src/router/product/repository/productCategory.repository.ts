@@ -18,6 +18,10 @@ class ProductCategoryRepository {
         const query = productCategoryModel
             .find()
             .where(where)
+            .populate({
+                path: "parentCategory",
+                select: "name depth",
+            })
             .sort({ depth: 1 });
 
         // 카테고리 depth가 가변적인 경우 다른 재귀적 방식이나 lookup을 사용해야 함
@@ -28,12 +32,18 @@ class ProductCategoryRepository {
                 options: {
                     sort: { depth: 1 },
                 },
-                populate: {
-                    path: "childCategories",
-                    options: {
-                        sort: { depth: 1 },
+                populate: [
+                    {
+                        path: "childCategories",
+                        options: {
+                            sort: { depth: 1 },
+                        },
                     },
-                },
+                    {
+                        path: "parentCategory",
+                        select: "name depth",
+                    },
+                ],
             });
         }
 
