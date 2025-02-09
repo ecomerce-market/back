@@ -97,10 +97,35 @@ class ProductService {
         const categories: Array<any> =
             await productCategoryRepository.getCategories(categoryReqParam);
 
+        const categoriesWithPath = await Promise.all(
+            categories.map((category) => this.transformCategory(category))
+        );
+
         return res.status(200).json({
             message: "success",
-            categories,
+            categories: categoriesWithPath,
         });
+    }
+
+    private async transformCategory(category: any): Promise<any> {
+        return {
+            _id: category._id,
+            name: category.name,
+            depth: category.depth,
+            fullPath: await this.buildFullPath(category),
+            childCategories: await Promise.all(
+                category.childCategories.map((child: any) =>
+                    this.transformCategory(child)
+                )
+            ),
+        };
+    }
+
+    private async buildFullPath(category: any): Promise<string> {
+        if (!category.parentCategory) {
+            return category.name;
+        }
+        return `${category.parentCategory.name}>${category.name}`;
     }
 }
 
