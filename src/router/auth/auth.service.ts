@@ -12,9 +12,7 @@ class AuthService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const authorization = req.headers.authorization;
-        console.log("authorization: ", authorization);
-        const token = authorization?.split("Bearer ")[1];
+        const token = this.parseToken(req, res);
         if (!token) {
             res.status(401).json({
                 message: "Unauthorized",
@@ -22,6 +20,7 @@ class AuthService {
             });
             return;
         }
+
         const result = jwtService.validateToken(token);
 
         if (result instanceof Error) {
@@ -50,9 +49,7 @@ class AuthService {
             return;
         }
 
-        const authorization = req.headers.authorization;
-        console.log("authorization: ", authorization);
-        const refreshToken = authorization?.split("Bearer ")[1];
+        const refreshToken = this.parseToken(req, res);
         if (!refreshToken) {
             res.status(401).json({
                 message: "Unauthorized",
@@ -87,6 +84,13 @@ class AuthService {
             });
             return;
         }
+    }
+
+    parseToken(req: Request, res: Response): string | undefined {
+        const authorization = req.headers.authorization;
+        console.log("authorization: ", authorization);
+        const token = authorization?.split("Bearer ")[1];
+        return token;
     }
 }
 

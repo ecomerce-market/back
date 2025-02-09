@@ -1,9 +1,6 @@
 import * as jwt from "jsonwebtoken";
 
 class JwtService {
-    readToken(token: string): any {
-        return jwt.decode(token);
-    }
     readonly secret: string;
     readonly ACCESS_TOKEN_EXPIRE_IN = "1h";
     readonly REFRESH_TOKEN_EXPIRE_IN = "7d";
@@ -23,12 +20,8 @@ class JwtService {
         return { accessToken, refreshToken };
     }
 
-    private writeRefreshToken(payload: object): string {
-        const token = jwt.sign(payload, this.secret, {
-            expiresIn: this.REFRESH_TOKEN_EXPIRE_IN,
-            algorithm: "HS512",
-        });
-        return token;
+    readToken(token: string): any {
+        return jwt.decode(token);
     }
 
     validateToken(token: string): boolean | Error {
@@ -41,6 +34,14 @@ class JwtService {
             }
         }
         return false;
+    }
+
+    private writeRefreshToken(payload: object): string {
+        const token = jwt.sign(payload, this.secret, {
+            expiresIn: this.REFRESH_TOKEN_EXPIRE_IN,
+            algorithm: "HS512",
+        });
+        return token;
     }
 }
 
