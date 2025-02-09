@@ -113,11 +113,14 @@ class UserService {
             });
         }
 
+        const { accessToken, refreshToken } = jwtService.writeToken({
+            loginId: found.loginId,
+            email: found.email,
+        });
+
         return res.status(200).json({
-            jwt: jwtService.writeToken({
-                loginId: found.loginId,
-                email: found.email,
-            }),
+            accessToken,
+            refreshToken,
             name: found.name,
         });
     }
