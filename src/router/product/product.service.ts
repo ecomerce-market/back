@@ -1,4 +1,7 @@
-import { GetCategoryParam, GetEndingSoonParam } from "./dto/product.req.dto";
+import {
+    GetCategoryParamDto,
+    GetEndingSoonParamDto,
+} from "./dto/product.req.dto";
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
@@ -44,7 +47,7 @@ class ProductService {
     }
 
     async getEndingSoon(req: Request, res: Response) {
-        const queries = new GetEndingSoonParam(
+        const queries = new GetEndingSoonParamDto(
             Number(req.query.pageSize),
             Number(req.query.pageOffset)
         );
@@ -135,7 +138,7 @@ class ProductService {
     }
 
     async getCategories(req: Request, res: Response) {
-        const categoryReqParam: GetCategoryParam = req.query;
+        const categoryReqParam: GetCategoryParamDto = req.query;
         console.log(categoryReqParam);
 
         const categories: Array<any> =

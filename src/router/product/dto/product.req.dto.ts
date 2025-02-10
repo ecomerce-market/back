@@ -1,10 +1,10 @@
-export interface GetCategoryParam {
+export interface GetCategoryParamDto {
     id?: number;
     child?: boolean;
     name?: string;
     depth?: number;
 }
-export class GetEndingSoonParam {
+export class GetEndingSoonParamDto {
     pageSize: number;
     pageNumber: number;
 
