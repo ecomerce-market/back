@@ -1,3 +1,4 @@
+import { GetCategoryParam, GetEndingSoonParam } from "./dto/product.req.dto";
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
@@ -27,11 +28,53 @@ class ProductService {
                     discountAmount: product.discount.discountAmount,
                     discountType: product.discount.discountType,
                 },
+                createAt: product.createAt,
             });
         });
 
         const resDto: ProductResDto.WeekendDeals = {
             endDate: this.getWeekendDealDate(),
+            products: productDto,
+        };
+
+        return res.status(200).json({
+            message: "success",
+            ...resDto,
+        });
+    }
+
+    async getEndingSoon(req: Request, res: Response) {
+        const queries = new GetEndingSoonParam(
+            Number(req.query.pageSize),
+            Number(req.query.pageOffset)
+        );
+
+        const products: Array<any> =
+            await productRepository.getEndingSoonProducts(
+                queries.pageSize,
+                queries.pageNumber
+            );
+
+        const productDto: Array<ProductResDto.EndingSoonProduct> = [];
+
+        products.forEach((product) => {
+            productDto.push({
+                productId: product.productId,
+                name: product.productName,
+                orgPrice: product.orgPrice,
+                finalPrice: product.finalPrice,
+                commentCnt: product.commentCnt,
+                mainImgUrl: product.mainImgUrl,
+                discount: {
+                    discountAmount: product.discount.discountAmount,
+                    discountType: product.discount.discountType,
+                },
+                createAt: product.createAt,
+                expirationDate: product.info.expirationDate,
+            });
+        });
+
+        const resDto: ProductResDto.EndingSoon = {
             products: productDto,
         };
 
@@ -63,6 +106,7 @@ class ProductService {
                     discountAmount: product.discount.discountAmount,
                     discountType: product.discount.discountType,
                 },
+                createAt: product.createAt,
             });
         });
 
@@ -91,7 +135,7 @@ class ProductService {
     }
 
     async getCategories(req: Request, res: Response) {
-        const categoryReqParam: ProductReqDto.GetCategoryParam = req.query;
+        const categoryReqParam: GetCategoryParam = req.query;
         console.log(categoryReqParam);
 
         const categories: Array<any> =
