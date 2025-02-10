@@ -1,5 +1,3 @@
-namespace ProductReqDto {}
-
 export interface GetCategoryParam {
     id?: number;
     child?: boolean;
