@@ -1,6 +1,22 @@
 import { ProductModel } from "../model/product.schema";
 
 class ProductRepository {
+    async getEndingSoonProducts(pageSize: number, pageNumber: number) {
+        return ProductModel.find({
+            amount: { $gt: 0 },
+            "info.expirationDate": {
+                $exists: true,
+                $ne: null,
+                $gte: new Date(),
+            },
+        })
+            .sort({
+                "info.expirationDate": 1,
+                createAt: -1,
+            })
+            .limit(pageSize)
+            .skip(pageSize * (pageNumber - 1));
+    }
     async getWeekendDealProducts(
         now: Date,
         pageSize: number,

@@ -57,6 +57,7 @@ export const procuctSchema = new Schema(
             packageDescription: String, // 포장 설명
             productOrigin: String, // 원산지
             extraDescription: String, // 기타 설명
+            expirationDate: Date, // 유통기한
         },
         options: {
             optName: String,

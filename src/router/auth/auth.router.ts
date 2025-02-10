@@ -18,4 +18,15 @@ authRouter.post(
     }
 );
 
+authRouter.post(
+    PATH_AUTH + "/refresh",
+    header("Authorization")
+        .exists({ values: "null" })
+        .isString()
+        .contains("Bearer "),
+    (req: Request, res: Response) => {
+        return authService.recreateAccessToken(req, res);
+    }
+);
+
 export default authRouter;

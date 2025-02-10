@@ -120,7 +120,10 @@
                         schema:
                             type: object
                             properties:
-                                token:
+                                accessToken:
+                                    type: string
+                                    example: jwt_token
+                                refreshToken:
                                     type: string
                                     example: jwt_token
             400:
