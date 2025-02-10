@@ -1,9 +1,8 @@
+import { GetCategoryParamDto } from "../dto/product.req.dto";
 import { productCategoryModel } from "../model/productCategory.schema";
 
 class ProductCategoryRepository {
-    async getCategories(
-        categoryReqParam: ProductReqDto.GetCategoryParam
-    ): Promise<any> {
+    async getCategories(categoryReqParam: GetCategoryParamDto): Promise<any> {
         const where: any = {};
         if (categoryReqParam.id) {
             where._id = categoryReqParam.id;
