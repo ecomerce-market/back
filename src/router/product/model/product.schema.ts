@@ -67,9 +67,12 @@ export const procuctSchema = new Schema(
         },
         mainImgUrl: String, // 메인 이미지
         detailInfoHtml: String, // 상세 정보 (상세 페이지 html)
-        // categories: [
-
-        // ]
+        categories: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "productCategory",
+            },
+        ],
     },
     {
         autoCreate: true,
