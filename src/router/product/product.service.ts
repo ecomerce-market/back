@@ -1,12 +1,58 @@
 import {
     GetCategoryParamDto,
     GetEndingSoonParamDto,
+    GetProductDto,
+    ProductSortType,
 } from "./dto/product.req.dto";
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
 
 class ProductService {
+    async getProducts(req: Request, res: Response) {
+        const reqParam: GetProductDto = new GetProductDto(
+            Number(req.query.pageSize),
+            Number(req.query.pageNumber),
+            String(req.query.categoryId),
+            String(req.query.sort),
+            String(req.query.name)
+        );
+
+        const { products, totalItems } =
+            await productRepository.getProducts(reqParam);
+
+        const productDto: Array<ProductResDto.ProductPreview> = [];
+
+        products.forEach((product) => {
+            productDto.push({
+                productId: product.productId,
+                name: product.productName,
+                orgPrice: product.orgPrice,
+                finalPrice: product.finalPrice,
+                commentCnt: product.commentCnt,
+                mainImgUrl: product.mainImgUrl,
+                discount: {
+                    discountAmount: product.discount?.discountAmount,
+                    discountType: product.discount?.discountType,
+                },
+                createAt: product.createAt,
+            });
+        });
+
+        const resDto: ProductResDto.Products = {
+            products: productDto,
+            totalItems,
+            totalPages: Math.ceil(totalItems / reqParam.pageSize),
+            currItem: productDto.length,
+            currPage: reqParam.pageNumber,
+        };
+
+        return res.status(200).json({
+            message: "success",
+            ...resDto,
+        });
+    }
+
     async getWeekendDeals(req: Request, res: Response) {
         const pageSize = Number(req.query.pageSize) || 10;
         const pageNumber = Number(req.query.pageNumber) || 1;
