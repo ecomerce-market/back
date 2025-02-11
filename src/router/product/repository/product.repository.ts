@@ -4,6 +4,7 @@ import {
     ProductSortKey,
 } from "../dto/product.req.dto";
 import { ProductModel } from "../model/product.schema";
+import * as mongoose from "mongoose";
 
 class ProductRepository {
     async getAllProducts(query?: any) {
@@ -37,7 +38,7 @@ class ProductRepository {
             reqParam.categoryId !== "undefined" &&
             reqParam.categoryId !== "null"
         ) {
-            query.categories = reqParam.categoryId;
+            query.categories = new mongoose.Types.ObjectId(reqParam.categoryId);
         }
 
         if (
