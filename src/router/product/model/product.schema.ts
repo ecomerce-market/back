@@ -3,7 +3,8 @@ import { start } from "repl";
 
 export const procuctSchema = new Schema(
     {
-        productId: Schema.Types.ObjectId,
+        // productId: Schema.Types.ObjectId, // _id로 대체
+        _id: Schema.Types.ObjectId,
         productName: {
             type: String,
             required: true,
