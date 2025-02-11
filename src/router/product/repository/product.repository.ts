@@ -7,7 +7,11 @@ class ProductRepository {
             amount: { $gt: 0 },
         };
 
-        if (reqParam.categoryId !== undefined && reqParam.categoryId) {
+        if (
+            reqParam.categoryId &&
+            reqParam.categoryId !== "undefined" &&
+            reqParam.categoryId !== "null"
+        ) {
             query.categories = reqParam.categoryId;
         }
 

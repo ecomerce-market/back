@@ -13,8 +13,9 @@ export class GetProductDto extends PageQueryParam {
 
     constructor(pageSize: number, pageNumber: number, categoryId: string) {
         super(pageSize, pageNumber);
-        if (categoryId !== undefined && categoryId) {
-            this.categoryId = categoryId;
-        }
+        this.categoryId = categoryId ?? null;
+        // if (categoryId !== undefined && categoryId) {
+        //     this.categoryId = categoryId;
+        // }
     }
 }
