@@ -1,6 +1,21 @@
+import { GetCategoryParamDto, GetProductDto } from "../dto/product.req.dto";
 import { ProductModel } from "../model/product.schema";
 
 class ProductRepository {
+    async getProducts(reqParam: GetProductDto) {
+        const query: any = {
+            amount: { $gt: 0 },
+        };
+
+        if (reqParam.categoryId !== undefined && reqParam.categoryId) {
+            query.categories = reqParam.categoryId;
+        }
+
+        return ProductModel.find(query)
+            .sort({ createAt: -1 })
+            .limit(reqParam.pageSize)
+            .skip(reqParam.pageSize * (reqParam.pageNumber - 1));
+    }
     async getEndingSoonProducts(pageSize: number, pageNumber: number) {
         return ProductModel.find({
             amount: { $gt: 0 },
