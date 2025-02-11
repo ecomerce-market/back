@@ -21,9 +21,6 @@ class ProductService {
         const { products, totalItems } =
             await productRepository.getProducts(reqParam);
 
-        const allProducts: Array<any> =
-            await productRepository.getAllProducts();
-
         const productDto: Array<ProductResDto.ProductPreview> = [];
 
         products.forEach((product) => {
