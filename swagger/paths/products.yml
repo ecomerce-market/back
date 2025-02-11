@@ -19,7 +19,12 @@
               name: categoryId
               schema:
                   type: string
-              description: 카테고리 ID (미입력시 전체 상품 조회)
+              description: 카테고리 ID (미입력시 전체 상품 조회
+            - in: query
+              name: name
+              schema:
+                  type: string
+              description: 상품명 (포함된 상품명 조회)
             - in: query
               name: sort
               schema:
