@@ -9,21 +9,6 @@ export interface GetCategoryParamDto {
 }
 export class GetEndingSoonParamDto extends PageQueryParam {}
 
-// export enum ProductSortType {
-//     // 추천순
-//     RECOMMEND = "recommend",
-//     // 신상품순
-//     NEW = "new",
-//     // 판매량순
-//     POPULAR = "popular",
-//     // 혜택순
-//     DISCOUNT = "discount",
-//     // LOW_PRICE
-//     LOW_PRICE = "low_price",
-//     // HIGH_PRICE
-//     HIGH_PRICE = "high_price",
-// }
-
 export const ProductSortKey = {
     RECOMMEND: {
         likeCnt: -1,
@@ -51,12 +36,14 @@ export type ProductSortType =
 export class GetProductDto extends PageQueryParam {
     categoryId: string;
     sort: ProductSortType;
+    name: string;
 
     constructor(
         pageSize: number,
         pageNumber: number,
         categoryId: string,
-        sort: string
+        sort: string,
+        name: string
     ) {
         super(pageSize, pageNumber);
         this.categoryId = categoryId ?? null;
@@ -65,6 +52,6 @@ export class GetProductDto extends PageQueryParam {
             ? ProductSortKey[sort as keyof typeof ProductSortKey]
             : ProductSortKey.RECOMMEND;
 
-        console.log("sort: ", this.sort);
+        this.name = name ?? null;
     }
 }

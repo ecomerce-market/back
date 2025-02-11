@@ -14,10 +14,11 @@ class ProductService {
             Number(req.query.pageSize),
             Number(req.query.pageNumber),
             String(req.query.categoryId),
-            String(req.query.sort)
+            String(req.query.sort),
+            String(req.query.name)
         );
 
-        const products: Array<any> =
+        const { products, totalItems } =
             await productRepository.getProducts(reqParam);
 
         const allProducts: Array<any> =
@@ -43,10 +44,10 @@ class ProductService {
 
         const resDto: ProductResDto.Products = {
             products: productDto,
-            totalPages: Math.ceil(allProducts.length / reqParam.pageSize),
-            totalItems: allProducts.length,
-            currPage: reqParam.pageNumber,
+            totalItems,
+            totalPages: Math.ceil(totalItems / reqParam.pageSize),
             currItem: productDto.length,
+            currPage: reqParam.pageNumber,
         };
 
         return res.status(200).json({
