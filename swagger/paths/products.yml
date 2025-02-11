@@ -207,24 +207,25 @@
                                                     description: 유통기한 (상품 유통기한이 있는 경우)
                                         options:
                                             type: array
-                                            description: 상품 옵션
-                                            properties:
-                                                optName:
-                                                    type: string
-                                                    example: "옵션명"
-                                                    description: 옵션명
-                                                optOrgPrice:
-                                                    type: number
-                                                    example: 10000
-                                                    description: 옵션 정가
-                                                additionalPrice:
-                                                    type: integer
-                                                    example: 9000
-                                                    description: 옵션 추가 금액
-                                                optAmount:
-                                                    type: integer
-                                                    example: 10
-                                                    description: 옵션 수량
+                                            items:
+                                                type: object
+                                                properties:
+                                                    optName:
+                                                        type: string
+                                                        example: "옵션명"
+                                                        description: 옵션명
+                                                    optOrgPrice:
+                                                        type: number
+                                                        example: 10000
+                                                        description: 옵션 정가
+                                                    additionalPrice:
+                                                        type: integer
+                                                        example: 9000
+                                                        description: 옵션 추가 금액
+                                                    optAmount:
+                                                        type: integer
+                                                        example: 10
+                                                        description: 옵션 수량
                                         mainImgUrl:
                                             type: string
                                             example: "https://image.url"
