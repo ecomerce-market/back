@@ -28,6 +28,10 @@ namespace ProductResDto {
 
     export interface Products {
         products: Array<ProductPreview>;
+        totalPages: number;
+        totalItems: number;
+        currPage: number;
+        currItem: number;
     }
 
     export interface NewProducts {

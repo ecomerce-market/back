@@ -18,6 +18,9 @@ class ProductService {
         const products: Array<any> =
             await productRepository.getProducts(reqParam);
 
+        const allProducts: Array<any> =
+            await productRepository.getAllProducts();
+
         const productDto: Array<ProductResDto.ProductPreview> = [];
 
         products.forEach((product) => {
@@ -38,6 +41,10 @@ class ProductService {
 
         const resDto: ProductResDto.Products = {
             products: productDto,
+            totalPages: Math.ceil(allProducts.length / reqParam.pageSize),
+            totalItems: allProducts.length,
+            currPage: reqParam.pageNumber,
+            currItem: productDto.length,
         };
 
         return res.status(200).json({

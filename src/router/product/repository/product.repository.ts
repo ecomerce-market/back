@@ -2,6 +2,11 @@ import { GetCategoryParamDto, GetProductDto } from "../dto/product.req.dto";
 import { ProductModel } from "../model/product.schema";
 
 class ProductRepository {
+    async getAllProducts() {
+        return ProductModel.find({
+            amount: { $gt: 0 },
+        });
+    }
     async getProducts(reqParam: GetProductDto) {
         const query: any = {
             amount: { $gt: 0 },
