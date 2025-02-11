@@ -11,6 +11,11 @@ productRouter.get(PATH_PRODUCTS, (req, res) => {
     productService.getProducts(req, res);
 });
 
+// 상품 상세 조회
+productRouter.get(PATH_PRODUCTS + "/:productId", (req, res) => {
+    productService.getProductDetail(req, res);
+});
+
 // 상품에 대한 카테고리 조회
 productRouter.get(PATH_PRODUCTS + "/categories", (req, res) => {
     productService.getCategories(req, res);
