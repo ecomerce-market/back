@@ -26,6 +26,10 @@ namespace ProductResDto {
         expirationDate: Date;
     };
 
+    export interface Products {
+        products: Array<ProductPreview>;
+    }
+
     export interface NewProducts {
         products: Array<ProductPreview>;
     }
