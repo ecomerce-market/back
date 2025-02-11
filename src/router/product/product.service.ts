@@ -7,6 +7,7 @@ import {
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
+import { ProductModel } from "./model/product.schema";
 
 class ProductService {
     async getProducts(req: Request, res: Response) {
@@ -25,7 +26,7 @@ class ProductService {
 
         products.forEach((product) => {
             productDto.push({
-                productId: product.productId,
+                productId: product._id,
                 name: product.productName,
                 orgPrice: product.orgPrice,
                 finalPrice: product.finalPrice,
@@ -53,6 +54,58 @@ class ProductService {
         });
     }
 
+    async getProductDetail(req: Request, res: Response) {
+        const productId = req.params.productId;
+        if (!productId) {
+            return res.status(400).json({
+                message: "productId is required",
+                code: "E101",
+            });
+        }
+
+        try {
+            const product: any =
+                await productRepository.getProductById(productId);
+
+            const productWithCategories: any = await ProductModel.populate(
+                product,
+                {
+                    path: "categories",
+                }
+            );
+
+            const productWithCategories_doc = productWithCategories._doc;
+
+            const { _id, __v, ...rest } = productWithCategories_doc;
+
+            // product는 가지고 있는 컬럼이 많으므로 _id컬럼만 productId로 변경 후 반환
+            const productDto = {
+                productId: _id,
+                ...rest,
+            };
+
+            if (!product) {
+                return res.status(404).json({
+                    message: `product ${productId} is not found`,
+                    code: "E102",
+                });
+            }
+
+            return res.status(200).json({
+                message: "success",
+                product: productDto,
+            });
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(error);
+            }
+            return res.status(500).json({
+                message: "server error",
+                code: "E999",
+            });
+        }
+    }
+
     async getWeekendDeals(req: Request, res: Response) {
         const pageSize = Number(req.query.pageSize) || 10;
         const pageNumber = Number(req.query.pageNumber) || 1;
@@ -67,7 +120,7 @@ class ProductService {
 
         products.forEach((product) => {
             productDto.push({
-                productId: product.productId,
+                productId: product._id,
                 name: product.productName,
                 orgPrice: product.orgPrice,
                 finalPrice: product.finalPrice,
@@ -108,7 +161,7 @@ class ProductService {
 
         products.forEach((product) => {
             productDto.push({
-                productId: product.productId,
+                productId: product._id,
                 name: product.productName,
                 orgPrice: product.orgPrice,
                 finalPrice: product.finalPrice,
@@ -145,7 +198,7 @@ class ProductService {
 
         products.forEach((product) => {
             productDto.push({
-                productId: product.productId,
+                productId: product._id,
                 name: product.productName,
                 orgPrice: product.orgPrice,
                 finalPrice: product.finalPrice,

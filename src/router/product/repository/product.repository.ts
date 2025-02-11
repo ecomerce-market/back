@@ -7,6 +7,11 @@ import { ProductModel } from "../model/product.schema";
 import * as mongoose from "mongoose";
 
 class ProductRepository {
+    async getProductById(productId: string) {
+        return ProductModel.findOne({
+            _id: new mongoose.Types.ObjectId(productId),
+        });
+    }
     async getAllProducts(query?: any) {
         const queryObj: any = query ?? {};
 
