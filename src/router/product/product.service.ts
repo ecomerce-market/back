@@ -2,6 +2,7 @@ import {
     GetCategoryParamDto,
     GetEndingSoonParamDto,
     GetProductDto,
+    ProductSortType,
 } from "./dto/product.req.dto";
 import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
@@ -12,7 +13,8 @@ class ProductService {
         const reqParam: GetProductDto = new GetProductDto(
             Number(req.query.pageSize),
             Number(req.query.pageNumber),
-            String(req.query.categoryId)
+            String(req.query.categoryId),
+            String(req.query.sort)
         );
 
         const products: Array<any> =
@@ -32,8 +34,8 @@ class ProductService {
                 commentCnt: product.commentCnt,
                 mainImgUrl: product.mainImgUrl,
                 discount: {
-                    discountAmount: product.discount.discountAmount,
-                    discountType: product.discount.discountType,
+                    discountAmount: product.discount?.discountAmount,
+                    discountType: product.discount?.discountType,
                 },
                 createAt: product.createAt,
             });

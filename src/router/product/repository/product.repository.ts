@@ -1,4 +1,8 @@
-import { GetCategoryParamDto, GetProductDto } from "../dto/product.req.dto";
+import {
+    GetCategoryParamDto,
+    GetProductDto,
+    ProductSortKey,
+} from "../dto/product.req.dto";
 import { ProductModel } from "../model/product.schema";
 
 class ProductRepository {
@@ -12,6 +16,21 @@ class ProductRepository {
             amount: { $gt: 0 },
         };
 
+        const aggreateQueries: any[] = [
+            {
+                $match: query,
+            },
+            {
+                $sort: reqParam.sort,
+            },
+            {
+                $limit: reqParam.pageSize,
+            },
+            {
+                $skip: reqParam.pageSize * (reqParam.pageNumber - 1),
+            },
+        ];
+
         if (
             reqParam.categoryId &&
             reqParam.categoryId !== "undefined" &&
@@ -20,10 +39,18 @@ class ProductRepository {
             query.categories = reqParam.categoryId;
         }
 
-        return ProductModel.find(query)
-            .sort({ createAt: -1 })
-            .limit(reqParam.pageSize)
-            .skip(reqParam.pageSize * (reqParam.pageNumber - 1));
+        if (reqParam.sort === ProductSortKey.DISCOUNT) {
+            // 할인율 순인 경우 질의 간 계산한 필드를 추가
+            aggreateQueries.push({
+                $addFields: {
+                    discountGap: {
+                        $subtract: ["$orgPrice", "$finalPrice"],
+                    },
+                },
+            });
+        }
+
+        return ProductModel.aggregate(aggreateQueries);
     }
     async getEndingSoonProducts(pageSize: number, pageNumber: number) {
         return ProductModel.find({
