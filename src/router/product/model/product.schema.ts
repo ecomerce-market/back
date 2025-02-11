@@ -60,12 +60,14 @@ export const procuctSchema = new Schema(
             extraDescription: String, // 기타 설명
             expirationDate: Date, // 유통기한
         },
-        options: {
-            optName: String,
-            optOrgPrice: Number,
-            additionalPrice: Number,
-            optAmount: Number,
-        },
+        options: [
+            {
+                optName: String,
+                optOrgPrice: Number,
+                additionalPrice: Number,
+                optAmount: Number,
+            },
+        ],
         mainImgUrl: String, // 메인 이미지
         detailInfoHtml: String, // 상세 정보 (상세 페이지 html)
         categories: [
