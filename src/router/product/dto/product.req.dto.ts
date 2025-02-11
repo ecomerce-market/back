@@ -1,15 +1,20 @@
+import { PageQueryParam } from "../../../common/dto/common.req.dto";
+
 export interface GetCategoryParamDto {
     id?: number;
     child?: boolean;
     name?: string;
     depth?: number;
 }
-export class GetEndingSoonParamDto {
-    pageSize: number;
-    pageNumber: number;
+export class GetEndingSoonParamDto extends PageQueryParam {}
 
-    constructor(pageSize: number, pageOffset: number) {
-        this.pageSize = pageSize ?? 10;
-        this.pageNumber = pageOffset ?? 1;
+export class GetProductDto extends PageQueryParam {
+    categoryId?: string;
+
+    constructor(pageSize: number, pageNumber: number, categoryId: string) {
+        super(pageSize, pageNumber);
+        if (categoryId !== undefined && categoryId) {
+            this.categoryId = categoryId;
+        }
     }
 }
