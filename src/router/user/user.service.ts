@@ -80,6 +80,7 @@ class UserService {
         const userInventory = new userInventoryModel({
             userId: user._id,
             coupons: [],
+            likeProducts: [],
         });
         user.inventory = userInventory._id;
 

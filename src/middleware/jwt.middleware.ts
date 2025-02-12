@@ -37,6 +37,26 @@ class JwtMiddleware {
             next();
         }
     }
+
+    async optionalJwtMiddleWare(
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+    ) {
+        const authorization = req.headers.authorization;
+        const token = authorization?.split("Bearer ")[1];
+        if (!token) {
+            next();
+            return;
+        }
+        const result = jwtService.validateToken(token);
+
+        if (!(result instanceof Error) && result) {
+            const decoded = jwtService.readToken(token);
+            req.headers["X-Request-user-id"] = decoded.loginId;
+        }
+        next();
+    }
 }
 
 const jwtMiddleware = new JwtMiddleware();

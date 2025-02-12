@@ -8,8 +8,146 @@ import { Request, Response } from "express";
 import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
 import { ProductModel } from "./model/product.schema";
+import userRepository from "../../router/user/repository/user.repository";
+import { userModel } from "../../router/user/model/user.scheme";
+import * as mongoose from "mongoose";
 
 class ProductService {
+    async likeProduct(req: Request, res: Response) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const productId = req.params.productId;
+        if (!productId) {
+            return res.status(400).json({
+                message: "productId is required",
+                code: "E101",
+            });
+        }
+
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userWithInven = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        try {
+            const product: any =
+                await productRepository.getProductById(productId);
+
+            if (!product) {
+                return res.status(404).json({
+                    message: `product ${productId} is not found`,
+                    code: "E102",
+                });
+            }
+
+            if (!userWithInven.inventory.likeProducts) {
+                userWithInven.inventory.likeProducts = [];
+            }
+
+            console.log(userWithInven.inventory.likeProducts);
+
+            if (
+                userWithInven.inventory.likeProducts.some(
+                    (likeProduct: any) =>
+                        likeProduct.product?.toString() === productId || // optional chaining 추가
+                        likeProduct.product === productId // 문자열 직접 비교도 추가
+                )
+            ) {
+                return res.status(400).json({
+                    message: `product ${productId} is already liked`,
+                    code: "E103",
+                });
+            } else {
+                userWithInven.inventory.likeProducts.push({
+                    product: productId,
+                    createAt: new Date(),
+                });
+                await userWithInven.inventory.save();
+                product.likeCnt += 1;
+                productRepository.updateOne(product);
+                return res.status(200).json({
+                    message: "like success",
+                });
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(error);
+            }
+            return res.status(500).json({
+                message: "server error",
+                code: "E999",
+            });
+        }
+    }
+
+    async unlikeProduct(req: Request, res: Response) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const productId = req.params.productId;
+        if (!productId) {
+            return res.status(400).json({
+                message: "productId is required",
+                code: "E101",
+            });
+        }
+
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userWithInven = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        try {
+            const product: any =
+                await productRepository.getProductById(productId);
+
+            if (!product) {
+                return res.status(404).json({
+                    message: `product ${productId} is not found`,
+                    code: "E102",
+                });
+            }
+
+            if (!userWithInven.inventory.likeProducts) {
+                userWithInven.inventory.likeProducts = [];
+            }
+
+            console.log(userWithInven.inventory.likeProducts);
+
+            if (
+                userWithInven.inventory.likeProducts.some(
+                    (likeProduct: any) =>
+                        likeProduct.product?.toString() === productId || // optional chaining 추가
+                        likeProduct.product === productId // 문자열 직접 비교도 추가
+                )
+            ) {
+                userWithInven.inventory.likeProducts =
+                    userWithInven.inventory.likeProducts.filter(
+                        (likeProduct: any) =>
+                            likeProduct.product?.toString() !== productId
+                    );
+                await userWithInven.inventory.save();
+                product.likeCnt -= 1;
+                productRepository.updateOne(product);
+                return res.status(200).json({
+                    message: "unlike success",
+                });
+            } else {
+                return res.status(400).json({
+                    message: `product ${productId} is not liked`,
+                    code: "E104",
+                });
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error(error);
+            }
+            return res.status(500).json({
+                message: "server error",
+                code: "E999",
+            });
+        }
+    }
+
     async getProducts(req: Request, res: Response) {
         const reqParam: GetProductDto = new GetProductDto(
             Number(req.query.pageSize),
