@@ -193,6 +193,15 @@ class ProductService {
     }
 
     async getProductDetail(req: Request, res: Response) {
+        const loginId = req.headers["X-Request-user-id"]
+            ? (req.headers["X-Request-user-id"] as string)
+            : null;
+
+        let liked: Promise<boolean> = Promise.resolve(false);
+        if (loginId) {
+            liked = this.checkLikedProduct(loginId, req.params.productId);
+        }
+
         const productId = req.params.productId;
         if (!productId) {
             return res.status(400).json({
@@ -220,6 +229,7 @@ class ProductService {
             const productDto = {
                 productId: _id,
                 ...rest,
+                myLiked: await liked, // 내 좋아요 여부
             };
 
             if (!product) {
@@ -389,6 +399,22 @@ class ProductService {
             message: "success",
             categories: categoriesWithPath,
         });
+    }
+
+    private async checkLikedProduct(
+        loginId: string,
+        productId: string
+    ): Promise<boolean> {
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userWithInven = await userModel.populate(user, {
+            path: "inventory",
+        });
+        return (userWithInven.inventory.likeProducts as Array<any>).some(
+            (likeProduct: any) =>
+                likeProduct.product?.toString() === productId || // optional chaining 추가
+                likeProduct.product === productId // 문자열 직접 비교도 추가
+        );
     }
 
     private async transformCategory(category: any): Promise<any> {

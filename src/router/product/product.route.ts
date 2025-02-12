@@ -13,9 +13,13 @@ productRouter.get(PATH_PRODUCTS, (req, res) => {
 });
 
 // 상품 상세 조회
-productRouter.get(PATH_PRODUCTS + "/:productId", (req, res) => {
-    productService.getProductDetail(req, res);
-});
+productRouter.get(
+    PATH_PRODUCTS + "/:productId",
+    jwtMiddleware.optionalJwtMiddleWare,
+    (req, res) => {
+        productService.getProductDetail(req, res);
+    }
+);
 
 // 상품 좋아요
 productRouter.post(
