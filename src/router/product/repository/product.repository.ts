@@ -7,6 +7,14 @@ import { ProductModel } from "../model/product.schema";
 import * as mongoose from "mongoose";
 
 class ProductRepository {
+    async updateOne(product: any) {
+        return ProductModel.updateOne(
+            {
+                _id: product._id,
+            },
+            product
+        );
+    }
     async getProductById(productId: string) {
         return ProductModel.findOne({
             _id: new mongoose.Types.ObjectId(productId),
