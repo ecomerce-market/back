@@ -3,7 +3,8 @@ import { start } from "repl";
 
 export const procuctSchema = new Schema(
     {
-        productId: Schema.Types.ObjectId,
+        // productId: Schema.Types.ObjectId, // _id로 대체
+        _id: Schema.Types.ObjectId,
         productName: {
             type: String,
             required: true,
@@ -59,17 +60,22 @@ export const procuctSchema = new Schema(
             extraDescription: String, // 기타 설명
             expirationDate: Date, // 유통기한
         },
-        options: {
-            optName: String,
-            optOrgPrice: Number,
-            additionalPrice: Number,
-            optAmount: Number,
-        },
+        options: [
+            {
+                optName: String,
+                optOrgPrice: Number,
+                additionalPrice: Number,
+                optAmount: Number,
+            },
+        ],
         mainImgUrl: String, // 메인 이미지
         detailInfoHtml: String, // 상세 정보 (상세 페이지 html)
-        // categories: [
-
-        // ]
+        categories: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "productCategory",
+            },
+        ],
     },
     {
         autoCreate: true,
