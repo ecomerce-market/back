@@ -5,10 +5,15 @@ import * as YAML from "yamljs";
 const mergeYamlFiles = () => {
     const baseSwagger = YAML.load("swagger/swagger.yml");
 
-    const userPath = YAML.load("swagger/paths/users.yml");
-    const authPath = YAML.load("swagger/paths/auth.yml");
-    const productPath = YAML.load("swagger/paths/products.yml");
-    const bannerPath = YAML.load("swagger/paths/banners.yml");
+    const PREFIX = "swagger/paths/";
+
+    const userPath = YAML.load(PREFIX + "users/users.yml");
+    const authPath = YAML.load(PREFIX + "/auth/auth.yml");
+    const productPath = YAML.load(PREFIX + "/products/products.yml");
+    const productProductIdPath = YAML.load(
+        PREFIX + "/products/productId/productId.yml"
+    );
+    const bannerPath = YAML.load(PREFIX + "/banners/banners.yml");
 
     return {
         ...baseSwagger,
@@ -16,6 +21,7 @@ const mergeYamlFiles = () => {
             ...authPath,
             ...userPath,
             ...productPath,
+            ...productProductIdPath,
             ...bannerPath,
         },
     };
