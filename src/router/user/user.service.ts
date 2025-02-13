@@ -9,9 +9,53 @@ import validateMiddleware from "../../middleware/validate.middleware";
 import userInventoryRepository from "./repository/userInventory.repository";
 import { userAddressModel } from "./model/userAddress.schema";
 import userAddressRepository from "./repository/userAddress.repository";
+import * as mongoose from "mongoose";
 
 class UserService {
     constructor() {}
+
+    async updateUserDefaultAddress(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const addressId: string = req.params.addressId;
+
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userFullData = await userModel.populate(user, {
+            path: "addresses",
+        });
+
+        const targetAddress = (userFullData.addresses as Array<any>).find(
+            (address) =>
+                (address._id as mongoose.Types.ObjectId).equals(addressId)
+        );
+        if (!targetAddress) {
+            return res.status(404).json({
+                message: `address ${addressId} not found`,
+                code: "E006",
+            });
+        }
+
+        userFullData.addresses.forEach(async (address: any) => {
+            if ((address._id as mongoose.Types.ObjectId).equals(addressId)) {
+                address.defaultAddr = true;
+            } else {
+                address.defaultAddr = false;
+            }
+        });
+
+        userAddressRepository.updateBulk(userFullData.addresses);
+        return res.status(200).json({
+            message: "update success",
+        });
+    }
 
     async addUserAddress(req: Request, res: Response) {
         const loginId = req.headers["X-Request-user-id"] as string;

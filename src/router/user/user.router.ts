@@ -1,7 +1,7 @@
 import { PATH_USERS } from "./../router.constants";
 import { Router, Request, Response } from "express";
 import UserService from "./user.service";
-import { body } from "express-validator";
+import { body, param } from "express-validator";
 import jwtMiddleware from "../../middleware/jwt.middleware";
 
 const userRouter: Router = Router();
@@ -80,6 +80,7 @@ userRouter.post(
     }
 );
 
+// 사용자 주소 목록 조회
 userRouter.get(
     PATH_USERS + "/addresses",
     jwtMiddleware.jwtMiddleWare,
@@ -87,14 +88,11 @@ userRouter.get(
         userService.getUserAddresses(req, res);
     }
 );
+
+// 사용자 주소 추가
 userRouter.post(
     PATH_USERS + "/addresses",
     jwtMiddleware.jwtMiddleWare,
-    /* 
-            address: string;
-        extraAddr: string;
-        isDefault: boolean;
-        */
     body("address")
         .exists({ values: "null" })
         .isString()
@@ -106,6 +104,16 @@ userRouter.post(
     body("isDefault").exists({ values: "null" }).isBoolean(),
     (req: Request, res: Response) => {
         userService.addUserAddress(req, res);
+    }
+);
+
+// 사용자 주소 기본 주소 수정
+userRouter.patch(
+    PATH_USERS + "/addresses/:addressId",
+    jwtMiddleware.jwtMiddleWare,
+    param("addressId").exists({ values: "null" }).isString().isMongoId(),
+    (req: Request, res: Response) => {
+        userService.updateUserDefaultAddress(req, res);
     }
 );
 
