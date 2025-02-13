@@ -8,6 +8,7 @@
         "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
         "prestart": "npm run build",
+        "debug": "tsc-watch --onSuccess \"node --inspect-brk --env-file=.env dist/main.js\"",
         "start:dev": "tsc-watch --onSuccess \"node --env-file=.env dist/main.js\"",
         "start": "node --env-file=.env.production dist/main.js"
     },
