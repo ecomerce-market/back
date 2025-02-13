@@ -13,6 +13,37 @@ import userAddressRepository from "./repository/userAddress.repository";
 class UserService {
     constructor() {}
 
+    async getUserAddresses(req: Request, res: Response) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userFullData = await userModel.populate(user, {
+            path: "addresses",
+        });
+
+        const addresses: Array<any> = userFullData.addresses?.map(
+            (address: any) => {
+                return {
+                    addressId: address._id,
+                    address: address.address,
+                    extraAddr: address.extraAddress,
+                    defaultAddr: address.defaultAddr,
+                };
+            }
+        );
+
+        const sorted = addresses?.sort((a, b) => {
+            if (a.defaultAddr) {
+                return -1;
+            }
+            return 1;
+        });
+
+        return res.status(200).json({
+            message: "success",
+            addresses: sorted,
+        });
+    }
+
     async existsUser(
         req: Request<
             import("express-serve-static-core").ParamsDictionary,

@@ -80,4 +80,12 @@ userRouter.post(
     }
 );
 
+userRouter.get(
+    PATH_USERS + "/addresses",
+    jwtMiddleware.jwtMiddleWare,
+    (req: Request, res: Response) => {
+        userService.getUserAddresses(req, res);
+    }
+);
+
 export default userRouter;
