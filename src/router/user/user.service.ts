@@ -13,6 +13,44 @@ import userAddressRepository from "./repository/userAddress.repository";
 class UserService {
     constructor() {}
 
+    async addUserAddress(req: Request, res: Response) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userFullData = await userModel.populate(user, {
+            path: "addresses",
+        });
+
+        const body: UserReqDto.UserAddress = req.body;
+
+        const newAddress = new userAddressModel({
+            address: body.address,
+            extraAddress: body.extraAddr ?? null,
+            defaultAddr: body.isDefault,
+        });
+
+        if (!Array.isArray(userFullData.addresses)) {
+            userFullData.addresses = [];
+        }
+
+        if (body.isDefault) {
+            userFullData.addresses.forEach(async (address: any) => {
+                if (address.defaultAddr) {
+                    address.defaultAddr = false;
+                    await userAddressRepository.update(address);
+                }
+            });
+        }
+
+        await userAddressRepository.save(newAddress);
+
+        userFullData.addresses.push(newAddress);
+        await userRepository.update(userFullData);
+
+        return res.status(200).json({
+            message: "new address added success",
+        });
+    }
+
     async getUserAddresses(req: Request, res: Response) {
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);

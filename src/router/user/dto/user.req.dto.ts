@@ -26,4 +26,10 @@ namespace UserReqDto {
         phone?: string;
         birth?: string;
     }
+
+    export interface UserAddress {
+        address: string;
+        extraAddr: string;
+        isDefault: boolean;
+    }
 }

@@ -87,5 +87,26 @@ userRouter.get(
         userService.getUserAddresses(req, res);
     }
 );
+userRouter.post(
+    PATH_USERS + "/addresses",
+    jwtMiddleware.jwtMiddleWare,
+    /* 
+            address: string;
+        extraAddr: string;
+        isDefault: boolean;
+        */
+    body("address")
+        .exists({ values: "null" })
+        .isString()
+        .isLength({ max: 1024 }),
+    body("extraAddr")
+        .exists({ values: "null" })
+        .isString()
+        .isLength({ max: 1024 }),
+    body("isDefault").exists({ values: "null" }).isBoolean(),
+    (req: Request, res: Response) => {
+        userService.addUserAddress(req, res);
+    }
+);
 
 export default userRouter;
