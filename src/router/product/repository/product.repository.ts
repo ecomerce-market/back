@@ -7,6 +7,14 @@ import { ProductModel } from "../model/product.schema";
 import * as mongoose from "mongoose";
 
 class ProductRepository {
+    async updateOne(product: any) {
+        return ProductModel.updateOne(
+            {
+                _id: product._id,
+            },
+            product
+        );
+    }
     async getProductById(productId: string) {
         return ProductModel.findOne({
             _id: new mongoose.Types.ObjectId(productId),
@@ -71,20 +79,67 @@ class ProductRepository {
         };
     }
     async getEndingSoonProducts(pageSize: number, pageNumber: number) {
-        return ProductModel.find({
-            amount: { $gt: 0 },
-            "info.expirationDate": {
-                $exists: true,
-                $ne: null,
-                $gte: new Date(),
+        const now = new Date();
+
+        return ProductModel.aggregate([
+            {
+                $match: {
+                    amount: { $gt: 0 },
+                    "info.expirationDate": {
+                        $exists: true,
+                        $ne: null,
+                        $gte: new Date(),
+                    },
+                },
             },
-        })
-            .sort({
-                "info.expirationDate": 1,
-                createAt: -1,
-            })
-            .limit(pageSize)
-            .skip(pageSize * (pageNumber - 1));
+            {
+                $addFields: {
+                    expirationDateDiff: {
+                        $divide: [
+                            {
+                                $subtract: ["$info.expirationDate", now],
+                            },
+                            1000 * 60 * 60 * 24, // 밀리초를 일수로 변환, 1일 = 1000 * 60 * 60 * 24 밀리초
+                        ],
+                    },
+                },
+            },
+            {
+                $match: {
+                    expirationDateDiff: {
+                        $gte: 0,
+                        $lte: 3, // 3일 이내
+                    },
+                },
+            },
+            {
+                $sort: {
+                    expirationDateDiff: 1,
+                    createAt: -1,
+                },
+            },
+            {
+                $limit: pageSize,
+            },
+            {
+                $skip: pageSize * (pageNumber - 1),
+            },
+        ]);
+
+        // return ProductModel.find({
+        //     amount: { $gt: 0 },
+        //     "info.expirationDate": {
+        //         $exists: true,
+        //         $ne: null,
+        //         $gte: new Date(),
+        //     },
+        // })
+        //     .sort({
+        //         "info.expirationDate": 1,
+        //         createAt: -1,
+        //     })
+        //     .limit(pageSize)
+        //     .skip(pageSize * (pageNumber - 1));
     }
     async getWeekendDealProducts(
         now: Date,

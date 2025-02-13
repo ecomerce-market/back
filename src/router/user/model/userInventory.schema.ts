@@ -28,6 +28,19 @@ export const userInventorySchema: Schema = new Schema(
                 },
             },
         ],
+        likeProducts: [
+            {
+                product: {
+                    type: Schema.Types.ObjectId,
+                    ref: "product",
+                    unique: false,
+                },
+                createAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+            },
+        ],
     },
     {
         autoCreate: true,
