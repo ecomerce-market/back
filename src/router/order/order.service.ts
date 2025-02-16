@@ -8,6 +8,7 @@ import orderRepository from "./order.repository";
 import userRepository from "../../router/user/repository/user.repository";
 import { userModel } from "../../router/user/model/user.scheme";
 import { userInventoryModel } from "../../router/user/model/userInventory.schema";
+import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 
 class OrderService {
     async getOrderDetail(
@@ -41,8 +42,60 @@ class OrderService {
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>, number>
     ) {
-        throw new Error("Method not implemented.");
+        const loginId: string = req.headers["X-Request-user-id"] as string;
+
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        const orderId = req.params.orderId;
+
+        const order: any = await orderRepository.findById(orderId);
+
+        if (!order) {
+            return res.status(404).send({
+                message: "주문서가 존재하지 않습니다.",
+                code: "E203",
+            });
+        } else if (order.userInfo["user"].loginId !== loginId) {
+            return res.status(403).send({
+                message: "본인의 주문서가 아닙니다.",
+                code: "E205",
+            });
+        } else if (order.paymentStatus === "paid") {
+            return res.status(400).send({
+                message: "이미 결제가 완료된 주문서입니다.",
+                code: "E206",
+            });
+        } else if (order.paymentMethod === "none") {
+            return res.status(400).send({
+                message: "결제수단이 선택되지 않았습니다.",
+                code: "E207",
+            });
+        }
+
+        order.paymentStatus = "paid";
+
+        const userInventory: any = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        const addedPoints: number = order.totalPrice * 0.01; // 1% 적립 (적립 예시 퍼센트)
+
+        if (order.usedPoints) {
+            userInventory.inventory.points =
+                userInventory.inventory.points - order.usedPoints + addedPoints;
+        }
+        const saved: any = await orderRepository.save(order);
+        await userInventoryRepository.update(userInventory.inventory);
+
+        return res.status(200).json({
+            message: "order approve success",
+            totalPaidPrice: saved.totalPrice - saved.usedPoints,
+            addedPoints,
+            _id: saved._id,
+        });
     }
+
     async updateOrder(
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>, number>
