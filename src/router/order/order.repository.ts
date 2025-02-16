@@ -8,7 +8,7 @@ class OrderRepository {
             .populate([
                 {
                     path: "userInfo.user",
-                    select: "-__v loginId", // 필요한 필드만
+                    select: "loginId", // 필요한 필드만
                 },
                 {
                     path: "addressInfo.userAddress",
