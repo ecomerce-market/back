@@ -10,6 +10,39 @@ import { userModel } from "../../router/user/model/user.scheme";
 import { userInventoryModel } from "../../router/user/model/userInventory.schema";
 
 class OrderService {
+    async getOrderDetail(
+        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+        res: Response<any, Record<string, any>, number>
+    ) {
+        const loginId: string = req.headers["X-Request-user-id"] as string;
+
+        const orderId = req.params.orderId;
+
+        const order: any = await orderRepository.findById(orderId);
+
+        if (!order) {
+            return res.status(404).send({
+                message: "주문서가 존재하지 않습니다.",
+                code: "E203",
+            });
+        } else if (order.userInfo["user"].loginId !== loginId) {
+            return res.status(403).send({
+                message: "본인의 주문서가 아닙니다.",
+                code: "E205",
+            });
+        }
+
+        return res.status(200).json({
+            message: "success",
+            order: order,
+        });
+    }
+    async approveOrder(
+        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+        res: Response<any, Record<string, any>, number>
+    ) {
+        throw new Error("Method not implemented.");
+    }
     async updateOrder(
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>, number>

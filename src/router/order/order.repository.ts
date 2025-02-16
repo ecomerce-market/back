@@ -15,11 +15,11 @@ class OrderRepository {
                     model: "userAddress", // 실제 모델명과 일치
                     select: "-__v", // 필요없는 필드 제외
                 },
-                {
-                    path: "userCoupon",
-                    model: "coupon", // 실제 모델명과 일치
-                    select: "-__v", // 필요없는 필드 제외
-                },
+                // {
+                //     path: "userCoupon",
+                //     model: "coupon", // 실제 모델명과 일치
+                //     select: "-__v", // 필요없는 필드 제외
+                // },
             ])
             .select("-__v");
     }

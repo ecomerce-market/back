@@ -26,4 +26,24 @@ orderRouter.patch(
     }
 );
 
+// 주문서 상세 조회 (최종 가격 계산)
+orderRouter.get(
+    PATH_ORDERS + "/:orderId",
+    jwtMiddleware.jwtMiddleWare,
+    param("orderId").isMongoId(),
+    (req, res) => {
+        orderService.getOrderDetail(req, res);
+    }
+);
+
+// 주문서 결제 승인 요청
+orderRouter.post(
+    PATH_ORDERS + "/:orderId/approve",
+    jwtMiddleware.jwtMiddleWare,
+    param("orderId").isMongoId(),
+    (req, res) => {
+        orderService.approveOrder(req, res);
+    }
+);
+
 export default orderRouter;
