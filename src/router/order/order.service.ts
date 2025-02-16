@@ -147,26 +147,26 @@ class OrderService {
             order.usedPoints = body.usePoint;
         }
 
-        if (body.couponId) {
-            const coupons: Array<any> = await userInventoryModel.populate(
-                userInventory,
-                {
-                    path: "coupons",
-                }
-            );
+        // if (body.couponId) {
+        //     const coupons: Array<any> = await userInventoryModel.populate(
+        //         userInventory,
+        //         {
+        //             path: "coupons",
+        //         }
+        //     );
 
-            // 쿠폰이 존재하는지 확인
-            if (
-                !coupons.find(
-                    (coupon: any) => coupon._id.toString() === body.couponId
-                )
-            ) {
-                return res.status(400).send({
-                    message: "사용 가능한 쿠폰이 존재하지 않습니다.",
-                    code: "E207",
-                });
-            }
-        }
+        //     // 쿠폰이 존재하는지 확인
+        //     if (
+        //         !coupons.find(
+        //             (coupon: any) => coupon._id.toString() === body.couponId
+        //         )
+        //     ) {
+        //         return res.status(400).send({
+        //             message: "사용 가능한 쿠폰이 존재하지 않습니다.",
+        //             code: "E207",
+        //         });
+        //     }
+        // }
 
         if (body.userAddressId) {
             const addresses: Array<any> = user.addresses;
