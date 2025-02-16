@@ -6,7 +6,7 @@ export const orderSchema = new Schema({
         {
             productId: {
                 type: Schema.Types.ObjectId,
-                ref: "Product",
+                ref: "product",
                 required: true,
             },
             amount: {
@@ -24,7 +24,7 @@ export const orderSchema = new Schema({
     addressInfo: {
         userAddress: {
             type: Schema.Types.ObjectId,
-            ref: "UserAddress",
+            ref: "userAddress",
             required: true,
         },
     },
@@ -36,7 +36,7 @@ export const orderSchema = new Schema({
     userInfo: {
         user: {
             type: Schema.Types.ObjectId,
-            ref: "User",
+            ref: "user",
             required: true,
         },
     },

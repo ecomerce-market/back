@@ -1,14 +1,131 @@
 import { Request, ParamsDictionary, Response } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import { OrderReqDto } from "./dto/order.req.dto";
+import { OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
 import { orderModel } from "./model/order.schema";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import orderRepository from "./order.repository";
 import userRepository from "../../router/user/repository/user.repository";
 import { userModel } from "../../router/user/model/user.scheme";
+import { userInventoryModel } from "../../router/user/model/userInventory.schema";
 
 class OrderService {
+    async updateOrder(
+        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+        res: Response<any, Record<string, any>, number>
+    ) {
+        const loginId: string = req.headers["X-Request-user-id"] as string;
+
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        const body: OrderUpdateDto = req.body;
+        const orderId = req.params.orderId;
+
+        const order: any = await orderRepository.findById(orderId);
+
+        console.log("order:", order);
+        console.log("user:", order.userInfo);
+
+        if (!order) {
+            return res.status(404).send({
+                message: "주문서가 존재하지 않습니다.",
+                code: "E203",
+            });
+        } else if (order.paymentStatus === "paid") {
+            return res.status(400).send({
+                message: "이미 결제가 완료된 주문서입니다.",
+                code: "E204",
+            });
+        } else if (order.userInfo["user"].loginId !== loginId) {
+            return res.status(403).send({
+                message: "본인의 주문서가 아닙니다.",
+                code: "E205",
+            });
+        }
+
+        const userInventory: any = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        if (body.paymentMethod) {
+            order.paymentMethod = body.paymentMethod;
+        }
+
+        if (body.usePoint) {
+            const availablePoints: number = userInventory.inventory.points;
+
+            console.log("userInventory:", userInventory);
+
+            console.log("availablePoints:", availablePoints);
+
+            if (!availablePoints || availablePoints < body.usePoint) {
+                return res.status(400).send({
+                    message: "사용 가능한 포인트가 부족합니다.",
+                    code: "E206",
+                });
+            }
+            order.usedPoints = body.usePoint;
+        }
+
+        if (body.couponId) {
+            const coupons: Array<any> = await userInventoryModel.populate(
+                userInventory,
+                {
+                    path: "coupons",
+                }
+            );
+
+            // 쿠폰이 존재하는지 확인
+            if (
+                !coupons.find(
+                    (coupon: any) => coupon._id.toString() === body.couponId
+                )
+            ) {
+                return res.status(400).send({
+                    message: "사용 가능한 쿠폰이 존재하지 않습니다.",
+                    code: "E207",
+                });
+            }
+        }
+
+        if (body.userAddressId) {
+            const addresses: Array<any> = user.addresses;
+            // 주소가 존재하는지 확인
+            console.log("addresses:", addresses);
+            if (
+                !addresses.find((address: Types.ObjectId) =>
+                    address._id.equals(body.userAddressId)
+                )
+            ) {
+                return res.status(400).send({
+                    message: "사용 가능한 주소가 존재하지 않습니다.",
+                    code: "E208",
+                });
+            }
+            order.addressInfo.userAddress = body.userAddressId;
+        }
+
+        const saved: any = await orderRepository.save(order);
+        const orderData: any = orderModel.populate(saved, [
+            {
+                path: "userInfo.user",
+                model: "user", // 실제 모델명과 일치
+            },
+            {
+                path: "addressInfo.userAddress",
+                model: "userAddress", // 실제 모델명과 일치
+            },
+            {
+                path: "userCoupon",
+                model: "coupon", // 실제 모델명과 일치
+            },
+        ]);
+        return res.status(200).json({
+            message: "order update success",
+            order: await orderData,
+        });
+    }
     /**
      * 상품 목록을 받아서 주문 Id를 생성
      * @param req
@@ -115,9 +232,24 @@ class OrderService {
 
         const saved: any = await orderRepository.save(order);
 
+        const orderData: any = orderModel.populate(saved, [
+            {
+                path: "userInfo.user",
+                model: "user", // 실제 모델명과 일치
+            },
+            {
+                path: "addressInfo.userAddress",
+                model: "userAddress", // 실제 모델명과 일치
+            },
+            {
+                path: "userCoupon",
+                model: "coupon", // 실제 모델명과 일치
+            },
+        ]);
+
         return res.status(200).json({
             message: "order create success",
-            order: saved,
+            order: await orderData,
         });
     }
 }
