@@ -84,6 +84,32 @@
                                                         name:
                                                             type: string
                                                             description: 주문자 이름
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "본인의 주문서가 아닙니다."
+                                code:
+                                    type: string
+                                    example: "E205"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
     patch:
         tags:
             - Orders/:orderId
@@ -213,13 +239,39 @@
                                             type: string
                                             description: 주문서 고유 번호 (주문 요청 등에 사용)
                                             example: 65f2d1234567890123456794
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "이미 결제가 완료된 주문서입니다. | 본인의 주문서가 아닙니다. | 사용 가능한 포인트가 부족합니다. | 사용 가능한 주소가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E204 | E205 | E206 | E208"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
 
 /api/v1/orders/:orderId/approve:
     post:
         tags:
             - Orders/:orderId
         summary: 주문서 결제 (승인 요청)
-        description: 주문서 결제 api<br>주문서를 결제
+        description: 주문서 결제 api<br>주문서를 토대로 주문 결제 요청<br>결제 요청 시 <b>멱등성을 보장 할 고유 번호 (클라이언트 생성) 전달 필수</b> (body 확인)
         operationId: approveOrder
         parameters:
             - name: orderId
@@ -237,7 +289,7 @@
                         properties:
                             uuid:
                                 type: string
-                                description: 결제 요청 시 멱등성을 보장 할 고유 번호 (클라이언트 생성)
+                                description: 결제 요청 시 멱등성을 보장 할 고유 번호 (클라이언트 생성) (36자)
                                 example: "65f2d1234567890123456794"
                                 required: true
         responses:
@@ -263,3 +315,29 @@
                                     type: string
                                     example: "67b1a4da3eaf118cfe31bded"
                                     description: 주문서 고유 번호
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "본인의 주문서가 아닙니다. | 이미 결제가 완료된 주문서입니다. | 결제수단이 선택되지 않았습니다."
+                                code:
+                                    type: string
+                                    example: "E205 | E206 | E207"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
