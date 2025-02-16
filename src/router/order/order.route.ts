@@ -41,6 +41,10 @@ orderRouter.post(
     PATH_ORDERS + "/:orderId/approve",
     jwtMiddleware.jwtMiddleWare,
     param("orderId").isMongoId(),
+    body("uuid")
+        .isString()
+        .exists({ values: "null" })
+        .isLength({ min: 36, max: 36 }),
     (req, res) => {
         orderService.approveOrder(req, res);
     }

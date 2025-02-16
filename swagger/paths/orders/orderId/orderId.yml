@@ -1,4 +1,89 @@
 /api/v1/orders/:orderId:
+    get:
+        tags:
+            - Orders/:orderId
+        summary: 주문서 조회
+        description: 주문서 조회 api<br>주문서를 조회
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
+        responses:
+            200:
+                description: 주문서 조회 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order get success"
+                                order:
+                                    type: object
+                                    properties:
+                                        products:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    productId:
+                                                        type: string
+                                                        description:: 상품 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    amount:
+                                                        type: integer
+                                                        description: 구매 수량
+                                                    _id:
+                                                        type: string
+                                                        description: 주문서 내의 상품에 대한 새로 생성 된 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    optionName:
+                                                        type: string
+                                                        description: 상품 옵션 이름 (옵션을 선택한 경우만)
+                                        totalPrice:
+                                            type: number
+                                            description: 주문서 총 가격 (상품 가격 * 수량) (옵션 가격 포함)
+                                        addressInfo:
+                                            type: object
+                                            description: 주문자 주소 정보 (생성 시 주문자의 기본 주소)
+                                            properties:
+                                                userAddress:
+                                                    type: object
+                                                    description: 주문자 주소 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 주소 고유 번호
+                                                        address:
+                                                            type: string
+                                                            description: 주문자 주소
+                                                        extraAddress:
+                                                            type: string
+                                                            description: 주문자 상세 주소
+                                                        defaultAddr:
+                                                            type: boolean
+                                                            description: 기본 주소 여부
+                                        userInfo:
+                                            type: object
+                                            properties:
+                                                user:
+                                                    type: object
+                                                    description: 주문자 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 고유 번호
+                                                            example: 65f2d1234567890123456794
+                                                        email:
+                                                            type: string
+                                                            description: 주문자 이메일
+                                                        name:
+                                                            type: string
+                                                            description: 주문자 이름
     patch:
         tags:
             - Orders/:orderId
@@ -128,3 +213,53 @@
                                             type: string
                                             description: 주문서 고유 번호 (주문 요청 등에 사용)
                                             example: 65f2d1234567890123456794
+
+/api/v1/orders/:orderId/approve:
+    post:
+        tags:
+            - Orders/:orderId
+        summary: 주문서 결제 (승인 요청)
+        description: 주문서 결제 api<br>주문서를 결제
+        operationId: approveOrder
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            uuid:
+                                type: string
+                                description: 결제 요청 시 멱등성을 보장 할 고유 번호 (클라이언트 생성)
+                                example: "65f2d1234567890123456794"
+                                required: true
+        responses:
+            200:
+                description: 주문서 결제 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order approve success"
+                                totalPaidPrice:
+                                    type: number
+                                    example: 299999
+                                    description: 결제 완료된 총 가격
+                                addedPoints:
+                                    type: number
+                                    example: 3000
+                                    description: 적립 포인트
+                                _id:
+                                    type: string
+                                    example: "67b1a4da3eaf118cfe31bded"
+                                    description: 주문서 고유 번호

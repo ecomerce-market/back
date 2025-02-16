@@ -11,6 +11,7 @@ import { userInventoryModel } from "../../router/user/model/userInventory.schema
 import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 import orderIdemKeyRepository from "./repository/orderIdemKey.repository";
 import { orderIdemKeyModel } from "./model/orderIdemKey.schema";
+import validateMiddleware from "../../middleware/validate.middleware";
 
 class OrderService {
     async getOrderDetail(
@@ -44,6 +45,9 @@ class OrderService {
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>, number>
     ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const uuid: string = req.body.uuid;
@@ -133,6 +137,10 @@ class OrderService {
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>, number>
     ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
+
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const user: any =
