@@ -1,0 +1,88 @@
+/api/v1/orders:
+    post:
+        tags:
+            - orders
+        summary: 주문서 생성
+        description: 주문서 생성 api<br>주문서를 생성합니다. 주문서 생성 시 상품 목록이 필요하며, 옵션을 선택 한 경우 옵션 이름을 함께 전달해야 합니다.
+        operationId: createOrder
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            products:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        productId:
+                                            type: string
+                                            description: 상품 고유 번호
+                                            required: true
+                                        amount:
+                                            type: integer
+                                            description: 구매 수량
+                                            example: 1
+                                            required: true
+                                        optionName:
+                                            type: string
+                                            description: 상품 옵션 이름 (옵션을 선택한 경우만)
+                                            example: "옵션 1"
+        responses:
+            200:
+                description: 주문서 생성 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order create success"
+                                order:
+                                    type: object
+                                    properties:
+                                        products:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    productId:
+                                                        type: string
+                                                        description:: 상품 고유 번호
+                                                    amount:
+                                                        type: integer
+                                                        description: 구매 수량
+                                                    _id:
+                                                        type: string
+                                                        description: 주문서 내의 상품에 대한 새로 생성 된 고유 번호
+                                                    optionName:
+                                                        type: string
+                                                        description: 상품 옵션 이름 (옵션을 선택한 경우만)
+                                        totalPrice:
+                                            type: number
+                                            description: 주문서 총 가격 (상품 가격 * 수량) (옵션 가격 포함)
+                                        addressInfo:
+                                            type: object
+                                            description: 주문자 주소 정보 (생성 시 주문자의 기본 주소)
+                                            properties:
+                                                userAddress:
+                                                    type: string
+                                                    description: 주문자 주소 고유 번호
+                                        userInfo:
+                                            type: object
+                                            properties:
+                                                user:
+                                                    type: string
+                                                    description: 주문자 고유 번호
+                                        paymentMethod:
+                                            type: string
+                                            description: 결제 수단 (생성 시 기본 값은 'none')
+                                        paymentStatus:
+                                            type: string
+                                            description: 결제 상태 (생성 시 기본 값은 'unpaid')
+                                        _id:
+                                            type: string
+                                            description: 주문서 고유 번호 (주문 요청 등에 사용)
