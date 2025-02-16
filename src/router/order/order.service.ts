@@ -318,11 +318,11 @@ class OrderService {
                 model: "userAddress", // 실제 모델명과 일치
                 select: "-__v",
             },
-            {
-                path: "userCoupon",
-                model: "coupon", // 실제 모델명과 일치
-                select: "-__v",
-            },
+            // {
+            //     path: "userCoupon",
+            //     model: "coupon", // 실제 모델명과 일치
+            //     select: "-__v",
+            // },
         ]);
 
         return res.status(200).json({
