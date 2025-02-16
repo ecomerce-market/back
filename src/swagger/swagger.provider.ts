@@ -15,6 +15,7 @@ const mergeYamlFiles = () => {
     );
     const bannerPath = YAML.load(PREFIX + "/banners/banners.yml");
     const orderPath = YAML.load(PREFIX + "/orders/orders.yml");
+    const orderOrderIdPath = YAML.load(PREFIX + "/orders/orderId/orderId.yml");
 
     return {
         ...baseSwagger,
@@ -25,6 +26,7 @@ const mergeYamlFiles = () => {
             ...productProductIdPath,
             ...bannerPath,
             ...orderPath,
+            ...orderOrderIdPath,
         },
     };
 };

@@ -1,10 +1,17 @@
-/api/v1/orders:
-    post:
+/api/v1/orders/:orderId:
+    patch:
         tags:
-            - Orders
-        summary: 주문서 생성
-        description: 주문서 생성 api<br>주문서를 생성합니다. 주문서 생성 시 상품 목록이 필요하며, 옵션을 선택 한 경우 옵션 이름을 함께 전달해야 합니다.
-        operationId: createOrder
+            - Orders/:orderId
+        summary: 주문서 수정
+        description: 주문서 수정 api<br>주문서를 수정<br>쿠폰 적용 시 쿠폰 id, 포인트 적용 시 사용 포인트 금액, 배송지 변경 시 배송지 id를 전달
+        operationId: updateOrder
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
         requestBody:
             required: true
             content:
@@ -17,22 +24,26 @@
                                 items:
                                     type: object
                                     properties:
-                                        productId:
+                                        usePoint:
+                                            type: number
+                                            description: 사용 포인트 금액
+                                            example: 1000
+                                        userAddressId:
                                             type: string
-                                            description: 상품 고유 번호
-                                            required: true
-                                        amount:
-                                            type: integer
-                                            description: 구매 수량
-                                            example: 1
-                                            required: true
-                                        optionName:
+                                            description: 사용자 배송지 고유 번호
+                                            example: 65f2d1234567890123456794
+                                        paymentMethod:
                                             type: string
-                                            description: 상품 옵션 이름 (옵션을 선택한 경우만)
-                                            example: "옵션 1"
+                                            description: 결제 수단 (CARD, SIMPLE)
+                                            example: "CARD"
+                                        couponId:
+                                            type: string
+                                            description: 쿠폰 고유 번호
+                                            example: 65f2d1234567890123456794
+
         responses:
             200:
-                description: 주문서 생성 성공
+                description: 주문서 수정 성공
                 content:
                     application/json:
                         schema:
@@ -40,7 +51,7 @@
                             properties:
                                 message:
                                     type: string
-                                    example: "order create success"
+                                    example: "order update success"
                                 order:
                                     type: object
                                     properties:
