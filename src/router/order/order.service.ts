@@ -4,11 +4,13 @@ import { OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
 import { orderModel } from "./model/order.schema";
 import mongoose, { Types } from "mongoose";
-import orderRepository from "./order.repository";
+import orderRepository from "./repository/order.repository";
 import userRepository from "../../router/user/repository/user.repository";
 import { userModel } from "../../router/user/model/user.scheme";
 import { userInventoryModel } from "../../router/user/model/userInventory.schema";
 import userInventoryRepository from "../../router/user/repository/userInventory.repository";
+import orderIdemKeyRepository from "./repository/orderIdemKey.repository";
+import { orderIdemKeyModel } from "./model/orderIdemKey.schema";
 
 class OrderService {
     async getOrderDetail(
@@ -44,10 +46,35 @@ class OrderService {
     ) {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
+        const uuid: string = req.body.uuid;
+        const orderId = req.params.orderId;
+
+        // 중복 요청 방지를 위한 uuid 체크
+        const orderIdemKey: any =
+            await orderIdemKeyRepository.findByIdAndUuidAndOrderId(
+                uuid,
+                orderId
+            );
+        if (orderIdemKey) {
+            const idemKeyOrder: any = await orderIdemKeyModel.populate(
+                orderIdemKey,
+                {
+                    path: "orderId",
+                }
+            );
+            const order: any = idemKeyOrder.orderId;
+            const addedPoints: number = order.totalPrice * 0.01; // 1% 적립 (적립 예시 퍼센트)
+
+            return res.status(200).send({
+                message: "order approve success",
+                totalPaidPrice: order.totalPrice - order.usedPoints,
+                addedPoints,
+                _id: order._id,
+            });
+        }
+
         const user: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
-
-        const orderId = req.params.orderId;
 
         const order: any = await orderRepository.findById(orderId);
 
@@ -87,6 +114,12 @@ class OrderService {
         }
         const saved: any = await orderRepository.save(order);
         await userInventoryRepository.update(userInventory.inventory);
+
+        // 중복 요청 방지를 위한 uuid 저장
+        await orderIdemKeyRepository.save({
+            uuid,
+            orderId,
+        });
 
         return res.status(200).json({
             message: "order approve success",

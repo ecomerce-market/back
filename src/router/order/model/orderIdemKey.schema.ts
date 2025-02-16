@@ -1,4 +1,4 @@
-import { Model, model, Schema } from "mongoose";
+import { Model, model, Schema, Types } from "mongoose";
 
 export const orderIdemKeySchema: Schema = new Schema(
     {
@@ -6,6 +6,11 @@ export const orderIdemKeySchema: Schema = new Schema(
             type: String,
             required: true,
             unique: true,
+        },
+        orderId: {
+            type: Types.ObjectId,
+            ref: "Order",
+            required: true,
         },
     },
     { autoCreate: true, timestamps: true }

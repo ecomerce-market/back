@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { orderModel } from "./model/order.schema";
+import { orderModel } from "../model/order.schema";
 
 class OrderRepository {
     async findById(orderId: string): Promise<any> {
