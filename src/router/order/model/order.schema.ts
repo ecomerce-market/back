@@ -1,7 +1,7 @@
-import { Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 
 export const orderSchema = new Schema({
-    _id: Schema.Types.ObjectId,
+    // _id: Schema.Types.ObjectId,
     products: [
         {
             productId: {
@@ -43,7 +43,7 @@ export const orderSchema = new Schema({
     usedPoints: Number,
     paymentMethod: {
         type: String,
-        enum: ["card", "simple", "phone"],
+        enum: ["none", "card", "simple", "phone"],
         required: true,
     },
     paymentStatus: {
@@ -53,3 +53,5 @@ export const orderSchema = new Schema({
         default: "unpaid",
     },
 });
+
+export const orderModel = model("Order", orderSchema) as Model<any>;
