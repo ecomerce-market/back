@@ -29,7 +29,7 @@ class OrderService {
                 code: "E203",
             });
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(403).send({
+            return res.status(404).send({
                 message: "본인의 주문서가 아닙니다.",
                 code: "E205",
             });
@@ -84,7 +84,7 @@ class OrderService {
                 code: "E203",
             });
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(403).send({
+            return res.status(400).send({
                 message: "본인의 주문서가 아닙니다.",
                 code: "E205",
             });
@@ -154,7 +154,7 @@ class OrderService {
                 code: "E204",
             });
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(403).send({
+            return res.status(400).send({
                 message: "본인의 주문서가 아닙니다.",
                 code: "E205",
             });
