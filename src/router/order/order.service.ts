@@ -24,9 +24,6 @@ class OrderService {
 
         const order: any = await orderRepository.findById(orderId);
 
-        console.log("order:", order);
-        console.log("user:", order.userInfo);
-
         if (!order) {
             return res.status(404).send({
                 message: "주문서가 존재하지 않습니다.",
@@ -54,10 +51,6 @@ class OrderService {
 
         if (body.usePoint) {
             const availablePoints: number = userInventory.inventory.points;
-
-            console.log("userInventory:", userInventory);
-
-            console.log("availablePoints:", availablePoints);
 
             if (!availablePoints || availablePoints < body.usePoint) {
                 return res.status(400).send({
@@ -92,7 +85,6 @@ class OrderService {
         if (body.userAddressId) {
             const addresses: Array<any> = user.addresses;
             // 주소가 존재하는지 확인
-            console.log("addresses:", addresses);
             if (
                 !addresses.find((address: Types.ObjectId) =>
                     address._id.equals(body.userAddressId)
@@ -111,14 +103,17 @@ class OrderService {
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
+                select: "name phone email",
             },
             {
                 path: "addressInfo.userAddress",
                 model: "userAddress", // 실제 모델명과 일치
+                select: "-__v",
             },
             {
                 path: "userCoupon",
                 model: "coupon", // 실제 모델명과 일치
+                select: "-__v",
             },
         ]);
         return res.status(200).json({
@@ -146,7 +141,6 @@ class OrderService {
             (product) => product.productId
         );
 
-        console.log("productIds:", productIds);
         const products: Array<any> =
             await productRepository.findProductByIdsForOrder(productIds);
 
@@ -165,9 +159,6 @@ class OrderService {
             const product: any = products.find(
                 (product) => product._id.toString() === orderProduct.productId
             );
-
-            console.log("product:", product);
-            console.log("orderProduct:", orderProduct);
 
             if (
                 !product.options.find(
@@ -189,8 +180,6 @@ class OrderService {
                 defaultAddr: true,
             },
         });
-
-        console.log("\npopulatedUser:", populatedUser);
 
         const userAddresses: Array<any> = populatedUser.addresses;
 
@@ -236,14 +225,17 @@ class OrderService {
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
+                select: "name phone email",
             },
             {
                 path: "addressInfo.userAddress",
                 model: "userAddress", // 실제 모델명과 일치
+                select: "-__v",
             },
             {
                 path: "userCoupon",
                 model: "coupon", // 실제 모델명과 일치
+                select: "-__v",
             },
         ]);
 
