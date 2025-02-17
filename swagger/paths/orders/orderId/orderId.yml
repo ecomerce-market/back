@@ -1,0 +1,343 @@
+/api/v1/orders/:orderId:
+    get:
+        tags:
+            - Orders/:orderId
+        summary: 주문서 조회
+        description: 주문서 조회 api<br>주문서를 조회
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
+        responses:
+            200:
+                description: 주문서 조회 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order get success"
+                                order:
+                                    type: object
+                                    properties:
+                                        products:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    productId:
+                                                        type: string
+                                                        description:: 상품 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    amount:
+                                                        type: integer
+                                                        description: 구매 수량
+                                                    _id:
+                                                        type: string
+                                                        description: 주문서 내의 상품에 대한 새로 생성 된 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    optionName:
+                                                        type: string
+                                                        description: 상품 옵션 이름 (옵션을 선택한 경우만)
+                                        totalPrice:
+                                            type: number
+                                            description: 주문서 총 가격 (상품 가격 * 수량) (옵션 가격 포함)
+                                        addressInfo:
+                                            type: object
+                                            description: 주문자 주소 정보 (생성 시 주문자의 기본 주소)
+                                            properties:
+                                                userAddress:
+                                                    type: object
+                                                    description: 주문자 주소 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 주소 고유 번호
+                                                        address:
+                                                            type: string
+                                                            description: 주문자 주소
+                                                        extraAddress:
+                                                            type: string
+                                                            description: 주문자 상세 주소
+                                                        defaultAddr:
+                                                            type: boolean
+                                                            description: 기본 주소 여부
+                                        userInfo:
+                                            type: object
+                                            properties:
+                                                user:
+                                                    type: object
+                                                    description: 주문자 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 고유 번호
+                                                            example: 65f2d1234567890123456794
+                                                        email:
+                                                            type: string
+                                                            description: 주문자 이메일
+                                                        name:
+                                                            type: string
+                                                            description: 주문자 이름
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "본인의 주문서가 아닙니다."
+                                code:
+                                    type: string
+                                    example: "E205"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
+    patch:
+        tags:
+            - Orders/:orderId
+        summary: 주문서 수정
+        description: 주문서 수정 api<br>주문서를 수정<br>쿠폰 적용 시 쿠폰 id, 포인트 적용 시 사용 포인트 금액, 배송지 변경 시 배송지 id를 전달
+        operationId: updateOrder
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            products:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        usePoint:
+                                            type: number
+                                            description: 사용 포인트 금액
+                                            example: 1000
+                                        userAddressId:
+                                            type: string
+                                            description: 사용자 배송지 고유 번호
+                                            example: 65f2d1234567890123456794
+                                        paymentMethod:
+                                            type: string
+                                            description: 결제 수단 (CARD, SIMPLE)
+                                            example: "CARD"
+                                        couponId:
+                                            type: string
+                                            description: 쿠폰 고유 번호
+                                            example: 65f2d1234567890123456794
+
+        responses:
+            200:
+                description: 주문서 수정 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order update success"
+                                order:
+                                    type: object
+                                    properties:
+                                        products:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    productId:
+                                                        type: string
+                                                        description:: 상품 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    amount:
+                                                        type: integer
+                                                        description: 구매 수량
+                                                    _id:
+                                                        type: string
+                                                        description: 주문서 내의 상품에 대한 새로 생성 된 고유 번호
+                                                        example: 65f2d1234567890123456794
+                                                    optionName:
+                                                        type: string
+                                                        description: 상품 옵션 이름 (옵션을 선택한 경우만)
+                                        totalPrice:
+                                            type: number
+                                            description: 주문서 총 가격 (상품 가격 * 수량) (옵션 가격 포함)
+                                        addressInfo:
+                                            type: object
+                                            description: 주문자 주소 정보 (생성 시 주문자의 기본 주소)
+                                            properties:
+                                                userAddress:
+                                                    type: object
+                                                    description: 주문자 주소 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 주소 고유 번호
+                                                        address:
+                                                            type: string
+                                                            description: 주문자 주소
+                                                        extraAddress:
+                                                            type: string
+                                                            description: 주문자 상세 주소
+                                                        defaultAddr:
+                                                            type: boolean
+                                                            description: 기본 주소 여부
+                                        userInfo:
+                                            type: object
+                                            properties:
+                                                user:
+                                                    type: object
+                                                    description: 주문자 정보
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 주문자 고유 번호
+                                                            example: 65f2d1234567890123456794
+                                                        email:
+                                                            type: string
+                                                            description: 주문자 이메일
+                                                        name:
+                                                            type: string
+                                                            description: 주문자 이름
+                                                        phone:
+                                                            type: string
+                                                            description: 주문자 전화번호
+
+                                        paymentMethod:
+                                            type: string
+                                            description: 결제 수단 (생성 시 기본 값은 'none')
+                                        paymentStatus:
+                                            type: string
+                                            description: 결제 상태 (생성 시 기본 값은 'unpaid')
+                                        orderId:
+                                            type: string
+                                            description: 주문서 고유 번호 (주문 요청 등에 사용)
+                                            example: 65f2d1234567890123456794
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "이미 결제가 완료된 주문서입니다. | 본인의 주문서가 아닙니다. | 사용 가능한 포인트가 부족합니다. | 사용 가능한 주소가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E204 | E205 | E206 | E208"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
+
+/api/v1/orders/:orderId/approve:
+    post:
+        tags:
+            - Orders/:orderId
+        summary: 주문서 결제 (승인 요청)
+        description: 주문서 결제 api<br>주문서를 토대로 주문 결제 요청<br>결제 요청 시 <b>멱등성을 보장 할 고유 번호 (클라이언트 생성) 전달 필수</b> (body 확인)
+        operationId: approveOrder
+        parameters:
+            - name: orderId
+              in: path
+              description: 주문서 고유 번호
+              required: true
+              schema:
+                  type: string
+        requestBody:
+            required: true
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            uuid:
+                                type: string
+                                description: 결제 요청 시 멱등성을 보장 할 고유 번호 (클라이언트 생성) (36자)
+                                example: "65f2d1234567890123456794"
+                                required: true
+        responses:
+            200:
+                description: 주문서 결제 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "order approve success"
+                                totalPaidPrice:
+                                    type: number
+                                    example: 299999
+                                    description: 결제 완료된 총 가격
+                                addedPoints:
+                                    type: number
+                                    example: 3000
+                                    description: 적립 포인트
+                                orderId:
+                                    type: string
+                                    example: "67b1a4da3eaf118cfe31bded"
+                                    description: 주문서 고유 번호
+            400:
+                description: 잘못된 요청
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "본인의 주문서가 아닙니다. | 이미 결제가 완료된 주문서입니다. | 결제수단이 선택되지 않았습니다."
+                                code:
+                                    type: string
+                                    example: "E205 | E206 | E207"
+            404:
+                description: 주문서를 찾을 수 없음
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "주문서가 존재하지 않습니다."
+                                code:
+                                    type: string
+                                    example: "E203"
