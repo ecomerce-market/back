@@ -36,9 +36,13 @@ class OrderService {
             });
         }
 
+        const orderObj = order.toObject();
+        orderObj.orderId = orderObj._id;
+        delete orderObj._id;
+
         return res.status(200).json({
             message: "success",
-            order: order,
+            order: orderObj,
         });
     }
     async approveOrder(
@@ -73,7 +77,7 @@ class OrderService {
                 message: "order approve success",
                 totalPaidPrice: order.totalPrice - order.usedPoints,
                 addedPoints,
-                _id: order._id,
+                orderId: order._id,
             });
         }
 
@@ -226,7 +230,7 @@ class OrderService {
         }
 
         const saved: any = await orderRepository.save(order);
-        const orderData: any = orderModel.populate(saved, [
+        const orderData: any = await orderModel.populate(saved, [
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
@@ -243,9 +247,13 @@ class OrderService {
                 select: "-__v",
             },
         ]);
+
+        const orderDataObj = orderData.toObject();
+        orderDataObj.orderId = orderDataObj._id;
+        delete orderDataObj._id;
         return res.status(200).json({
             message: "order update success",
-            order: await orderData,
+            order: orderDataObj,
         });
     }
     /**
@@ -348,7 +356,7 @@ class OrderService {
 
         const saved: any = await orderRepository.save(order);
 
-        const orderData: any = orderModel.populate(saved, [
+        const orderData: any = await orderModel.populate(saved, [
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
@@ -366,9 +374,13 @@ class OrderService {
             // },
         ]);
 
+        const orderDataObj = orderData.toObject();
+        orderDataObj.orderId = orderDataObj._id;
+        delete orderDataObj._id;
+
         return res.status(200).json({
             message: "order create success",
-            order: await orderData,
+            order: orderDataObj,
         });
     }
 }
