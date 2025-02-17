@@ -15,6 +15,18 @@ export const orderSchema = new Schema({
                 default: 1,
             },
             optionName: String,
+            deliveryInfo: {
+                deliveryStatus: {
+                    type: String,
+                    enum: ["ready", "shipping", "delivered"],
+                    required: true,
+                    default: "ready",
+                },
+                deliveryComp: {
+                    type: String,
+                    required: true,
+                },
+            },
         },
     ],
     totalPrice: {
@@ -51,6 +63,10 @@ export const orderSchema = new Schema({
         enum: ["paid", "unpaid"],
         required: true,
         default: "unpaid",
+    },
+    approveAt: {
+        type: Date,
+        required: false,
     },
 });
 
