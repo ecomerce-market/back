@@ -80,17 +80,11 @@ class UserService {
 
         return res.status(200).json({
             message: "success",
-            data: {
-                // orders: await myOrders,
-                orders: orderDto,
-
-                totalItems: await totalItem,
-                totalPages: Math.ceil(
-                    (await totalItem) / pageQueryParam.pageSize
-                ),
-                currPage: pageQueryParam.pageNumber,
-                currItem: ((await myOrders) as Array<any>).length,
-            },
+            orders: orderDto,
+            totalItems: await totalItem,
+            totalPages: Math.ceil((await totalItem) / pageQueryParam.pageSize),
+            currPage: pageQueryParam.pageNumber,
+            currItem: ((await myOrders) as Array<any>).length,
         });
     }
     async updateUserDefaultAddress(
