@@ -117,4 +117,13 @@ userRouter.patch(
     }
 );
 
+// 내 주문 조회
+userRouter.get(
+    PATH_USERS + "/orders",
+    jwtMiddleware.jwtMiddleWare,
+    (req: Request, res: Response) => {
+        userService.getUserOrders(req, res);
+    }
+);
+
 export default userRouter;
