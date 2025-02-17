@@ -2,6 +2,44 @@ import { Model } from "mongoose";
 import { orderModel } from "../model/order.schema";
 
 class OrderRepository {
+    async countByUserId(userId: any) {
+        return orderModel.countDocuments({
+            "userInfo.user": userId,
+            approveAt: {
+                $ne: null,
+                $gt: new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 3) // 3년 전부터
+                ),
+            },
+        });
+    }
+    async findByUserId(
+        userId: string,
+        pageSize: number,
+        pageNumber: number
+    ): Promise<any> {
+        return orderModel
+            .find()
+            .where({
+                "userInfo.user": userId,
+                approveAt: {
+                    $ne: null,
+                    $gt: new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 3)
+                    ), // 3년 전부터
+                },
+            })
+            .populate([
+                {
+                    path: "products.productId",
+                    model: "product",
+                },
+            ])
+            .sort({ approveAt: -1 })
+            .limit(pageSize)
+            .skip(pageSize * (pageNumber - 1));
+    }
+
     async findById(orderId: string): Promise<any> {
         return orderModel
             .findById(orderId)

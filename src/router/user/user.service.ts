@@ -10,10 +10,83 @@ import userInventoryRepository from "./repository/userInventory.repository";
 import { userAddressModel } from "./model/userAddress.schema";
 import userAddressRepository from "./repository/userAddress.repository";
 import * as mongoose from "mongoose";
+import orderRepository from "../../router/order/repository/order.repository";
+import { PageQueryParam } from "../../common/dto/common.req.dto";
 
 class UserService {
     constructor() {}
 
+    async getUserOrders(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user: any =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        const pageQueryParam: PageQueryParam = new PageQueryParam(
+            Number(req.query.page),
+            Number(req.query.size)
+        );
+
+        const myOrders = orderRepository.findByUserId(
+            user._id,
+            pageQueryParam.pageSize,
+            pageQueryParam.pageNumber
+        );
+
+        const totalItem = orderRepository.countByUserId(user._id);
+
+        const orderData: any = await myOrders;
+        const orderDto: Array<any> = orderData.map((order: any) => {
+            const allDeliveryStatus = order.products.map(
+                (product: any) => product.deliveryInfo.deliveryStatus
+            );
+
+            // 종합 배송 상태 결정
+            let totalDeliveryStatus = "ready"; // 기본값: 배송준비
+
+            if (
+                allDeliveryStatus.every(
+                    (status: string) => status === "delivered"
+                )
+            ) {
+                totalDeliveryStatus = "delivered"; // 모두 배송완료
+            } else if (
+                allDeliveryStatus.some(
+                    (status: string) => status === "shipping"
+                )
+            ) {
+                totalDeliveryStatus = "shipping"; // 하나라도 배송중
+            }
+            return {
+                orderId: order._id,
+                orderDate: order.approveAt,
+                orderStatus: order.orderStatus,
+                firstProductName: order.products[0].productId.productName,
+                firstProductMainImgUrl: order.products[0].productId.mainImgUrl,
+                totalProductCnt: order.products.length,
+                paymentMethod: order.paymentMethod,
+                totalPrice: order.totalPrice,
+                totalDeliveryStatus,
+            };
+        });
+
+        return res.status(200).json({
+            message: "success",
+            orders: orderDto,
+            totalItems: await totalItem,
+            totalPages: Math.ceil((await totalItem) / pageQueryParam.pageSize),
+            currPage: pageQueryParam.pageNumber,
+            currItem: ((await myOrders) as Array<any>).length,
+        });
+    }
     async updateUserDefaultAddress(
         req: Request<
             import("express-serve-static-core").ParamsDictionary,

@@ -40,9 +40,76 @@ class OrderService {
         orderObj.orderId = orderObj._id;
         delete orderObj._id;
 
+        const nonIcedProducts = order.products.filter(
+            (product: any) => !product.deliveryInfo.isIce
+        );
+        const icedProducts = order.products.filter(
+            (product: any) => product.deliveryInfo.isIce
+        );
+
+        // 일반 상품 배송 상태 결정
+        const nonIcedDeliveryStatuses = nonIcedProducts.map(
+            (product: any) => product.deliveryInfo.deliveryStatus
+        );
+        let nonIcedProdDelivStatus = "ready";
+        if (nonIcedDeliveryStatuses.length > 0) {
+            if (
+                nonIcedDeliveryStatuses.every(
+                    (status: string) => status === "delivered"
+                )
+            ) {
+                nonIcedProdDelivStatus = "delivered";
+            } else if (
+                nonIcedDeliveryStatuses.some(
+                    (status: string) => status === "shipping"
+                )
+            ) {
+                nonIcedProdDelivStatus = "shipping";
+            }
+        }
+
+        // 아이스 상품 배송 상태 결정
+        const icedDeliveryStatuses = icedProducts.map(
+            (product: any) => product.deliveryInfo.deliveryStatus
+        );
+        let icedProdDelivStatus = "ready";
+        if (icedDeliveryStatuses.length > 0) {
+            if (
+                icedDeliveryStatuses.every(
+                    (status: string) => status === "delivered"
+                )
+            ) {
+                icedProdDelivStatus = "delivered";
+            } else if (
+                icedDeliveryStatuses.some(
+                    (status: string) => status === "shipping"
+                )
+            ) {
+                icedProdDelivStatus = "shipping";
+            }
+        }
         return res.status(200).json({
             message: "success",
-            order: orderObj,
+            order: {
+                ...orderObj,
+                deliveryStatus: {
+                    icedProdDelivStatus,
+                    nonIcedProdDelivStatus,
+                },
+                totalPrice: orderObj.totalPrice - orderObj.usedPoints,
+                totalOrgPrice: orderObj.products.reduce(
+                    (acc: number, cur: any) => {
+                        return acc + cur.productId.orgPrice * cur.amount;
+                    },
+                    0
+                ),
+                totalDiscountedPrice:
+                    orderObj.products.reduce((acc: number, cur: any) => {
+                        return acc + cur.productId.orgPrice * cur.amount;
+                    }, 0) -
+                    orderObj.totalPrice +
+                    orderObj.usedPoints,
+            },
         });
     }
     async approveOrder(

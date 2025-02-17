@@ -84,6 +84,38 @@
                                                         name:
                                                             type: string
                                                             description: 주문자 이름
+                                        paymentMethod:
+                                            type: string
+                                            description: 결제 수단 (생성 시 기본 값은 'none')
+                                        paymentStatus:
+                                            type: string
+                                            description: 결제 상태 (생성 시 기본 값은 'unpaid')
+                                        usedPoints:
+                                            type: number
+                                            description: 사용된 포인트 금액
+                                        userCoupon:
+                                            type: string
+                                            description: 사용된 쿠폰 고유 번호
+                                        approveAt:
+                                            type: string
+                                            description: 결제 승인 시간
+                                        deliveryStatus:
+                                            type: object
+                                            properties:
+                                                icedProdDelivStatus:
+                                                    type: string
+                                                    description: 냉동 상품 전체 배송 상태 ("ready", "shipping", "delivered")
+                                                    example: "ready"
+                                                nonIcedProdDelivStatus:
+                                                    type: string
+                                                    description: 냉장 상품 전체 배송 상태 ("ready", "shipping", "delivered")
+                                                    example: "shipping"
+                                        totalOrgPrice:
+                                            type: number
+                                            description: 주문서 총 가격 (할인 적용 전)
+                                        totalDiscountedPrice:
+                                            type: number
+                                            description: 주문서 총 할인 금액
             400:
                 description: 잘못된 요청
                 content:
