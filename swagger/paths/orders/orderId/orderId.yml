@@ -235,7 +235,7 @@
                                         paymentStatus:
                                             type: string
                                             description: 결제 상태 (생성 시 기본 값은 'unpaid')
-                                        _id:
+                                        orderId:
                                             type: string
                                             description: 주문서 고유 번호 (주문 요청 등에 사용)
                                             example: 65f2d1234567890123456794
@@ -311,7 +311,7 @@
                                     type: number
                                     example: 3000
                                     description: 적립 포인트
-                                _id:
+                                orderId:
                                     type: string
                                     example: "67b1a4da3eaf118cfe31bded"
                                     description: 주문서 고유 번호

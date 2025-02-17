@@ -38,27 +38,91 @@
                         schema:
                             type: object
                             properties:
-                                orderId:
+                                message:
                                     type: string
-                                    description: 주문서 고유 번호
-                                    example: "order-1"
-                                products:
-                                    type: array
-                                    items:
-                                        type: object
-                                        properties:
-                                            productId:
+                                    example: "order create success"
+                                order:
+                                    type: object
+                                    properties:
+                                        orderId:
+                                            type: string
+                                            description: 주문서 고유 번호
+                                            example: "67b1a4da3eaf118cfe31bded"
+                                        products:
+                                            type: array
+                                            items:
+                                                type: object
+                                                properties:
+                                                    productId:
+                                                        type: string
+                                                        description: 상품 고유 번호
+                                                        example: "product-1"
+                                                    amount:
+                                                        type: integer
+                                                        description: 구매 수량
+                                                        example: 1
+                                                    optionName:
+                                                        type: string
+                                                        description: 상품 옵션 이름
+                                                        example: "옵션 1"
+                                                    _id:
+                                                        type: string
+                                                        description: 주문서 내의 상품에 대한 새로 생성 된 고유 번호
+                                                        example: "5f9b1b3b7b3b3b3b3b3b3b3b"
+                                        totalPrice:
+                                            type: integer
+                                            description: 총합 가격
+                                            example: 10000
+                                        addressInfo:
+                                            type: object
+                                            properties:
+                                                userAddress:
+                                                    type: object
+                                                    properties:
+                                                        address:
+                                                            type: string
+                                                            description: 주소
+                                                            example: "서울시 강남구 테헤란로 427"
+                                                        extraAddress:
+                                                            type: string
+                                                            description: 추가 주소
+                                                        defaultAddr:
+                                                            type: boolean
+                                                            description: 기본 주소 여부
+                                        userInfo:
+                                            type: object
+                                            properties:
+                                                user:
+                                                    type: object
+                                                    properties:
+                                                        _id:
+                                                            type: string
+                                                            description: 사용자 고유 번호
+                                                            example: "5f9b1b3b7b3b3b3b3b3b3b3b"
+                                                        name:
+                                                            type: string
+                                                            description: 사용자 이름
+                                                            example: "홍길동"
+                                                        phone:
+                                                            type: string
+                                                            description: 사용자 전화번호
+                                                            example: "010-1234-5678"
+                                                        email:
+                                                            type: string
+                                                            description: 사용자 이메일
+                                                            example: "sample@sample.com"
+                                            paymentMethod:
                                                 type: string
-                                                description: 상품 고유 번호
-                                                example: "product-1"
-                                            amount:
+                                                description: 결제 수단 ('none', 'card', 'simple') (최초 생성 시 'none')
+                                                example: "none"
+                                            paymentStatus:
+                                                type: string
+                                                description: 결제 상태 ('paid', 'unpaid') (최초 생성 시 'unpaid')
+                                                example: "unpaid"
+                                            __v:
                                                 type: integer
-                                                description: 구매 수량
-                                                example: 1
-                                            optionName:
-                                                type: string
-                                                description: 상품 옵션 이름
-                                                example: "옵션 1"
+                                                description: 데이터 버전 (사용 x)
+                                                example: 0
             400:
                 description: 잘못된 요청
                 content:
