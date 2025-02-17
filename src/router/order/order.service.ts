@@ -110,6 +110,17 @@ class OrderService {
 
         order.paymentStatus = "paid";
 
+        order.approveAt = new Date();
+        const orderProducts: Array<any> = order.products;
+        console.log("\norderProducts:\n", orderProducts);
+        orderProducts.forEach((product) => {
+            console.log("product:", product);
+            product["deliveryInfo"] = {
+                deliveryStatus: "ready",
+                deliveryComp: product.productId.info.deliveryComp,
+            };
+        });
+
         const userInventory: any = await userModel.populate(user, {
             path: "inventory",
         });
