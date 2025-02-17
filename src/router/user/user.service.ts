@@ -70,6 +70,7 @@ class UserService {
                 orderDate: order.approveAt,
                 orderStatus: order.orderStatus,
                 firstProductName: order.products[0].productId.productName,
+                firstProductMainImgUrl: order.products[0].productId.mainImgUrl,
                 totalProductCnt: order.products.length,
                 paymentMethod: order.paymentMethod,
                 totalPrice: order.totalPrice,
@@ -82,7 +83,7 @@ class UserService {
             data: {
                 // orders: await myOrders,
                 orders: orderDto,
-                
+
                 totalItems: await totalItem,
                 totalPages: Math.ceil(
                     (await totalItem) / pageQueryParam.pageSize
