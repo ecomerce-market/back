@@ -1,6 +1,6 @@
 import { Request, ParamsDictionary, Response } from "express-serve-static-core";
 import { ParsedQs } from "qs";
-import { OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
+import { OrderProduct, OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
 import { orderModel } from "./model/order.schema";
 import mongoose, { Types } from "mongoose";
@@ -380,6 +380,7 @@ class OrderService {
             const product: any = products.find(
                 (product) => product._id.toString() === orderProduct.productId
             );
+            console.log("[1]product:", product);
 
             if (
                 !product.options.find(
@@ -404,11 +405,40 @@ class OrderService {
         const userAddresses: Array<any> = populatedUser.addresses;
 
         const order = new orderModel({
-            products: body.products.map((product) => {
+            products: body.products.map((product: OrderProduct) => {
+                const productEntity: any = products.find(
+                    (entity) => entity._id.toString() === product.productId
+                );
+                console.log("productEntity:", productEntity);
+
+                // 옵션이 있는 경우의 가격 계산
+                let orgPrice, finalPrice;
+
+                if (product.optionName) {
+                    const option = productEntity?.options.find(
+                        (opt: any) => opt.optName === product.optionName
+                    );
+
+                    // orgPrice 계산
+                    orgPrice =
+                        option?.optOrgPrice && option?.optOrgPrice !== 0
+                            ? option.optOrgPrice
+                            : productEntity?.orgPrice;
+
+                    // finalPrice 계산 - orgPrice에 추가 가격 더하기
+                    finalPrice = orgPrice + (option?.additionalPrice || 0);
+                } else {
+                    // 옵션이 없는 경우
+                    orgPrice = productEntity?.orgPrice;
+                    finalPrice = productEntity?.finalPrice;
+                }
+
                 return {
                     productId: new mongoose.Types.ObjectId(product.productId),
                     amount: product.amount,
                     optionName: product.optionName,
+                    orgPrice,
+                    finalPrice,
                 };
             }),
             userInfo: { user: populatedUser._id },
@@ -419,23 +449,29 @@ class OrderService {
             },
 
             totalPrice: body.products.reduce((acc: number, cur) => {
-                const product: any = products.find(
+                const productEntity: any = products.find(
                     (product) => product._id.toString() === cur.productId
                 );
 
+                let price;
                 if (cur.optionName) {
-                    const option = product.options.find(
-                        (option: any) => option.optName === cur.optionName
+                    const option = productEntity.options.find(
+                        (opt: any) => opt.optName === cur.optionName
                     );
 
-                    return (
-                        acc +
-                        option.optOrgPrice * cur.amount +
-                        option.additionalPrice
-                    );
+                    // orgPrice 계산과 동일한 로직 적용
+                    const basePrice =
+                        option?.optOrgPrice && option?.optOrgPrice !== 0
+                            ? option.optOrgPrice
+                            : productEntity?.orgPrice;
+
+                    // finalPrice 계산과 동일한 로직 적용
+                    price = basePrice + (option?.additionalPrice || 0);
+                } else {
+                    price = productEntity?.finalPrice;
                 }
 
-                return acc + product.finalPrice * cur.amount;
+                return acc + price * cur.amount;
             }, 0),
         });
 
