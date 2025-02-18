@@ -163,17 +163,20 @@ class OrderService {
                 message: "본인의 주문서가 아닙니다.",
                 code: "E205",
             });
-        } else if (order.paymentStatus === "paid") {
+        }
+        if (order.paymentStatus === "paid") {
             return res.status(400).send({
                 message: "이미 결제가 완료된 주문서입니다.",
                 code: "E206",
             });
-        } else if (order.paymentMethod === "none") {
+        }
+        if (order.paymentMethod === "none") {
             return res.status(400).send({
                 message: "결제수단이 선택되지 않았습니다.",
                 code: "E207",
             });
-        } else if (!order.addressInfo) {
+        }
+        if (!order.addressInfo?.userAddress) {
             return res.status(400).send({
                 message: "배송 주소가 선택되지 않았습니다.",
                 code: "E209",
