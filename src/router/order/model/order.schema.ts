@@ -25,6 +25,12 @@ export const orderSchema = new Schema({
                     type: String,
                 },
             },
+            orgPrice: {
+                type: Number,
+            },
+            finalPrice: {
+                type: Number,
+            },
         },
     ],
     totalPrice: {
