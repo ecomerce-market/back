@@ -393,7 +393,6 @@ class OrderService {
                 defaultAddr: true,
             },
         });
-
         const userAddresses: Array<any> = populatedUser.addresses;
 
         const order = new orderModel({
@@ -408,7 +407,7 @@ class OrderService {
             paymentStatus: "unpaid",
             paymentMethod: "none",
             addressInfo: {
-                userAddress: userAddresses[0]._id,
+                userAddress: userAddresses[0]?._id,
             },
 
             totalPrice: body.products.reduce((acc: number, cur) => {

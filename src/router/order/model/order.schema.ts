@@ -19,12 +19,10 @@ export const orderSchema = new Schema({
                 deliveryStatus: {
                     type: String,
                     enum: ["ready", "shipping", "delivered"],
-                    required: true,
                     default: "ready",
                 },
                 deliveryComp: {
                     type: String,
-                    required: true,
                 },
             },
         },
@@ -37,7 +35,6 @@ export const orderSchema = new Schema({
         userAddress: {
             type: Schema.Types.ObjectId,
             ref: "userAddress",
-            required: true,
         },
     },
     userCoupon: {
