@@ -173,6 +173,11 @@ class OrderService {
                 message: "결제수단이 선택되지 않았습니다.",
                 code: "E207",
             });
+        } else if (!order.addressInfo) {
+            return res.status(400).send({
+                message: "배송 주소가 선택되지 않았습니다.",
+                code: "E209",
+            });
         }
 
         order.paymentStatus = "paid";
@@ -255,7 +260,7 @@ class OrderService {
         });
 
         if (body.paymentMethod) {
-            order.paymentMethod = body.paymentMethod;
+            order.paymentMethod = body.paymentMethod.toLowerCase();
         }
 
         if (body.usePoint) {
