@@ -452,7 +452,7 @@
                                 code:
                                     type: string
                                     example: "E009"
-/api/v1/users/addresses/:addressId:
+/api/v1/users/addresses/:addressId/defaults:
     patch:
         tags:
             - Users
@@ -482,6 +482,179 @@
                                 message:
                                     type: string
                                     example: "update success"
+            401:
+                description: "인증 실패"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
+            404:
+                description: "주소를 찾을 수 없음"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "address ${addressId} not found"
+                                code:
+                                    type: string
+                                    example: "E006"
+/api/v1/users/addresses/:addressId:
+    delete:
+        tags:
+            - Users
+        summary: "사용자 주소 삭제"
+        description: "사용자의 주소를 삭제합니다.<br>기본 주소는 삭제할 수 없습니다."
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: "Bearer jwt_token"
+            - in: path
+              name: addressId
+              required: true
+              schema:
+                  type: string
+              description: "삭제할 주소 ID"
+        responses:
+            200:
+                description: "주소 삭제 성공"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "delete success"
+                                addresses:
+                                    type: array
+                                    items:
+                                        type: object
+                                        description: "남은 주소 목록"
+            400:
+                description: "기본 주소 삭제 시도"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "default address cannot be deleted"
+                                code:
+                                    type: string
+                                    example: "E007"
+            401:
+                description: "인증 실패"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
+            404:
+                description: "주소를 찾을 수 없음"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "address ${addressId} not found"
+                                code:
+                                    type: string
+                                    example: "E006"
+    patch:
+        tags:
+            - Users
+        summary: "사용자 주소 수정"
+        description: "사용자의 주소를 수정합니다.<br>수정하고자 하는 필드만 전송.<br> 기본 주소 지정 해제 시 요청 실패 -> 다른 주소를 기본 주소로 설정해야 함"
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: "Bearer jwt_token"
+            - in: path
+              name: addressId
+              required: true
+              schema:
+                  type: string
+              description: "수정할 주소 ID"
+        requestBody:
+            required: false
+            content:
+                application/json:
+                    schema:
+                        type: object
+                        properties:
+                            address:
+                                type: string
+                                description: "주소"
+                            extraAddr:
+                                type: string
+                                description: "상세 주소"
+                            isDefault:
+                                type: boolean
+                                description: "기본 주소 여부"
+        responses:
+            200:
+                description: "주소 수정 성공"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "update success"
+                                address:
+                                    type: object
+                                    properties:
+                                        _id:
+                                            type: string
+                                            example: "6416f..."
+                                        address:
+                                            type: string
+                                            example: "서울특별시..."
+                                        extraAddress:
+                                            type: string
+                                            example: "101동 1001호"
+                                        defaultAddr:
+                                            type: boolean
+                                            example: true
+            400:
+                description: "요청 실패"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "default address must exist"
+                                code:
+                                    type: string
+                                    example: "E008"
             401:
                 description: "인증 실패"
                 content:
