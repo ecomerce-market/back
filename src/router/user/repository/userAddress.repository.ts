@@ -2,6 +2,11 @@ import { Model } from "mongoose";
 import { userAddressModel } from "../model/userAddress.schema";
 
 class UserAddressRepository {
+    async delete(addressId: any) {
+        return userAddressModel.deleteOne({
+            _id: addressId,
+        });
+    }
     async findById(addressId: string) {
         return userAddressModel.findById(addressId);
     }

@@ -107,9 +107,31 @@ userRouter.post(
     }
 );
 
-// 사용자 주소 기본 주소 수정
+// 사용자 주소 삭제
+userRouter.delete(
+    PATH_USERS + "/addresses/:addressId",
+    jwtMiddleware.jwtMiddleWare,
+    param("addressId").exists({ values: "null" }).isString().isMongoId(),
+    (req: Request, res: Response) => {
+        userService.deleteUserAddress(req, res);
+    }
+);
+
+// 사용자 주소 수정
 userRouter.patch(
     PATH_USERS + "/addresses/:addressId",
+    body("address").optional().isString().isLength({ max: 1024 }),
+    body("extraAddr").optional().isString().isLength({ max: 1024 }),
+    body("isDefault").optional().isBoolean(),
+    jwtMiddleware.jwtMiddleWare,
+    (req: Request, res: Response) => {
+        userService.updateUserAddress(req, res);
+    }
+);
+
+// 사용자 주소 기본 주소 수정
+userRouter.patch(
+    PATH_USERS + "/addresses/:addressId/defaults",
     jwtMiddleware.jwtMiddleWare,
     param("addressId").exists({ values: "null" }).isString().isMongoId(),
     (req: Request, res: Response) => {

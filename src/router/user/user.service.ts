@@ -15,6 +15,136 @@ import { PageQueryParam } from "../../common/dto/common.req.dto";
 
 class UserService {
     constructor() {}
+    async deleteUserAddress(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
+
+        const loginId: string = req.headers["X-Request-user-id"] as string;
+
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+
+        const addressId: string = req.params.addressId;
+
+        const userFullData = await userModel.populate(user, {
+            path: "addresses",
+        });
+
+        const userAddress: Array<any> = userFullData.addresses;
+
+        const targetAddress = userAddress.find((address: any) =>
+            (address._id as mongoose.Types.ObjectId).equals(addressId)
+        );
+
+        if (!targetAddress) {
+            return res.status(404).json({
+                message: `address ${addressId} not found`,
+                code: "E006",
+            });
+        }
+
+        if (targetAddress.defaultAddr) {
+            return res.status(400).json({
+                message: "default address cannot be deleted",
+                code: "E007",
+            });
+        }
+
+        // 삭제
+        userAddressRepository.delete(targetAddress._id);
+        userFullData.addresses = userAddress.filter(
+            (address) =>
+                !(address._id as mongoose.Types.ObjectId).equals(addressId)
+        );
+        await userRepository.update(userFullData);
+
+        return res.status(200).json({
+            message: "delete success",
+            addresses: userFullData.addresses,
+        });
+    }
+    async updateUserAddress(
+        req: Request<
+            import("express-serve-static-core").ParamsDictionary,
+            any,
+            any,
+            import("qs").ParsedQs,
+            Record<string, any>
+        >,
+        res: Response<any, Record<string, any>>
+    ) {
+        if (validateMiddleware.validateCheck(req, res)) {
+            return;
+        }
+
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const body: UserReqDto.UserAddress = req.body;
+
+        const addressId: string = req.params.addressId;
+
+        const userFullData = await userModel.populate(user, {
+            path: "addresses",
+        });
+
+        const addresses: Array<any> = userFullData.addresses;
+
+        const targetAddress = addresses.find((address: any) =>
+            (address._id as mongoose.Types.ObjectId).equals(addressId)
+        );
+
+        if (!targetAddress) {
+            return res.status(404).json({
+                message: `address ${addressId} not found`,
+                code: "E006",
+            });
+        }
+
+        if (
+            !body.isDefault &&
+            body.isDefault === false &&
+            addresses.every((address: any) => !address.defaultAddr)
+        ) {
+            return res.status(400).json({
+                message: "default address must exist",
+                code: "E008",
+            });
+        }
+
+        targetAddress.address = body.address ?? targetAddress.address;
+        targetAddress.extraAddress =
+            body.extraAddr ?? targetAddress.extraAddress;
+        targetAddress.defaultAddr = body.isDefault ?? targetAddress.defaultAddr;
+
+        if (body.isDefault) {
+            userFullData.addresses.forEach((address: any) => {
+                if (
+                    (address._id as mongoose.Types.ObjectId).equals(addressId)
+                ) {
+                    address.defaultAddr = true;
+                } else {
+                    address.defaultAddr = false;
+                }
+            });
+
+            userAddressRepository.updateBulk(userFullData.addresses);
+        }
+
+        await userAddressRepository.update(targetAddress);
+        return res.status(200).json({
+            message: "update success",
+            address: targetAddress,
+        });
+    }
 
     async getUserOrders(
         req: Request<
