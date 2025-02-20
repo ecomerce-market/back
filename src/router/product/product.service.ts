@@ -9,7 +9,7 @@ import productRepository from "./repository/product.repository";
 import productCategoryRepository from "./repository/productCategory.repository";
 import { ProductModel } from "./model/product.schema";
 import userRepository from "../../router/user/repository/user.repository";
-import { userModel } from "../../router/user/model/user.scheme";
+import { userModel } from "../user/model/user.schema";
 import * as mongoose from "mongoose";
 import {
     EndingSoonProductResDto,

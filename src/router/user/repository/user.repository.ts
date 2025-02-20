@@ -1,5 +1,5 @@
 import { Model } from "mongoose";
-import { userModel } from "../model/user.scheme";
+import { userModel } from "../model/user.schema";
 
 class UserRepository {
     async update(user: any) {

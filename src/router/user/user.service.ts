@@ -1,6 +1,6 @@
 import { userInventoryModel } from "./model/userInventory.schema";
 import { json } from "stream/consumers";
-import { userModel } from "./model/user.scheme";
+import { userModel } from "./model/user.schema";
 import { Request, Response } from "express";
 import userRepository from "./repository/user.repository";
 import * as bcrypt from "bcrypt";

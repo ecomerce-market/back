@@ -6,7 +6,7 @@ import { orderModel } from "./model/order.schema";
 import mongoose, { Types } from "mongoose";
 import orderRepository from "./repository/order.repository";
 import userRepository from "../../router/user/repository/user.repository";
-import { userModel } from "../../router/user/model/user.scheme";
+import { userModel } from "../user/model/user.schema";
 import { userInventoryModel } from "../../router/user/model/userInventory.schema";
 import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 import orderIdemKeyRepository from "./repository/orderIdemKey.repository";
