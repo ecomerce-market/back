@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 import mainBannerRepository from "./repository/mainBanner.repository";
+import { MainBannerResDto } from "./dto/mainBanner.res.dto";
 
 class BannerService {
     async getMainBanners(
@@ -10,7 +11,7 @@ class BannerService {
     ) {
         const banners = await mainBannerRepository.findAll();
 
-        const bannerDto: Array<MainBannerResDto.MainBanner> = [];
+        const bannerDto: Array<MainBannerResDto> = [];
 
         banners.forEach((banner) => {
             bannerDto.push({

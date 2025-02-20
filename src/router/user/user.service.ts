@@ -12,6 +12,14 @@ import userAddressRepository from "./repository/userAddress.repository";
 import * as mongoose from "mongoose";
 import orderRepository from "../../router/order/repository/order.repository";
 import { PageQueryParam } from "../../common/dto/common.req.dto";
+import {
+    UserAddressReqDto,
+    UserCheckPasswordReqDto,
+    UserSignInReqDto,
+    UserSignUpReqDto,
+    UserUpdateProfileReqDto,
+} from "./dto/user.req.dto";
+import { UserProfileResDto } from "./dto/user.res.dto";
 
 class UserService {
     constructor() {}
@@ -88,7 +96,7 @@ class UserService {
 
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
-        const body: UserReqDto.UserAddress = req.body;
+        const body: UserAddressReqDto = req.body;
 
         const addressId: string = req.params.addressId;
 
@@ -267,7 +275,7 @@ class UserService {
             path: "addresses",
         });
 
-        const body: UserReqDto.UserAddress = req.body;
+        const body: UserAddressReqDto = req.body;
 
         const newAddress = new userAddressModel({
             address: body.address,
@@ -364,7 +372,7 @@ class UserService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserReqDto.UserSignUp = req.body;
+        const body: UserSignUpReqDto = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
             body.loginId,
             body.email
@@ -412,7 +420,7 @@ class UserService {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
-        const body: UserReqDto.UserSignIn = req.body;
+        const body: UserSignInReqDto = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
             body.loginId
         );
@@ -459,7 +467,7 @@ class UserService {
             path: "inventory",
         });
 
-        const resDto: UserResDto.UserProfile = {
+        const resDto: UserProfileResDto = {
             tier: userFullData.inventory.tier ?? "기본",
             name: userFullData.name,
             loginId: userFullData.loginId,
@@ -493,7 +501,7 @@ class UserService {
 
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
 
-        const dto: UserReqDto.UserCheckPassword = req.body;
+        const dto: UserCheckPasswordReqDto = req.body;
 
         if (!this.comparePassword(dto.loginPw, user.loginPw)) {
             return res.status(400).json({
@@ -520,7 +528,7 @@ class UserService {
             return;
         }
 
-        const dto: UserReqDto.UserUpdateProfile = req.body;
+        const dto: UserUpdateProfileReqDto = req.body;
 
         const loginId = req.headers["X-Request-user-id"] as string;
 

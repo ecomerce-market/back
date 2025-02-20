@@ -11,6 +11,14 @@ import { ProductModel } from "./model/product.schema";
 import userRepository from "../../router/user/repository/user.repository";
 import { userModel } from "../../router/user/model/user.scheme";
 import * as mongoose from "mongoose";
+import {
+    EndingSoonProductResDto,
+    EndingSoonResDto,
+    NewProductsResDto,
+    ProductPreviewResDto,
+    ProductsResDto,
+    WeekendDealsResDto,
+} from "./dto/product.res.dto";
 
 class ProductService {
     async likeProduct(req: Request, res: Response) {
@@ -156,7 +164,7 @@ class ProductService {
         const { products, totalItems } =
             await productRepository.getProducts(reqParam);
 
-        const productDto: Array<ProductResDto.ProductPreview> = [];
+        const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
             productDto.push({
@@ -174,7 +182,7 @@ class ProductService {
             });
         });
 
-        const resDto: ProductResDto.Products = {
+        const resDto: ProductsResDto = {
             products: productDto,
             totalItems,
             totalPages: Math.ceil(totalItems / reqParam.pageSize),
@@ -260,7 +268,7 @@ class ProductService {
                 pageNumber
             );
 
-        const productDto: Array<ProductResDto.ProductPreview> = [];
+        const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
             productDto.push({
@@ -278,7 +286,7 @@ class ProductService {
             });
         });
 
-        const resDto: ProductResDto.WeekendDeals = {
+        const resDto: WeekendDealsResDto = {
             endDate: this.getWeekendDealDate(),
             products: productDto,
         };
@@ -301,7 +309,7 @@ class ProductService {
                 queries.pageNumber
             );
 
-        const productDto: Array<ProductResDto.EndingSoonProduct> = [];
+        const productDto: Array<EndingSoonProductResDto> = [];
 
         products.forEach((product) => {
             productDto.push({
@@ -320,7 +328,7 @@ class ProductService {
             });
         });
 
-        const resDto: ProductResDto.EndingSoon = {
+        const resDto: EndingSoonResDto = {
             products: productDto,
         };
 
@@ -338,7 +346,7 @@ class ProductService {
             pageNumber
         );
 
-        const productDto: Array<ProductResDto.ProductPreview> = [];
+        const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
             productDto.push({
@@ -356,7 +364,7 @@ class ProductService {
             });
         });
 
-        const resDto: ProductResDto.NewProducts = {
+        const resDto: NewProductsResDto = {
             products: productDto,
         };
 
