@@ -88,7 +88,6 @@ class AuthService {
 
     parseToken(req: Request, res: Response): string | undefined {
         const authorization = req.headers.authorization;
-        console.log("authorization: ", authorization);
         const token = authorization?.split("Bearer ")[1];
         return token;
     }

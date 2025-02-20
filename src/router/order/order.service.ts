@@ -187,9 +187,7 @@ class OrderService {
 
         order.approveAt = new Date();
         const orderProducts: Array<any> = order.products;
-        console.log("\norderProducts:\n", orderProducts);
         orderProducts.forEach((product) => {
-            console.log("product:", product);
             product["deliveryInfo"] = {
                 deliveryStatus: "ready",
                 deliveryComp: product.productId.info.deliveryComp,
@@ -380,7 +378,6 @@ class OrderService {
             const product: any = products.find(
                 (product) => product._id.toString() === orderProduct.productId
             );
-            console.log("[1]product:", product);
 
             if (
                 !product.options.find(
@@ -409,7 +406,6 @@ class OrderService {
                 const productEntity: any = products.find(
                     (entity) => entity._id.toString() === product.productId
                 );
-                console.log("productEntity:", productEntity);
 
                 // 옵션이 있는 경우의 가격 계산
                 let orgPrice, finalPrice;

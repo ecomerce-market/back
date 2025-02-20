@@ -25,7 +25,6 @@ class ProductCategoryRepository {
 
         // 카테고리 depth가 가변적인 경우 다른 재귀적 방식이나 lookup을 사용해야 함
         if (categoryReqParam.child) {
-            console.log("populate childCategories");
             query.populate({
                 path: "childCategories",
                 options: {

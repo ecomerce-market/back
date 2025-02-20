@@ -44,8 +44,6 @@ class ProductService {
                 userWithInven.inventory.likeProducts = [];
             }
 
-            console.log(userWithInven.inventory.likeProducts);
-
             if (
                 userWithInven.inventory.likeProducts.some(
                     (likeProduct: any) =>
@@ -110,8 +108,6 @@ class ProductService {
             if (!userWithInven.inventory.likeProducts) {
                 userWithInven.inventory.likeProducts = [];
             }
-
-            console.log(userWithInven.inventory.likeProducts);
 
             if (
                 userWithInven.inventory.likeProducts.some(
@@ -386,7 +382,6 @@ class ProductService {
 
     async getCategories(req: Request, res: Response) {
         const categoryReqParam: GetCategoryParamDto = req.query;
-        console.log(categoryReqParam);
 
         const categories: Array<any> =
             await productCategoryRepository.getCategories(categoryReqParam);
