@@ -152,7 +152,7 @@ export const ERRCODE = {
 
     E208: {
         message: "배송 주소가 선택되지 않았습니다.",
-        code: "E209",
+        code: "E208",
         status: 400,
         desc: "주문서 배송지 선택이 되지 않았을 때 에러",
     },
