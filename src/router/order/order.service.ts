@@ -14,10 +14,7 @@ import { orderIdemKeyModel } from "./model/orderIdemKey.schema";
 import validateMiddleware from "../../middleware/validate.middleware";
 
 class OrderService {
-    async getOrderDetail(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async getOrderDetail(req: Request, res: Response) {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const orderId = req.params.orderId;
@@ -112,10 +109,7 @@ class OrderService {
             },
         });
     }
-    async approveOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async approveOrder(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
@@ -221,10 +215,7 @@ class OrderService {
         });
     }
 
-    async updateOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async updateOrder(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
@@ -345,10 +336,7 @@ class OrderService {
      * @param req
      * @param res
      */
-    async createOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async createOrder(req: Request, res: Response) {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const user: any = userRepository.findByLoginIdAndDeleteAtNull(loginId);

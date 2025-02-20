@@ -5,10 +5,7 @@ import validateMiddleware from "../../middleware/validate.middleware";
 import { ParsedQs } from "qs";
 
 class AuthService {
-    validateToken(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>>
-    ): void | Promise<void> {
+    validateToken(req: Request, res: Response): void | Promise<void> {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }

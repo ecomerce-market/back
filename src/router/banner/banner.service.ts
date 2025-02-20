@@ -5,10 +5,7 @@ import mainBannerRepository from "./repository/mainBanner.repository";
 import { MainBannerResDto } from "./dto/mainBanner.res.dto";
 
 class BannerService {
-    async getMainBanners(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>>
-    ) {
+    async getMainBanners(req: Request, res: Response) {
         const banners = await mainBannerRepository.findAll();
 
         const bannerDto: Array<MainBannerResDto> = [];

@@ -23,16 +23,7 @@ import { UserProfileResDto } from "./dto/user.res.dto";
 
 class UserService {
     constructor() {}
-    async deleteUserAddress(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async deleteUserAddress(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
@@ -80,16 +71,7 @@ class UserService {
             addresses: userFullData.addresses,
         });
     }
-    async updateUserAddress(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async updateUserAddress(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
@@ -154,16 +136,7 @@ class UserService {
         });
     }
 
-    async getUserOrders(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async getUserOrders(req: Request, res: Response) {
         const loginId = req.headers["X-Request-user-id"] as string;
         const user: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -225,16 +198,7 @@ class UserService {
             currItem: ((await myOrders) as Array<any>).length,
         });
     }
-    async updateUserDefaultAddress(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async updateUserDefaultAddress(req: Request, res: Response) {
         const addressId: string = req.params.addressId;
 
         const loginId = req.headers["X-Request-user-id"] as string;
@@ -337,16 +301,7 @@ class UserService {
         });
     }
 
-    async existsUser(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async existsUser(req: Request, res: Response) {
         const loginId = req.query.loginId as string;
         if (!loginId) {
             return res.status(400).json({
@@ -450,16 +405,7 @@ class UserService {
         });
     }
 
-    async getProfiles(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async getProfiles(req: Request, res: Response) {
         const loginId = req.headers["X-Request-user-id"] as string;
 
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -484,16 +430,7 @@ class UserService {
         });
     }
 
-    async checkPassword(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async checkPassword(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
@@ -514,16 +451,7 @@ class UserService {
         });
     }
 
-    async updateProfile(
-        req: Request<
-            import("express-serve-static-core").ParamsDictionary,
-            any,
-            any,
-            import("qs").ParsedQs,
-            Record<string, any>
-        >,
-        res: Response<any, Record<string, any>>
-    ) {
+    async updateProfile(req: Request, res: Response) {
         if (validateMiddleware.validateCheck(req, res)) {
             return;
         }
