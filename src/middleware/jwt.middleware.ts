@@ -10,7 +10,7 @@ class JwtMiddleware {
         res: express.Response,
         next: express.NextFunction
     ) {
-        const token = this.parseToken(req);
+        const token = JwtMiddleware.parseToken(req);
         if (!token) {
             new ErrorDto(ERRCODE.E009).sendResponse(res);
             return;
@@ -24,7 +24,9 @@ class JwtMiddleware {
             return;
         } else {
             const decoded = jwtService.readToken(token);
-            this.setDecodedJwtHeader(req, { loginId: decoded.loginId });
+            JwtMiddleware.setDecodedJwtHeader(req, {
+                loginId: decoded.loginId,
+            });
             next();
         }
     }
@@ -35,7 +37,7 @@ class JwtMiddleware {
         res: express.Response,
         next: express.NextFunction
     ) {
-        const token = this.parseToken(req);
+        const token = JwtMiddleware.parseToken(req);
         if (!token) {
             next();
             return;
@@ -44,20 +46,25 @@ class JwtMiddleware {
 
         if (!(result instanceof Error) && result) {
             const decoded = jwtService.readToken(token);
-            this.setDecodedJwtHeader(req, { loginId: decoded.loginId });
+            JwtMiddleware.setDecodedJwtHeader(req, {
+                loginId: decoded.loginId,
+            });
         }
         next();
     }
 
     // 토큰을 파싱하는 함수
-    parseToken(req: express.Request): string | undefined {
+    static parseToken(req: express.Request): string | undefined {
         const authorization = req.headers.authorization;
         const token = authorization?.split("Bearer ")[1];
         return token;
     }
 
     // 헤더에 디코딩된 JWT 정보를 저장하는 함수
-    setDecodedJwtHeader(req: express.Request, data: { loginId: string }) {
+    static setDecodedJwtHeader(
+        req: express.Request,
+        data: { loginId: string }
+    ) {
         req.headers["X-Request-user-id"] = data.loginId;
     }
 }
