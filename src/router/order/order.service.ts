@@ -20,7 +20,7 @@ class OrderService {
 
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
@@ -32,10 +32,10 @@ class OrderService {
         orderObj.orderId = orderObj._id;
         delete orderObj._id;
 
-        const nonIcedProducts = order.products.filter(
+        const nonIcedProducts: Array<any> = order.products.filter(
             (product: any) => !product.deliveryInfo.isIce
         );
-        const icedProducts = order.products.filter(
+        const icedProducts: Array<any> = order.products.filter(
             (product: any) => product.deliveryInfo.isIce
         );
 
@@ -81,6 +81,16 @@ class OrderService {
             }
         }
 
+        let totalOrgPrice = 0;
+        let totalDiscountedPrice = 0;
+
+        orderObj.products.forEach((product: any) => {
+            totalOrgPrice += product.productId.orgPrice * product.amount;
+            totalDiscountedPrice +=
+                product.productId.orgPrice * product.amount -
+                product.finalPrice * product.amount;
+        });
+
         const data = {
             order: {
                 ...orderObj,
@@ -89,18 +99,8 @@ class OrderService {
                     nonIcedProdDelivStatus,
                 },
                 totalPrice: orderObj.totalPrice - orderObj.usedPoints,
-                totalOrgPrice: orderObj.products.reduce(
-                    (acc: number, cur: any) => {
-                        return acc + cur.productId.orgPrice * cur.amount;
-                    },
-                    0
-                ),
-                totalDiscountedPrice:
-                    orderObj.products.reduce((acc: number, cur: any) => {
-                        return acc + cur.productId.orgPrice * cur.amount;
-                    }, 0) -
-                    orderObj.totalPrice +
-                    orderObj.usedPoints,
+                totalOrgPrice,
+                totalDiscountedPrice,
             },
         };
         return new ResDto({ data: data });
@@ -142,7 +142,7 @@ class OrderService {
         const user: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
@@ -163,13 +163,12 @@ class OrderService {
 
         order.approveAt = new Date();
         const orderProducts: Array<any> = order.products;
-        orderProducts.forEach((product) => {
+        orderProducts.forEach((product: any) => {
             product["deliveryInfo"] = {
                 deliveryStatus: "ready",
                 deliveryComp: product.productId.info.deliveryComp,
             };
         });
-
         const userInventory: any = await userModel.populate(user, {
             path: "inventory",
         });
@@ -209,7 +208,7 @@ class OrderService {
         const body: OrderUpdateDto = req.body;
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
