@@ -1,4 +1,4 @@
-const ERRCODE = {
+export const ERRCODE = {
     // Validation Error
     E000: {
         status: 400,
