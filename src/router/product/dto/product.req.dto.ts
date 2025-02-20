@@ -1,4 +1,3 @@
-import { create } from "domain";
 import { PageQueryParam } from "../../../common/dto/common.req.dto";
 
 export interface GetCategoryParamDto {

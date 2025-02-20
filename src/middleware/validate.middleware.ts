@@ -1,15 +1,16 @@
+import { ERRCODE } from "../common/constants/errorCode.constants";
+import { ErrorDto } from "../common/dto/error.res.dto";
 import * as express from "express";
 import { validationResult } from "express-validator";
 
 class ValidateMiddleWare {
-    validateCheck(req: express.Request, res: express.Response) {
+    validateCheck(
+        req: express.Request,
+        res: express.Response
+    ): ErrorDto | undefined {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({
-                message: "request validation failed",
-                code: "E000",
-                ...errors,
-            });
+            return new ErrorDto(ERRCODE.E000);
         }
     }
 }

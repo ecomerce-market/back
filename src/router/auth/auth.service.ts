@@ -3,94 +3,69 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import validateMiddleware from "../../middleware/validate.middleware";
 import { ParsedQs } from "qs";
+import { ResDto } from "../../common/dto/common.res.dto";
+import { ErrorDto } from "../../common/dto/error.res.dto";
+import { ERRCODE } from "../../common/constants/errorCode.constants";
+import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class AuthService {
-    validateToken(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>>
-    ): void | Promise<void> {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
-        }
+    // token 유효성 검사
+    @validateRequest
+    validateToken(req: Request, res: Response): ResDto {
         const token = this.parseToken(req, res);
         if (!token) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-            });
-            return;
+            return new ErrorDto(ERRCODE.E009);
         }
 
-        const result = jwtService.validateToken(token);
-
-        if (result instanceof Error) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-                error: result.message,
-            });
-            return;
-        } else if (!result) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-            });
-            return;
-        } else {
-            res.status(200).json({
-                message: "validation success",
-            });
-            return;
+        const tokenValidateError = this.checkValidateToken(token);
+        if (tokenValidateError) {
+            return tokenValidateError;
         }
+
+        return new ResDto({ message: "validation success" });
     }
 
-    async recreateAccessToken(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
-        }
-
+    // access token 재발급
+    @validateRequest
+    async recreateAccessToken(req: Request, res: Response): Promise<ResDto> {
         const refreshToken = this.parseToken(req, res);
         if (!refreshToken) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-            });
-            return;
+            return new ErrorDto(ERRCODE.E009);
         }
-        const result = jwtService.validateToken(refreshToken);
 
-        if (result instanceof Error) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-                error: result.message,
-            });
-            return;
-        } else if (!result) {
-            res.status(401).json({
-                message: "Unauthorized",
-                code: "E009",
-            });
-            return;
-        } else {
-            const decoded = jwtService.readToken(refreshToken);
-
-            const { accessToken } = jwtService.writeToken({
-                loginId: decoded.loginId,
-                email: decoded.email,
-            });
-            res.status(200).json({
-                accessToken,
-            });
-            return;
+        const tokenValidateError = this.checkValidateToken(refreshToken);
+        if (tokenValidateError) {
+            return tokenValidateError;
         }
+        const decoded = jwtService.readToken(refreshToken);
+
+        const { accessToken } = jwtService.writeToken({
+            loginId: decoded.loginId,
+            email: decoded.email,
+        });
+
+        return new ResDto({
+            data: { accessToken },
+            message: "recreate success",
+        });
     }
 
+    // request 에서 token 추출
     parseToken(req: Request, res: Response): string | undefined {
         const authorization = req.headers.authorization;
-        console.log("authorization: ", authorization);
         const token = authorization?.split("Bearer ")[1];
         return token;
+    }
+
+    // token 유효성 검사 후 에러 발생시 JWT 에러 반환
+    checkValidateToken(token: string): ErrorDto | undefined {
+        const result = jwtService.validateToken(token);
+
+        if (result instanceof Error || !result) {
+            return new ErrorDto(ERRCODE.E009, {
+                error: result instanceof Error ? result.message : undefined,
+            });
+        }
     }
 }
 

@@ -1,49 +1,41 @@
-import { Request, ParamsDictionary, Response } from "express-serve-static-core";
-import { ParsedQs } from "qs";
+import { Request, Response } from "express-serve-static-core";
 import { OrderProduct, OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
 import { orderModel } from "./model/order.schema";
 import mongoose, { Types } from "mongoose";
 import orderRepository from "./repository/order.repository";
 import userRepository from "../../router/user/repository/user.repository";
-import { userModel } from "../../router/user/model/user.scheme";
-import { userInventoryModel } from "../../router/user/model/userInventory.schema";
+import { userModel } from "../user/model/user.schema";
 import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 import orderIdemKeyRepository from "./repository/orderIdemKey.repository";
 import { orderIdemKeyModel } from "./model/orderIdemKey.schema";
-import validateMiddleware from "../../middleware/validate.middleware";
+import { ResDto } from "../../common/dto/common.res.dto";
+import { validateRequest } from "../../common/decorators/validate.decorator";
+import { ErrorDto } from "../../common/dto/error.res.dto";
+import { ERRCODE } from "../../common/constants/errorCode.constants";
 
 class OrderService {
-    async getOrderDetail(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async getOrderDetail(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
-            return res.status(404).send({
-                message: "주문서가 존재하지 않습니다.",
-                code: "E203",
-            });
+            return new ErrorDto(ERRCODE.E203);
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(404).send({
-                message: "본인의 주문서가 아닙니다.",
-                code: "E205",
-            });
+            return new ErrorDto(ERRCODE.E205);
         }
 
         const orderObj = order.toObject();
         orderObj.orderId = orderObj._id;
         delete orderObj._id;
 
-        const nonIcedProducts = order.products.filter(
+        const nonIcedProducts: Array<any> = order.products.filter(
             (product: any) => !product.deliveryInfo.isIce
         );
-        const icedProducts = order.products.filter(
+        const icedProducts: Array<any> = order.products.filter(
             (product: any) => product.deliveryInfo.isIce
         );
 
@@ -88,8 +80,18 @@ class OrderService {
                 icedProdDelivStatus = "shipping";
             }
         }
-        return res.status(200).json({
-            message: "success",
+
+        let totalOrgPrice = 0;
+        let totalDiscountedPrice = 0;
+
+        orderObj.products.forEach((product: any) => {
+            totalOrgPrice += product.productId.orgPrice * product.amount;
+            totalDiscountedPrice +=
+                product.productId.orgPrice * product.amount -
+                product.finalPrice * product.amount;
+        });
+
+        const data = {
             order: {
                 ...orderObj,
                 deliveryStatus: {
@@ -97,28 +99,15 @@ class OrderService {
                     nonIcedProdDelivStatus,
                 },
                 totalPrice: orderObj.totalPrice - orderObj.usedPoints,
-                totalOrgPrice: orderObj.products.reduce(
-                    (acc: number, cur: any) => {
-                        return acc + cur.productId.orgPrice * cur.amount;
-                    },
-                    0
-                ),
-                totalDiscountedPrice:
-                    orderObj.products.reduce((acc: number, cur: any) => {
-                        return acc + cur.productId.orgPrice * cur.amount;
-                    }, 0) -
-                    orderObj.totalPrice +
-                    orderObj.usedPoints,
+                totalOrgPrice,
+                totalDiscountedPrice,
             },
-        });
+        };
+        return new ResDto({ data: data });
     }
-    async approveOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
-        }
+
+    @validateRequest
+    async approveOrder(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const uuid: string = req.body.uuid;
@@ -140,62 +129,46 @@ class OrderService {
             const order: any = idemKeyOrder.orderId;
             const addedPoints: number = order.totalPrice * 0.01; // 1% 적립 (적립 예시 퍼센트)
 
-            return res.status(200).send({
+            return new ResDto({
                 message: "order approve success",
-                totalPaidPrice: order.totalPrice - order.usedPoints,
-                addedPoints,
-                orderId: order._id,
+                data: {
+                    totalPaidPrice: order.totalPrice - order.usedPoints,
+                    addedPoints,
+                    orderId: order._id,
+                },
             });
         }
 
         const user: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
-            return res.status(404).send({
-                message: "주문서가 존재하지 않습니다.",
-                code: "E203",
-            });
+            return new ErrorDto(ERRCODE.E203);
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(400).send({
-                message: "본인의 주문서가 아닙니다.",
-                code: "E205",
-            });
+            return new ErrorDto(ERRCODE.E205);
         }
         if (order.paymentStatus === "paid") {
-            return res.status(400).send({
-                message: "이미 결제가 완료된 주문서입니다.",
-                code: "E206",
-            });
+            return new ErrorDto(ERRCODE.E204);
         }
         if (order.paymentMethod === "none") {
-            return res.status(400).send({
-                message: "결제수단이 선택되지 않았습니다.",
-                code: "E207",
-            });
+            return new ErrorDto(ERRCODE.E206);
         }
         if (!order.addressInfo?.userAddress) {
-            return res.status(400).send({
-                message: "배송 주소가 선택되지 않았습니다.",
-                code: "E209",
-            });
+            return new ErrorDto(ERRCODE.E208);
         }
 
         order.paymentStatus = "paid";
 
         order.approveAt = new Date();
         const orderProducts: Array<any> = order.products;
-        console.log("\norderProducts:\n", orderProducts);
-        orderProducts.forEach((product) => {
-            console.log("product:", product);
+        orderProducts.forEach((product: any) => {
             product["deliveryInfo"] = {
                 deliveryStatus: "ready",
                 deliveryComp: product.productId.info.deliveryComp,
             };
         });
-
         const userInventory: any = await userModel.populate(user, {
             path: "inventory",
         });
@@ -215,22 +188,18 @@ class OrderService {
             orderId,
         });
 
-        return res.status(200).json({
+        return new ResDto({
             message: "order approve success",
-            totalPaidPrice: saved.totalPrice - saved.usedPoints,
-            addedPoints,
-            _id: saved._id,
+            data: {
+                totalPaidPrice: saved.totalPrice - saved.usedPoints,
+                addedPoints,
+                orderId: saved._id,
+            },
         });
     }
 
-    async updateOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
-        }
-
+    @validateRequest
+    async updateOrder(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const user: any =
@@ -239,23 +208,14 @@ class OrderService {
         const body: OrderUpdateDto = req.body;
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId);
+        const order: any = await orderRepository.findById(orderId, true);
 
         if (!order) {
-            return res.status(404).send({
-                message: "주문서가 존재하지 않습니다.",
-                code: "E203",
-            });
+            return new ErrorDto(ERRCODE.E203);
         } else if (order.paymentStatus === "paid") {
-            return res.status(400).send({
-                message: "이미 결제가 완료된 주문서입니다.",
-                code: "E204",
-            });
+            return new ErrorDto(ERRCODE.E204);
         } else if (order.userInfo["user"].loginId !== loginId) {
-            return res.status(400).send({
-                message: "본인의 주문서가 아닙니다.",
-                code: "E205",
-            });
+            return new ErrorDto(ERRCODE.E205);
         }
 
         const userInventory: any = await userModel.populate(user, {
@@ -270,10 +230,7 @@ class OrderService {
             const availablePoints: number = userInventory.inventory.points;
 
             if (!availablePoints || availablePoints < body.usePoint) {
-                return res.status(400).send({
-                    message: "사용 가능한 포인트가 부족합니다.",
-                    code: "E206",
-                });
+                return new ErrorDto(ERRCODE.E206);
             }
             order.usedPoints = body.usePoint;
         }
@@ -307,10 +264,7 @@ class OrderService {
                     address._id.equals(body.userAddressId)
                 )
             ) {
-                return res.status(400).send({
-                    message: "사용 가능한 주소가 존재하지 않습니다.",
-                    code: "E208",
-                });
+                return new ErrorDto(ERRCODE.E208);
             }
             order.addressInfo.userAddress = body.userAddressId;
         }
@@ -337,9 +291,10 @@ class OrderService {
         const orderDataObj = orderData.toObject();
         orderDataObj.orderId = orderDataObj._id;
         delete orderDataObj._id;
-        return res.status(200).json({
+
+        return new ResDto({
             message: "order update success",
-            order: orderDataObj,
+            data: { order: orderDataObj },
         });
     }
     /**
@@ -347,10 +302,7 @@ class OrderService {
      * @param req
      * @param res
      */
-    async createOrder(
-        req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-        res: Response<any, Record<string, any>, number>
-    ) {
+    async createOrder(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const user: any = userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -366,11 +318,7 @@ class OrderService {
             await productRepository.findProductByIdsForOrder(productIds);
 
         if (products.length !== body.products.length) {
-            return res.status(400).send({
-                message:
-                    "주문서 생성 요청에 필요한 상품 목록 중 상품이 존재하지 않습니다.",
-                code: "E201",
-            });
+            return new ErrorDto(ERRCODE.E201);
         }
 
         for (const orderProduct of body.products) {
@@ -380,7 +328,6 @@ class OrderService {
             const product: any = products.find(
                 (product) => product._id.toString() === orderProduct.productId
             );
-            console.log("[1]product:", product);
 
             if (
                 !product.options.find(
@@ -388,11 +335,7 @@ class OrderService {
                         option.optName.toString() === orderProduct.optionName
                 )
             ) {
-                return res.status(400).send({
-                    message:
-                        "주문서 생성 요청에 필요한 상품 목록 중 상품의 옵션이 존재하지 않습니다.",
-                    code: "E202",
-                });
+                return new ErrorDto(ERRCODE.E202);
             }
         }
 
@@ -409,7 +352,6 @@ class OrderService {
                 const productEntity: any = products.find(
                     (entity) => entity._id.toString() === product.productId
                 );
-                console.log("productEntity:", productEntity);
 
                 // 옵션이 있는 경우의 가격 계산
                 let orgPrice, finalPrice;
@@ -488,20 +430,15 @@ class OrderService {
                 model: "userAddress", // 실제 모델명과 일치
                 select: "-__v",
             },
-            // {
-            //     path: "userCoupon",
-            //     model: "coupon", // 실제 모델명과 일치
-            //     select: "-__v",
-            // },
         ]);
 
         const orderDataObj = orderData.toObject();
         orderDataObj.orderId = orderDataObj._id;
         delete orderDataObj._id;
 
-        return res.status(200).json({
+        return new ResDto({
             message: "order create success",
-            order: orderDataObj,
+            data: { order: orderDataObj },
         });
     }
 }

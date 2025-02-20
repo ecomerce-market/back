@@ -40,7 +40,10 @@ class OrderRepository {
             .skip(pageSize * (pageNumber - 1));
     }
 
-    async findById(orderId: string): Promise<any> {
+    async findById(orderId: string, populate: boolean): Promise<any> {
+        if (!populate) {
+            return orderModel.findById(orderId).select("-__v");
+        }
         return orderModel
             .findById(orderId)
             .populate([

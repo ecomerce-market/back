@@ -10,6 +10,7 @@ import productRouter from "../router/product/product.route";
 import bannerRouter from "../router/banner/banner.route";
 import * as cors from "cors";
 import orderRouter from "../router/order/order.route";
+import globalMiddleware from "../middleware/global.middleware";
 
 class Server {
     app: express.Express;
@@ -55,6 +56,7 @@ class Server {
         this.app.use(productRouter);
         this.app.use(bannerRouter);
         this.app.use(orderRouter);
+        this.app.use(globalMiddleware.globalRouterMiddleware);
     }
 
     start(): void {

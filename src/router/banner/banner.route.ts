@@ -4,8 +4,9 @@ import bannerService from "./banner.service";
 
 const bannerRouter: Router = Router();
 
-bannerRouter.get(PATH_BANNERS, (req: Request, res: Response) => {
-    bannerService.getMainBanners(req, res);
+bannerRouter.get(PATH_BANNERS, async (req: Request, res: Response) => {
+    const response = await bannerService.getMainBanners(req, res);
+    response.sendResponse(res);
 });
 
 export default bannerRouter;

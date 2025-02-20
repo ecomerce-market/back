@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import AuthService from "./auth.service";
 import { PATH_AUTH } from "../../router/router.constants";
 import { header } from "express-validator";
+import { ResDto } from "common/dto/common.res.dto";
 
 const authRouter: Router = Router();
 
@@ -14,7 +15,8 @@ authRouter.post(
         .isString()
         .contains("Bearer "),
     (req: Request, res: Response) => {
-        return authService.validateToken(req, res);
+        const response = authService.validateToken(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -24,8 +26,9 @@ authRouter.post(
         .exists({ values: "null" })
         .isString()
         .contains("Bearer "),
-    (req: Request, res: Response) => {
-        return authService.recreateAccessToken(req, res);
+    async (req: Request, res: Response) => {
+        const response = await authService.recreateAccessToken(req, res);
+        response.sendResponse(res);
     }
 );
 
