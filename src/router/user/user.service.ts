@@ -26,15 +26,13 @@ import {
 import { ResDto } from "../../common/dto/common.res.dto";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
+import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class UserService {
     constructor() {}
-    async deleteUserAddress(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
 
+    @validateRequest
+    async deleteUserAddress(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -66,12 +64,9 @@ class UserService {
             data: { addresses: user.addresses },
         });
     }
-    async updateUserAddress(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
 
+    @validateRequest
+    async updateUserAddress(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
         const body: UserAddressReqDto = req.body;
@@ -223,12 +218,8 @@ class UserService {
         return new ResDto({ message: "update success" });
     }
 
+    @validateRequest
     async addUserAddress(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
-
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
 
@@ -285,12 +276,8 @@ class UserService {
         return new ResDto({ data: { addresses: addressDto } });
     }
 
+    @validateRequest
     async existsUser(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
-
         const loginId = req.query.loginId as string;
         if (!loginId) {
             return new ErrorDto(ERRCODE.E004);
@@ -304,11 +291,8 @@ class UserService {
         }
     }
 
+    @validateRequest
     async signupUser(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
         const body: UserSignUpReqDto = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
             body.loginId,
@@ -348,11 +332,8 @@ class UserService {
         return new ResDto({});
     }
 
+    @validateRequest
     async signinUser(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
         const body: UserSignInReqDto = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
             body.loginId
@@ -387,11 +368,8 @@ class UserService {
         return new ResDto({ data: { data: resDto } });
     }
 
+    @validateRequest
     async checkPassword(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
         const loginId = req.headers["X-Request-user-id"] as string;
 
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -404,11 +382,8 @@ class UserService {
         return new ResDto({ message: "password is correct" });
     }
 
+    @validateRequest
     async updateProfile(req: Request, res: Response): Promise<ResDto> {
-        const validateError = validateMiddleware.validateCheck(req, res);
-        if (validateError) {
-            return validateError;
-        }
 
         const dto: UserUpdateProfileReqDto = req.body;
 
