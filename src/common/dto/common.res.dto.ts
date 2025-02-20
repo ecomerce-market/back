@@ -5,16 +5,13 @@ export class ResDto {
     status: number;
     data: any;
 
-    constructor(data: any, message?: string, status?: number) {
-        this.message = message ?? "success";
-        this.status = status ?? 200;
-        this.data = {
-            message,
-            ...data,
-        };
+    constructor(instance: { data?: any; message?: string; status?: number }) {
+        this.message = instance.message ?? "success";
+        this.status = instance.status ?? 200;
+        this.data = instance.data ?? {};
     }
 
     sendResponse(res: Response) {
-        res.status(this.status).json(this.data);
+        res.status(this.status).json({ message: this.message, ...this.data });
     }
 }

@@ -5,8 +5,12 @@ import { Response } from "express";
 export class ErrorDto extends ResDto {
     public errorCode: ErrorCode;
 
-    constructor(errorCode: ErrorCode) {
-        super({}, errorCode.message, errorCode.status);
+    constructor(errorCode: ErrorCode, extraData: any = {}) {
+        super({
+            data: extraData,
+            message: errorCode.message,
+            status: errorCode.status,
+        });
         this.errorCode = errorCode;
     }
 

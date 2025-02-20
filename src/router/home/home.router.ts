@@ -9,7 +9,7 @@ homeRouter.get("/", (req, res) => {
 
 function getHome(req: Request, res: Response) {
     new ResDto({
-        testMessage: "hello, ecommerce-service!",
+        data: { testMessage: "hello, ecommerce-service!" },
     }).sendResponse(res);
 }
 
