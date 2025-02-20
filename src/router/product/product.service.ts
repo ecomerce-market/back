@@ -19,16 +19,17 @@ import {
     ProductsResDto,
     WeekendDealsResDto,
 } from "./dto/product.res.dto";
+import { ResDto } from "../../common/dto/common.res.dto";
+import { ErrorDto } from "../../common/dto/error.res.dto";
+import { ERRCODE } from "../../common/constants/errorCode.constants";
 
 class ProductService {
-    async likeProduct(req: Request, res: Response) {
+    // 상품 좋아요
+    async likeProduct(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
         const productId = req.params.productId;
         if (!productId) {
-            return res.status(400).json({
-                message: "productId is required",
-                code: "E101",
-            });
+            return new ErrorDto(ERRCODE.E101);
         }
 
         const user: any =
@@ -42,10 +43,7 @@ class ProductService {
                 await productRepository.getProductById(productId);
 
             if (!product) {
-                return res.status(404).json({
-                    message: `product ${productId} is not found`,
-                    code: "E102",
-                });
+                return new ErrorDto(ERRCODE.E102);
             }
 
             if (!userWithInven.inventory.likeProducts) {
@@ -59,10 +57,7 @@ class ProductService {
                         likeProduct.product === productId // 문자열 직접 비교도 추가
                 )
             ) {
-                return res.status(400).json({
-                    message: `product ${productId} is already liked`,
-                    code: "E103",
-                });
+                return new ErrorDto(ERRCODE.E103);
             } else {
                 userWithInven.inventory.likeProducts.push({
                     product: productId,
@@ -71,29 +66,22 @@ class ProductService {
                 await userWithInven.inventory.save();
                 product.likeCnt += 1;
                 productRepository.updateOne(product);
-                return res.status(200).json({
-                    message: "like success",
-                });
+                return new ResDto({ message: "like success" });
             }
         } catch (error) {
             if (error instanceof Error) {
                 console.error(error);
             }
-            return res.status(500).json({
-                message: "server error",
-                code: "E999",
-            });
+            return new ErrorDto(ERRCODE.E999);
         }
     }
 
-    async unlikeProduct(req: Request, res: Response) {
+    // 상품 좋아요 취소
+    async unlikeProduct(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
         const productId = req.params.productId;
         if (!productId) {
-            return res.status(400).json({
-                message: "productId is required",
-                code: "E101",
-            });
+            return new ErrorDto(ERRCODE.E101);
         }
 
         const user: any =
@@ -107,10 +95,7 @@ class ProductService {
                 await productRepository.getProductById(productId);
 
             if (!product) {
-                return res.status(404).json({
-                    message: `product ${productId} is not found`,
-                    code: "E102",
-                });
+                return new ErrorDto(ERRCODE.E102);
             }
 
             if (!userWithInven.inventory.likeProducts) {
@@ -132,27 +117,21 @@ class ProductService {
                 await userWithInven.inventory.save();
                 product.likeCnt -= 1;
                 productRepository.updateOne(product);
-                return res.status(200).json({
-                    message: "unlike success",
-                });
+
+                return new ResDto({ message: "unlike success" });
             } else {
-                return res.status(400).json({
-                    message: `product ${productId} is not liked`,
-                    code: "E104",
-                });
+                return new ErrorDto(ERRCODE.E104);
             }
         } catch (error) {
             if (error instanceof Error) {
                 console.error(error);
             }
-            return res.status(500).json({
-                message: "server error",
-                code: "E999",
-            });
+            return new ErrorDto(ERRCODE.E999);
         }
     }
 
-    async getProducts(req: Request, res: Response) {
+    // 상품 목록 조회
+    async getProducts(req: Request, res: Response): Promise<ResDto> {
         const reqParam: GetProductDto = new GetProductDto(
             Number(req.query.pageSize),
             Number(req.query.pageNumber),
@@ -167,19 +146,7 @@ class ProductService {
         const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
-            productDto.push({
-                productId: product._id,
-                name: product.productName,
-                orgPrice: product.orgPrice,
-                finalPrice: product.finalPrice,
-                commentCnt: product.commentCnt,
-                mainImgUrl: product.mainImgUrl,
-                discount: {
-                    discountAmount: product.discount?.discountAmount,
-                    discountType: product.discount?.discountType,
-                },
-                createAt: product.createAt,
-            });
+            productDto.push(new ProductPreviewResDto(product));
         });
 
         const resDto: ProductsResDto = {
@@ -190,13 +157,11 @@ class ProductService {
             currPage: reqParam.pageNumber,
         };
 
-        return res.status(200).json({
-            message: "success",
-            ...resDto,
-        });
+        return new ResDto({ data: resDto });
     }
 
-    async getProductDetail(req: Request, res: Response) {
+    // 상품 상세 조회
+    async getProductDetail(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"]
             ? (req.headers["X-Request-user-id"] as string)
             : null;
@@ -208,10 +173,7 @@ class ProductService {
 
         const productId = req.params.productId;
         if (!productId) {
-            return res.status(400).json({
-                message: "productId is required",
-                code: "E101",
-            });
+            return new ErrorDto(ERRCODE.E101);
         }
 
         try {
@@ -237,28 +199,20 @@ class ProductService {
             };
 
             if (!product) {
-                return res.status(404).json({
-                    message: `product ${productId} is not found`,
-                    code: "E102",
-                });
+                return new ErrorDto(ERRCODE.E102);
             }
 
-            return res.status(200).json({
-                message: "success",
-                product: productDto,
-            });
+            return new ResDto({ data: productDto });
         } catch (error) {
             if (error instanceof Error) {
                 console.error(error);
             }
-            return res.status(500).json({
-                message: "server error",
-                code: "E999",
-            });
+            return new ErrorDto(ERRCODE.E999);
         }
     }
 
-    async getWeekendDeals(req: Request, res: Response) {
+    // 주말 할인 특가 상품 목록 조회
+    async getWeekendDeals(req: Request, res: Response): Promise<ResDto> {
         const pageSize = Number(req.query.pageSize) || 10;
         const pageNumber = Number(req.query.pageNumber) || 1;
         const products: Array<any> =
@@ -271,19 +225,7 @@ class ProductService {
         const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
-            productDto.push({
-                productId: product._id,
-                name: product.productName,
-                orgPrice: product.orgPrice,
-                finalPrice: product.finalPrice,
-                commentCnt: product.commentCnt,
-                mainImgUrl: product.mainImgUrl,
-                discount: {
-                    discountAmount: product.discount.discountAmount,
-                    discountType: product.discount.discountType,
-                },
-                createAt: product.createAt,
-            });
+            productDto.push(new ProductPreviewResDto(product));
         });
 
         const resDto: WeekendDealsResDto = {
@@ -291,13 +233,11 @@ class ProductService {
             products: productDto,
         };
 
-        return res.status(200).json({
-            message: "success",
-            ...resDto,
-        });
+        return new ResDto({ data: resDto });
     }
 
-    async getEndingSoon(req: Request, res: Response) {
+    // 마감 임박 상품 목록 조회
+    async getEndingSoon(req: Request, res: Response): Promise<ResDto> {
         const queries = new GetEndingSoonParamDto(
             Number(req.query.pageSize),
             Number(req.query.pageOffset)
@@ -332,13 +272,11 @@ class ProductService {
             products: productDto,
         };
 
-        return res.status(200).json({
-            message: "success",
-            ...resDto,
-        });
+        return new ResDto({ data: resDto });
     }
 
-    async getNewProducts(req: Request, res: Response) {
+    // 신상품 목록 조회
+    async getNewProducts(req: Request, res: Response): Promise<ResDto> {
         const pageSize = Number(req.query.pageSize) || 10;
         const pageNumber = Number(req.query.pageNumber) || 1;
         const products: Array<any> = await productRepository.getNewProducts(
@@ -349,31 +287,17 @@ class ProductService {
         const productDto: Array<ProductPreviewResDto> = [];
 
         products.forEach((product) => {
-            productDto.push({
-                productId: product._id,
-                name: product.productName,
-                orgPrice: product.orgPrice,
-                finalPrice: product.finalPrice,
-                commentCnt: product.commentCnt,
-                mainImgUrl: product.mainImgUrl,
-                discount: {
-                    discountAmount: product.discount.discountAmount,
-                    discountType: product.discount.discountType,
-                },
-                createAt: product.createAt,
-            });
+            productDto.push(new ProductPreviewResDto(product));
         });
 
         const resDto: NewProductsResDto = {
             products: productDto,
         };
 
-        return res.status(200).json({
-            message: "success",
-            ...resDto,
-        });
+        return new ResDto({ data: resDto });
     }
 
+    // 주말 할인 특가 마감일 계산
     getWeekendDealDate(): Date {
         const now = new Date();
 
@@ -388,7 +312,8 @@ class ProductService {
         return sunday;
     }
 
-    async getCategories(req: Request, res: Response) {
+    // 상품에 대한 카테고리 조회
+    async getCategories(req: Request, res: Response): Promise<ResDto> {
         const categoryReqParam: GetCategoryParamDto = req.query;
 
         const categories: Array<any> =
@@ -398,12 +323,10 @@ class ProductService {
             categories.map((category) => this.transformCategory(category))
         );
 
-        return res.status(200).json({
-            message: "success",
-            categories: categoriesWithPath,
-        });
+        return new ResDto({ data: { categories: categoriesWithPath } });
     }
 
+    // 내가 좋아요를 누른 상품인지 확인
     private async checkLikedProduct(
         loginId: string,
         productId: string
@@ -420,6 +343,7 @@ class ProductService {
         );
     }
 
+    // 카테고리를 fullpath와 함께 트리 구조로 변환
     private async transformCategory(category: any): Promise<any> {
         const categoryChild: Array<any> = category.childCategories;
         if (
@@ -447,6 +371,7 @@ class ProductService {
         }
     }
 
+    // 카테고리의 전체 경로를 구성
     private async buildFullPath(category: any): Promise<string> {
         if (!category.parentCategory) {
             return category.name;

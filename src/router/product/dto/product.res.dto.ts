@@ -7,7 +7,7 @@ export interface EndingSoonResDto {
     products: Array<ProductPreviewResDto>;
 }
 
-export interface ProductPreviewResDto {
+export class ProductPreviewResDto {
     productId: string;
     name: string;
     orgPrice: number;
@@ -19,6 +19,20 @@ export interface ProductPreviewResDto {
         discountType: string;
     };
     createAt: Date;
+
+    constructor(product: any) {
+        this.productId = product._id;
+        this.name = product.productName;
+        this.orgPrice = product.orgPrice;
+        this.finalPrice = product.finalPrice;
+        this.commentCnt = product.commentCnt;
+        this.mainImgUrl = product.mainImgUrl;
+        (this.discount = {
+            discountAmount: product.discount?.discountAmount,
+            discountType: product.discount?.discountType,
+        }),
+            (this.createAt = product.createAt);
+    }
 }
 
 export type EndingSoonProductResDto = ProductPreviewResDto & {
