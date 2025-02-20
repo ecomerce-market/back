@@ -19,13 +19,20 @@ import {
     UserSignUpReqDto,
     UserUpdateProfileReqDto,
 } from "./dto/user.req.dto";
-import { UserProfileResDto } from "./dto/user.res.dto";
+import {
+    UserAddressesDto as UserAddressesResDto,
+    UserProfileResDto,
+} from "./dto/user.res.dto";
+import { ResDto } from "../../common/dto/common.res.dto";
+import { ErrorDto } from "../../common/dto/error.res.dto";
+import { ERRCODE } from "../../common/constants/errorCode.constants";
 
 class UserService {
     constructor() {}
-    async deleteUserAddress(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async deleteUserAddress(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
 
         const loginId: string = req.headers["X-Request-user-id"] as string;
@@ -34,46 +41,35 @@ class UserService {
 
         const addressId: string = req.params.addressId;
 
-        const userFullData = await userModel.populate(user, {
-            path: "addresses",
-        });
-
-        const userAddress: Array<any> = userFullData.addresses;
-
+        const userAddress: Array<any> = await this.findUserAddresses(user);
         const targetAddress = userAddress.find((address: any) =>
             (address._id as mongoose.Types.ObjectId).equals(addressId)
         );
 
         if (!targetAddress) {
-            return res.status(404).json({
-                message: `address ${addressId} not found`,
-                code: "E006",
-            });
+            return new ErrorDto(ERRCODE.E006);
         }
-
         if (targetAddress.defaultAddr) {
-            return res.status(400).json({
-                message: "default address cannot be deleted",
-                code: "E007",
-            });
+            return new ErrorDto(ERRCODE.E007);
         }
 
         // 삭제
         userAddressRepository.delete(targetAddress._id);
-        userFullData.addresses = userAddress.filter(
+        user.addresses = userAddress.filter(
             (address) =>
                 !(address._id as mongoose.Types.ObjectId).equals(addressId)
         );
-        await userRepository.update(userFullData);
+        await userRepository.update(user);
 
-        return res.status(200).json({
+        return new ResDto({
             message: "delete success",
-            addresses: userFullData.addresses,
+            data: { addresses: user.addresses },
         });
     }
-    async updateUserAddress(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async updateUserAddress(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
 
         const loginId = req.headers["X-Request-user-id"] as string;
@@ -86,17 +82,13 @@ class UserService {
             path: "addresses",
         });
 
-        const addresses: Array<any> = userFullData.addresses;
-
+        const addresses: Array<any> = await this.findUserAddresses(user);
         const targetAddress = addresses.find((address: any) =>
             (address._id as mongoose.Types.ObjectId).equals(addressId)
         );
 
         if (!targetAddress) {
-            return res.status(404).json({
-                message: `address ${addressId} not found`,
-                code: "E006",
-            });
+            return new ErrorDto(ERRCODE.E006);
         }
 
         if (
@@ -104,10 +96,7 @@ class UserService {
             body.isDefault === false &&
             addresses.every((address: any) => !address.defaultAddr)
         ) {
-            return res.status(400).json({
-                message: "default address must exist",
-                code: "E008",
-            });
+            return new ErrorDto(ERRCODE.E008);
         }
 
         targetAddress.address = body.address ?? targetAddress.address;
@@ -130,13 +119,13 @@ class UserService {
         }
 
         await userAddressRepository.update(targetAddress);
-        return res.status(200).json({
+        return new ResDto({
             message: "update success",
-            address: targetAddress,
+            data: { address: targetAddress },
         });
     }
 
-    async getUserOrders(req: Request, res: Response) {
+    async getUserOrders(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
         const user: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -189,16 +178,22 @@ class UserService {
             };
         });
 
-        return res.status(200).json({
-            message: "success",
-            orders: orderDto,
-            totalItems: await totalItem,
-            totalPages: Math.ceil((await totalItem) / pageQueryParam.pageSize),
-            currPage: pageQueryParam.pageNumber,
-            currItem: ((await myOrders) as Array<any>).length,
+        return new ResDto({
+            data: {
+                orders: orderDto,
+                totalItems: await totalItem,
+                totalPages: Math.ceil(
+                    (await totalItem) / pageQueryParam.pageSize
+                ),
+                currPage: pageQueryParam.pageNumber,
+                currItem: ((await myOrders) as Array<any>).length,
+            },
         });
     }
-    async updateUserDefaultAddress(req: Request, res: Response) {
+    async updateUserDefaultAddress(
+        req: Request,
+        res: Response
+    ): Promise<ResDto> {
         const addressId: string = req.params.addressId;
 
         const loginId = req.headers["X-Request-user-id"] as string;
@@ -207,15 +202,13 @@ class UserService {
             path: "addresses",
         });
 
-        const targetAddress = (userFullData.addresses as Array<any>).find(
-            (address) =>
-                (address._id as mongoose.Types.ObjectId).equals(addressId)
+        const addresses: Array<any> = await this.findUserAddresses(user);
+
+        const targetAddress = addresses.find((address) =>
+            (address._id as mongoose.Types.ObjectId).equals(addressId)
         );
         if (!targetAddress) {
-            return res.status(404).json({
-                message: `address ${addressId} not found`,
-                code: "E006",
-            });
+            return new ErrorDto(ERRCODE.E006);
         }
 
         userFullData.addresses.forEach(async (address: any) => {
@@ -227,17 +220,19 @@ class UserService {
         });
 
         userAddressRepository.updateBulk(userFullData.addresses);
-        return res.status(200).json({
-            message: "update success",
-        });
+        return new ResDto({ message: "update success" });
     }
 
-    async addUserAddress(req: Request, res: Response) {
+    async addUserAddress(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
+        }
+
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
-        const userFullData = await userModel.populate(user, {
-            path: "addresses",
-        });
+
+        let addresses: Array<any> = await this.findUserAddresses(user);
 
         const body: UserAddressReqDto = req.body;
 
@@ -247,12 +242,12 @@ class UserService {
             defaultAddr: body.isDefault,
         });
 
-        if (!Array.isArray(userFullData.addresses)) {
-            userFullData.addresses = [];
+        if (!Array.isArray(addresses)) {
+            addresses = [];
         }
 
         if (body.isDefault) {
-            userFullData.addresses.forEach(async (address: any) => {
+            addresses.forEach(async (address: any) => {
                 if (address.defaultAddr) {
                     address.defaultAddr = false;
                     await userAddressRepository.update(address);
@@ -262,70 +257,57 @@ class UserService {
 
         await userAddressRepository.save(newAddress);
 
-        userFullData.addresses.push(newAddress);
-        await userRepository.update(userFullData);
+        addresses.push(newAddress);
+        user.addresses = addresses;
+        await userRepository.update(user);
 
-        return res.status(200).json({
+        return new ResDto({
             message: "new address added success",
         });
     }
 
-    async getUserAddresses(req: Request, res: Response) {
+    async getUserAddresses(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
-        const userFullData = await userModel.populate(user, {
-            path: "addresses",
-        });
+        const addresses: Array<any> = await this.findUserAddresses(user);
 
-        const addresses: Array<any> = userFullData.addresses?.map(
-            (address: any) => {
-                return {
-                    addressId: address._id,
-                    address: address.address,
-                    extraAddr: address.extraAddress,
-                    defaultAddr: address.defaultAddr,
-                };
-            }
-        );
+        const addressDto: Array<UserAddressesResDto> = addresses
+            ?.map((address: any) => {
+                return new UserAddressesResDto(address);
+            })
+            .sort((a, b) => {
+                if (a.defaultAddr) {
+                    return -1;
+                }
+                return 1;
+            });
 
-        const sorted = addresses?.sort((a, b) => {
-            if (a.defaultAddr) {
-                return -1;
-            }
-            return 1;
-        });
-
-        return res.status(200).json({
-            message: "success",
-            addresses: sorted,
-        });
+        return new ResDto({ data: { addresses: addressDto } });
     }
 
-    async existsUser(req: Request, res: Response) {
+    async existsUser(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
+        }
+
         const loginId = req.query.loginId as string;
         if (!loginId) {
-            return res.status(400).json({
-                message: "loginId is required",
-                code: "E004",
-            });
+            return new ErrorDto(ERRCODE.E004);
         }
         const found =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
         if (!found) {
-            return res.status(200).json({
-                message: "user not found",
-            });
+            return new ResDto({ message: "user not found" });
         } else {
-            return res.status(400).json({
-                message: "user exists",
-                code: "E005",
-            });
+            return new ErrorDto(ERRCODE.E005);
         }
     }
 
-    async signupUser(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async signupUser(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
         const body: UserSignUpReqDto = req.body;
         const found = await userRepository.findByLoginIdOrEmailAndDeleteAtNull(
@@ -334,10 +316,7 @@ class UserService {
         );
 
         if (found.length > 0) {
-            return res.status(400).json({
-                message: "email or loginId already exists",
-                code: "E001",
-            });
+            return new ErrorDto(ERRCODE.E001);
         }
 
         const { hashedPassword, salt } = this.hashPassword(body.loginPw);
@@ -366,14 +345,13 @@ class UserService {
         await userInventoryRepository.save(userInventory);
         await userRepository.update(user);
         await userAddressRepository.save(newUser.addresses[0]);
-        return res.status(200).json({
-            message: "success",
-        });
+        return new ResDto({});
     }
 
-    async signinUser(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async signinUser(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
         const body: UserSignInReqDto = req.body;
         const found = await userRepository.findByLoginIdAndDeleteAtNull(
@@ -381,16 +359,10 @@ class UserService {
         );
 
         if (!found) {
-            return res.status(400).json({
-                message: "user not found",
-                code: "E002",
-            });
+            return new ErrorDto(ERRCODE.E002);
         }
         if (!this.comparePassword(body.loginPw, found.loginPw)) {
-            return res.status(400).json({
-                message: "password is incorrect",
-                code: "E003",
-            });
+            return new ErrorDto(ERRCODE.E003);
         }
 
         const { accessToken, refreshToken } = jwtService.writeToken({
@@ -398,14 +370,12 @@ class UserService {
             email: found.email,
         });
 
-        return res.status(200).json({
-            accessToken,
-            refreshToken,
-            name: found.name,
+        return new ResDto({
+            data: { accessToken, refreshToken, name: found.name },
         });
     }
 
-    async getProfiles(req: Request, res: Response) {
+    async getProfiles(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
 
         const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
@@ -413,26 +383,14 @@ class UserService {
             path: "inventory",
         });
 
-        const resDto: UserProfileResDto = {
-            tier: userFullData.inventory.tier ?? "기본",
-            name: userFullData.name,
-            loginId: userFullData.loginId,
-            email: userFullData.email,
-            phone: userFullData.phone,
-            birth: userFullData.birth,
-            points: userFullData.inventory.points,
-            couponCnt: userFullData.inventory.coupons?.length ?? null,
-        };
-
-        return res.status(200).json({
-            message: "success",
-            data: resDto,
-        });
+        const resDto: UserProfileResDto = new UserProfileResDto(userFullData);
+        return new ResDto({ data: { data: resDto } });
     }
 
-    async checkPassword(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async checkPassword(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
         const loginId = req.headers["X-Request-user-id"] as string;
 
@@ -441,19 +399,15 @@ class UserService {
         const dto: UserCheckPasswordReqDto = req.body;
 
         if (!this.comparePassword(dto.loginPw, user.loginPw)) {
-            return res.status(400).json({
-                message: "password is incorrect",
-                code: "E003",
-            });
+            return new ErrorDto(ERRCODE.E003);
         }
-        return res.status(200).json({
-            message: "password is correct",
-        });
+        return new ResDto({ message: "password is correct" });
     }
 
-    async updateProfile(req: Request, res: Response) {
-        if (validateMiddleware.validateCheck(req, res)) {
-            return;
+    async updateProfile(req: Request, res: Response): Promise<ResDto> {
+        const validateError = validateMiddleware.validateCheck(req, res);
+        if (validateError) {
+            return validateError;
         }
 
         const dto: UserUpdateProfileReqDto = req.body;
@@ -473,24 +427,35 @@ class UserService {
 
         await userRepository.update(user);
 
-        return res.status(200).json({
+        return new ResDto({
             message: "update success",
-            updatedColumns: [
-                dto.name ? "name" : null,
-                dto.email ? "email" : null,
-                dto.phone ? "phone" : null,
-                dto.birth ? "birth" : null,
-                dto.loginPw ? "loginPw" : null,
-            ].filter((v) => v !== null),
+            data: {
+                updatedColumns: [
+                    dto.name ? "name" : null,
+                    dto.email ? "email" : null,
+                    dto.phone ? "phone" : null,
+                    dto.birth ? "birth" : null,
+                    dto.loginPw ? "loginPw" : null,
+                ].filter((v) => v !== null),
+            },
         });
     }
 
+    async findUserAddresses(user: any): Promise<Array<any>> {
+        const userAddreeses = await userModel.populate(user, {
+            path: "addresses",
+        });
+        return userAddreeses.addresses;
+    }
+
+    // 비밀번호 암호화
     hashPassword(password: string) {
         const salt = bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
         return { hashedPassword, salt };
     }
 
+    // 비밀번호 일치 비교
     comparePassword(rawPassword: string, hashedPassword: string) {
         return bcrypt.compareSync(rawPassword, hashedPassword);
     }

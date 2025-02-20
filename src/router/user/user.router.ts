@@ -1,16 +1,24 @@
 import { PATH_USERS } from "./../router.constants";
 import { Router, Request, Response } from "express";
 import UserService from "./user.service";
-import { body, param } from "express-validator";
+import { body, param, query } from "express-validator";
 import jwtMiddleware from "../../middleware/jwt.middleware";
 
 const userRouter: Router = Router();
 
 const userService: UserService = new UserService();
 
-userRouter.get(PATH_USERS + "/exists", (req: Request, res: Response) => {
-    userService.existsUser(req, res);
-});
+userRouter.get(
+    PATH_USERS + "/exists",
+    query("loginId")
+        .exists({ values: "null" })
+        .isString()
+        .isLength({ min: 8, max: 32 }),
+    async (req: Request, res: Response) => {
+        const response = await userService.existsUser(req, res);
+        response.sendResponse(res);
+    }
+);
 
 userRouter.post(
     PATH_USERS + "/signup",
@@ -36,8 +44,9 @@ userRouter.post(
         .exists({ values: "null" })
         .isString()
         .isLength({ min: 10, max: 10 }),
-    (req: Request, res: Response) => {
-        userService.signupUser(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.signupUser(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -45,16 +54,18 @@ userRouter.post(
     PATH_USERS + "/signin",
     body("loginId").isString().isLength({ min: 8, max: 32 }),
     body("loginPw").isString().isLength({ min: 8, max: 32 }),
-    (req: Request, res: Response) => {
-        userService.signinUser(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.signinUser(req, res);
+        response.sendResponse(res);
     }
 );
 
 userRouter.get(
     PATH_USERS + "/profiles",
     jwtMiddleware.jwtMiddleWare,
-    (req: Request, res: Response) => {
-        userService.getProfiles(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.getProfiles(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -67,16 +78,18 @@ userRouter.patch(
     body("phone").optional().isString().isLength({ min: 3, max: 16 }),
     body("birth").optional().isString().isLength({ min: 10, max: 10 }),
     body("loginPw").optional().isString().isLength({ min: 8, max: 32 }),
-    (req: Request, res: Response) => {
-        userService.updateProfile(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.updateProfile(req, res);
+        response.sendResponse(res);
     }
 );
 
 userRouter.post(
     PATH_USERS + "/passwords",
     jwtMiddleware.jwtMiddleWare,
-    (req: Request, res: Response) => {
-        userService.checkPassword(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.checkPassword(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -84,8 +97,9 @@ userRouter.post(
 userRouter.get(
     PATH_USERS + "/addresses",
     jwtMiddleware.jwtMiddleWare,
-    (req: Request, res: Response) => {
-        userService.getUserAddresses(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.getUserAddresses(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -102,8 +116,9 @@ userRouter.post(
         .isString()
         .isLength({ max: 1024 }),
     body("isDefault").exists({ values: "null" }).isBoolean(),
-    (req: Request, res: Response) => {
-        userService.addUserAddress(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.addUserAddress(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -112,8 +127,9 @@ userRouter.delete(
     PATH_USERS + "/addresses/:addressId",
     jwtMiddleware.jwtMiddleWare,
     param("addressId").exists({ values: "null" }).isString().isMongoId(),
-    (req: Request, res: Response) => {
-        userService.deleteUserAddress(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.deleteUserAddress(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -124,8 +140,9 @@ userRouter.patch(
     body("extraAddr").optional().isString().isLength({ max: 1024 }),
     body("isDefault").optional().isBoolean(),
     jwtMiddleware.jwtMiddleWare,
-    (req: Request, res: Response) => {
-        userService.updateUserAddress(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.updateUserAddress(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -134,8 +151,9 @@ userRouter.patch(
     PATH_USERS + "/addresses/:addressId/defaults",
     jwtMiddleware.jwtMiddleWare,
     param("addressId").exists({ values: "null" }).isString().isMongoId(),
-    (req: Request, res: Response) => {
-        userService.updateUserDefaultAddress(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.updateUserDefaultAddress(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -143,8 +161,9 @@ userRouter.patch(
 userRouter.get(
     PATH_USERS + "/orders",
     jwtMiddleware.jwtMiddleWare,
-    (req: Request, res: Response) => {
-        userService.getUserOrders(req, res);
+    async (req: Request, res: Response) => {
+        const response = await userService.getUserOrders(req, res);
+        response.sendResponse(res);
     }
 );
 
