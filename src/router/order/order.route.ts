@@ -9,8 +9,9 @@ const orderRouter = Router();
 const orderService = new OrderService();
 
 // 주문서 생성
-orderRouter.post(PATH_ORDERS + "/", jwtMiddleware.jwtMiddleWare, (req, res) => {
-    orderService.createOrder(req, res);
+orderRouter.post(PATH_ORDERS + "/", jwtMiddleware.jwtMiddleWare, async (req, res) => {
+    const response = await orderService.createOrder(req, res);
+    response.sendResponse(res);
 });
 
 // 주문서 수정 (쿠폰 사용, 포인트 사용, 결제수단 변경, 배송지 변경)
@@ -21,8 +22,9 @@ orderRouter.patch(
     body("usePoint").optional().isNumeric(),
     body("coupon").optional().isString().isMongoId(),
     body("userAddressInfo").optional().isString().isMongoId(),
-    (req, res) => {
-        orderService.updateOrder(req, res);
+    async (req, res) => {
+        const response = await orderService.updateOrder(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -31,8 +33,9 @@ orderRouter.get(
     PATH_ORDERS + "/:orderId",
     jwtMiddleware.jwtMiddleWare,
     param("orderId").isMongoId(),
-    (req, res) => {
-        orderService.getOrderDetail(req, res);
+    async (req, res) => {
+        const response = await orderService.getOrderDetail(req, res);
+        response.sendResponse(res);
     }
 );
 
@@ -45,8 +48,9 @@ orderRouter.post(
         .isString()
         .exists({ values: "null" })
         .isLength({ min: 36, max: 36 }),
-    (req, res) => {
-        orderService.approveOrder(req, res);
+    async (req, res) => {
+        const response = await orderService.approveOrder(req, res);
+        response.sendResponse(res);
     }
 );
 
