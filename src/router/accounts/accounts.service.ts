@@ -9,6 +9,12 @@ import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class AccountService {
     @validateRequest
+    async resetPassword(req: Request, res: Response): Promise<ResDto> {
+        // todo: 로직 작성
+        throw new Error("Method not implemented.");
+    }
+    
+    @validateRequest
     async findPassword(req: Request, res: Response): Promise<ResDto> {
         const reqDto: AccountFindReqDto = new AccountFindReqDto(req);
 
