@@ -19,6 +19,7 @@ export class ErrorDto extends ResDto {
             message: this.errorCode.message,
             code: this.errorCode.code,
             desc: this.errorCode.desc,
+            ...this.data,
         });
     }
 }
