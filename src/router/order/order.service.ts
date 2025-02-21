@@ -317,7 +317,13 @@ class OrderService {
         const products: Array<any> =
             await productRepository.findProductByIdsForOrder(productIds);
 
-        if (products.length !== body.products.length) {
+        // 상품의 갯수와 요청의 갯수 대신 products에 있는 상품이 body.products에 모두 존재하는지 ?
+        if (
+            !body.products.every((product) =>
+                products.find((p) => p._id.toString() === product.productId)
+            )
+        ) {
+            // if (products.length !== body.products.length) {
             return new ErrorDto(ERRCODE.E201);
         }
 
