@@ -10,7 +10,7 @@ class ValidateMiddleWare {
     ): ErrorDto | undefined {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return new ErrorDto(ERRCODE.E000);
+            return new ErrorDto(ERRCODE.E000, { errors });
         }
     }
 }
