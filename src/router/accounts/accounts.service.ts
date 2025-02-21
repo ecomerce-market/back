@@ -7,14 +7,24 @@ import { ERRCODE } from "../../common/constants/errorCode.constants";
 
 class AccountService {
     async findLoginId(req: Request, res: Response): Promise<ResDto> {
-        const loginIdReqDto: AccountLoginIdFindReqDto =
-            new AccountLoginIdFindReqDto(req);
+        const reqDto: AccountLoginIdFindReqDto = new AccountLoginIdFindReqDto(
+            req
+        );
 
-        const user: any =
-            await userRepository.findByNameAndPhoneAndDeleteNotNull(
-                loginIdReqDto.name,
-                loginIdReqDto.phone
+        let user: any = undefined;
+        if (reqDto.email !== undefined) {
+            user = await userRepository.findByEmailAndDeleteAtNull(
+                reqDto.email
             );
+        } else {
+            if (!reqDto.name || !reqDto.phone) {
+                return new ErrorDto(ERRCODE.E010);
+            }
+            user = await userRepository.findByNameAndPhoneAndDeleteAtNull(
+                reqDto.name,
+                reqDto.phone
+            );
+        }
 
         if (!user) {
             return new ErrorDto(ERRCODE.E002);
