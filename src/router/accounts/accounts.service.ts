@@ -5,8 +5,10 @@ import userRepository from "../../router/user/repository/user.repository";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
 import resetTokenRepository from "./repository/resetToken.repository";
+import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class AccountService {
+    @validateRequest
     async findPassword(req: Request, res: Response): Promise<ResDto> {
         const reqDto: AccountFindReqDto = new AccountFindReqDto(req);
 
@@ -43,6 +45,7 @@ class AccountService {
         return new ResDto({ data: { resetTokenId: newResetToken._id } });
     }
 
+    @validateRequest
     async findLoginId(req: Request, res: Response): Promise<ResDto> {
         const reqDto: AccountFindReqDto = new AccountFindReqDto(req);
 
