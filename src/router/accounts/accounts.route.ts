@@ -16,6 +16,14 @@ accountRouter.post(
     }
 );
 
-// accountRouter.post();
+accountRouter.post(PATH_ACCOUNTS + "/passwords",
+    query("name").isString().isLength({ max: 16 }),
+    query("phone").isString().isLength({ min: 3, max: 16 }),
+    query("email").isString().isEmail(),
+    async (req: Request, res: Response) => {
+        const response = await accountService.findPassword(req, res);
+        response.sendResponse(res);
+    }
+);
 
 export default accountRouter;

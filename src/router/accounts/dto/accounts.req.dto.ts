@@ -1,6 +1,6 @@
 import { Request } from "express";
 
-export class AccountLoginIdFindReqDto {
+export class AccountFindReqDto {
     name: string;
     phone: string;
     email: string;
