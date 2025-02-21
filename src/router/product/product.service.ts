@@ -202,7 +202,7 @@ class ProductService {
                 return new ErrorDto(ERRCODE.E102);
             }
 
-            return new ResDto({ data: productDto });
+            return new ResDto({ data: { product: productDto } });
         } catch (error) {
             if (error instanceof Error) {
                 console.error(error);
