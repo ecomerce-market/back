@@ -2,6 +2,12 @@ import { Model } from "mongoose";
 import { userModel } from "../model/user.schema";
 
 class UserRepository {
+    async findByIdAndDeleteAtNull(_id: any) {
+        return userModel.findOne().where({
+            _id: { $eq: _id },
+            deleteAt: { $eq: null },
+        });
+    }
     async findByEmailAndDeleteAtNull(email: string) {
         return userModel.findOne().where({
             email: { $eq: email },

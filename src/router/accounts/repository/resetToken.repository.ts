@@ -1,6 +1,9 @@
 import { resetTokenModel } from "../model/resetToken.schema";
 
 class ResetTokenRepository {
+    async delete(resetToken: any) {
+        return resetTokenModel.deleteOne({ _id: resetToken._id });
+    }
     async update(resetToken: any) {
         return resetTokenModel.updateOne(
             { _id: resetToken._id },

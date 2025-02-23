@@ -30,6 +30,10 @@ accountRouter.post(
 accountRouter.post(
     PATH_ACCOUNTS + "/passwords/reset",
     body("resetTokenId").exists({ values: "null" }).isString().isMongoId(),
+    body("loginPw")
+        .exists({ values: "null" })
+        .isString()
+        .isLength({ min: 8, max: 32 }),
     async (req: Request, res: Response) => {
         const response = await accountService.resetPassword(req, res);
         response.sendResponse(res);

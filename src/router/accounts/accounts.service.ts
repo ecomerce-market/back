@@ -1,19 +1,52 @@
 import { ResDto } from "../../common/dto/common.res.dto";
 import { Request, Response } from "express";
-import { AccountFindReqDto } from "./dto/accounts.req.dto";
+import {
+    AccountFindReqDto,
+    AccountPasswordResetReqDto,
+} from "./dto/accounts.req.dto";
 import userRepository from "../../router/user/repository/user.repository";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
 import resetTokenRepository from "./repository/resetToken.repository";
 import { validateRequest } from "../../common/decorators/validate.decorator";
+import { resetTokenModel } from "./model/resetToken.schema";
+import userService from "../../router/user/user.service";
 
 class AccountService {
     @validateRequest
     async resetPassword(req: Request, res: Response): Promise<ResDto> {
-        // todo: 로직 작성
-        throw new Error("Method not implemented.");
+        const reqDto: AccountPasswordResetReqDto =
+            new AccountPasswordResetReqDto(req);
+
+        const resetToken = await resetTokenRepository.findById(
+            reqDto.resetTokenId
+        );
+
+        if (!resetToken) {
+            return new ErrorDto(ERRCODE.E011);
+        }
+
+        const user = await userRepository.findByIdAndDeleteAtNull(
+            resetToken.userId
+        );
+        resetTokenRepository.delete(resetToken);
+
+        const { hashedPassword, salt } = userService.hashPassword(
+            reqDto.loginPw
+        );
+
+        console.log("user", user);
+
+        console.log("hashedPassword", hashedPassword);
+        user.loginPw = hashedPassword;
+
+        await userRepository.update(user);
+
+        return new ResDto({
+            message: "password reset success",
+        });
     }
-    
+
     @validateRequest
     async findPassword(req: Request, res: Response): Promise<ResDto> {
         const reqDto: AccountFindReqDto = new AccountFindReqDto(req);

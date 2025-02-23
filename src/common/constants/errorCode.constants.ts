@@ -76,6 +76,12 @@ export const ERRCODE = {
         message: "name or phone is required",
         desc: "요청 시 사용자 이름 또는 휴대폰 번호가 없을 때 에러",
     },
+    E011: {
+        status: 400,
+        code: "E011",
+        message: "resetToken not found",
+        desc: "비밀번호 초기화 요청 시 조회 한 resetToken이 없을 때 에러",
+    },
 
     // Product Error
     E101: {
