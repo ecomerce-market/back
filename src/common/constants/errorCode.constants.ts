@@ -82,6 +82,12 @@ export const ERRCODE = {
         message: "resetToken not found",
         desc: "비밀번호 초기화 요청 시 조회 한 resetToken이 없을 때 에러",
     },
+    E012: {
+        status: 400,
+        code: "E012",
+        message: "new password cannot match old password",
+        desc: "비밀번호 초기화 요청 시 새 비밀번호가 기존 비밀번호와 같을 때 에러",
+    },
 
     // Product Error
     E101: {
