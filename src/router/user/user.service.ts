@@ -395,6 +395,10 @@ class UserService {
         user.phone = dto.phone ?? user.phone;
         user.birth = dto.birth ?? user.birth;
         if (dto.loginPw) {
+            if (this.comparePassword(dto.loginPw, user.loginPw)) {
+                return new ErrorDto(ERRCODE.E012);
+            }
+
             const { hashedPassword, salt } = this.hashPassword(dto.loginPw);
             user.loginPw = hashedPassword;
         }
