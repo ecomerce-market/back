@@ -6,7 +6,8 @@ export const resetTokenSchema: Schema = new Schema(
             type: Date,
             default: Date.now,
             // TTL 적용
-            index: { expires: "10s" },
+            // index: { expires: "10s" },
+            index: { expires: "5m" },
             // expires: 10, // 10초 (테스트)
         },
         userId: {
