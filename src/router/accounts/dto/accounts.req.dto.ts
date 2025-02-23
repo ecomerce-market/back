@@ -11,3 +11,13 @@ export class AccountFindReqDto {
         this.email = req.body.email as string;
     }
 }
+
+export class AccountPasswordResetReqDto {
+    resetTokenId: string;
+    loginPw: string;
+
+    constructor(req: Request) {
+        this.resetTokenId = req.body.resetTokenId as string;
+        this.loginPw = req.body.loginPw as string;
+    }
+}
