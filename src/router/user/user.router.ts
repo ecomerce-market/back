@@ -1,12 +1,10 @@
 import { PATH_USERS } from "./../router.constants";
 import { Router, Request, Response } from "express";
-import UserService from "./user.service";
 import { body, param, query } from "express-validator";
 import jwtMiddleware from "../../middleware/jwt.middleware";
+import userService from "./user.service";
 
 const userRouter: Router = Router();
-
-const userService: UserService = new UserService();
 
 userRouter.get(
     PATH_USERS + "/exists",

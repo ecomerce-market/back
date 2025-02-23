@@ -384,7 +384,6 @@ class UserService {
 
     @validateRequest
     async updateProfile(req: Request, res: Response): Promise<ResDto> {
-
         const dto: UserUpdateProfileReqDto = req.body;
 
         const loginId = req.headers["X-Request-user-id"] as string;
@@ -436,4 +435,5 @@ class UserService {
     }
 }
 
-export default UserService;
+const userService: UserService = new UserService();
+export default userService;
