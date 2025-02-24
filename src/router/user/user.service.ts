@@ -30,6 +30,8 @@ import { ResDto } from "../../common/dto/common.res.dto";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
 import { validateRequest } from "../../common/decorators/validate.decorator";
+import { UserCartAddReqDto } from "./dto/userCart.req.dto";
+import productRepository from "../../router/product/repository/product.repository";
 
 class UserService {
     async getUserCarts(req: Request, res: Response): Promise<ResDto> {
@@ -49,6 +51,92 @@ class UserService {
         });
     }
     async addUserCart(req: Request, res: Response): Promise<ResDto> {
+        const { user } = await this.getUserByHeader(req);
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const reqDto: UserCartAddReqDto = new UserCartAddReqDto(req);
+        const userInventory: UserInventory =
+            await userInventoryRepository.findById(user.inventory);
+        if (!userInventory.carts) {
+            userInventory.carts = [];
+        }
+
+        const productEntities: Array<any> =
+            await productRepository.findProductByIdsForOrder(
+                reqDto.products.map((product) => product.productId)
+            );
+
+        for (const productRequest of reqDto.products) {
+            // 상품이 실제 존재하는 상품인지 확인
+            const productEntity = productEntities.find(
+                (entity) =>
+                    entity._id.toString() ===
+                    productRequest.productId.toString()
+            );
+
+            if (!productEntity) {
+                return new ErrorDto(ERRCODE.E201);
+            }
+
+            if (productRequest.optionName) {
+                // 옵션이 실제 상품에 없는 옵션인지 확인
+                const option = productEntity.options.find(
+                    (option: any) =>
+                        option.optName === productRequest.optionName
+                );
+
+                if (!option) {
+                    return new ErrorDto(ERRCODE.E202);
+                }
+            }
+
+            // 카트에 이미 존재하는 상품인지 확인
+            const productInCart = userInventory.carts!.find((inventoryCart) => {
+                // 카트와 요청 상품 id 비교
+                if (
+                    inventoryCart.productId.toString() ===
+                    productRequest.productId.toString()
+                ) {
+                    // 요청에 옵션이 포함되는 상품이면 옵션도 비교
+                    if (productRequest.optionName) {
+                        if (
+                            inventoryCart.optionName ===
+                            productRequest.optionName
+                        ) {
+                            return true;
+                        }
+                        // 옵션이 다르면 같은 상품이더라도 다른 아이템으로 인식
+                        return false;
+                    }
+                    // 옵션이 없으면서 같은 상품이면 같은 아이템으로 인식
+                    return true;
+                }
+                // 카트에 없는 경우
+                return false;
+            });
+
+            if (productInCart) {
+                // 이미 카트에 존재하는 상품이면 수량만 추가
+                productInCart.amount += productRequest.amount;
+            } else {
+                // 카트에 존재하지 않는 상품이면 새로 추가
+                userInventory.carts!.push({
+                    productId: productEntity._id,
+                    amount: productRequest.amount,
+                    optionName: productRequest.optionName,
+                    createAt: new Date(),
+                });
+            }
+        }
+        await userInventoryRepository.update(userInventory);
+
+        return new ResDto({
+            message: "add cart success",
+            data: { carts: userInventory.carts },
+        });
+
         throw new Error("Method not implemented.");
     }
     async deleteUserCart(req: Request, res: Response): Promise<ResDto> {
