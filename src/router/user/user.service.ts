@@ -159,8 +159,6 @@ class UserService {
             message: "add cart success",
             data: { carts: userInventory.carts },
         });
-
-        throw new Error("Method not implemented.");
     }
 
     async deleteAllUserCarts(req: Request, res: Response) {
