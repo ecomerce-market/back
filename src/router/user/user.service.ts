@@ -1,4 +1,7 @@
-import { userInventoryModel } from "./model/userInventory.schema";
+import {
+    UserInventory,
+    userInventoryModel,
+} from "./model/userInventory.schema";
 import { json } from "stream/consumers";
 import { userModel } from "./model/user.schema";
 import { Request, Response } from "express";
@@ -30,7 +33,20 @@ import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class UserService {
     async getUserCarts(req: Request, res: Response): Promise<ResDto> {
-        throw new Error("Method not implemented.");
+        const { user } = await this.getUserByHeader(req);
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const userInventory: UserInventory =
+            await userInventoryRepository.findById(user.inventory);
+
+        if (!userInventory.carts) {
+            userInventory.carts = [];
+        }
+        return new ResDto({
+            data: { carts: userInventory.carts },
+        });
     }
     async addUserCart(req: Request, res: Response): Promise<ResDto> {
         throw new Error("Method not implemented.");
@@ -448,6 +464,14 @@ class UserService {
     // 비밀번호 일치 비교
     comparePassword(rawPassword: string, hashedPassword: string) {
         return bcrypt.compareSync(rawPassword, hashedPassword);
+    }
+
+    async getUserByHeader(
+        req: Request
+    ): Promise<{ user: any; loginId: string }> {
+        const loginId = req.headers["X-Request-user-id"] as string;
+        const user = await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        return { user, loginId };
     }
 }
 

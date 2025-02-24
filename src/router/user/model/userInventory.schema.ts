@@ -78,7 +78,7 @@ export type UserInventory = {
     coupons?: {
         coupon: string;
         createAt: Date;
-        useAt: Date;
+        useAt?: Date;
     }[];
     likeProducts?: {
         product: string;
