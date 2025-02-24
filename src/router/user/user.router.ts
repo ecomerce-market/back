@@ -195,6 +195,15 @@ userRouter.post(
     }
 );
 
+userRouter.delete(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.deleteAllUserCarts(req, res);
+        response.sendResponse(res);
+    }
+)
+
 // 내 장바구니 상품 삭제
 userRouter.delete(
     PATH_USERS + "/carts/:productId",

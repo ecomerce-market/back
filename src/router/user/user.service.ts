@@ -163,6 +163,25 @@ class UserService {
         throw new Error("Method not implemented.");
     }
 
+    async deleteAllUserCarts(req: Request, res: Response) {
+        const { user } = await this.getUserByHeader(req);
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const userInventory: UserInventory =
+            await userInventoryRepository.findById(user.inventory);
+
+        userInventory.carts = [];
+
+        await userInventoryRepository.update(userInventory);
+
+        return new ResDto({
+            message: "delete all carts success",
+            data: { carts: userInventory.carts },
+        });
+    }
+
     @validateRequest
     async deleteUserCart(req: Request, res: Response): Promise<ResDto> {
         const { user } = await this.getUserByHeader(req);
