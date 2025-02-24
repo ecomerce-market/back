@@ -29,6 +29,18 @@ import { ERRCODE } from "../../common/constants/errorCode.constants";
 import { validateRequest } from "../../common/decorators/validate.decorator";
 
 class UserService {
+    async getUserCarts(req: Request, res: Response): Promise<ResDto> {
+        throw new Error("Method not implemented.");
+    }
+    async addUserCart(req: Request, res: Response): Promise<ResDto> {
+        throw new Error("Method not implemented.");
+    }
+    async deleteUserCart(req: Request, res: Response): Promise<ResDto> {
+        throw new Error("Method not implemented.");
+    }
+    async updateUserCart(req: Request, res: Response): Promise<ResDto> {
+        throw new Error("Method not implemented.");
+    }
     constructor() {}
 
     @validateRequest

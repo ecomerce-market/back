@@ -165,4 +165,44 @@ userRouter.get(
     }
 );
 
+// 내 장바구니 조회
+userRouter.get(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.getUserCarts(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 상품 추가
+userRouter.post(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.addUserCart(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 상품 삭제
+userRouter.delete(
+    PATH_USERS + "/carts/:productId",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.deleteUserCart(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 수정
+userRouter.patch(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.updateUserCart(req, res);
+        response.sendResponse(res);
+    }
+);
+
 export default userRouter;
