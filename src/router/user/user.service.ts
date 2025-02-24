@@ -97,7 +97,7 @@ class UserService {
             });
 
             if (!productEntity) {
-                return new ErrorDto(ERRCODE.E201);
+                return new ErrorDto(ERRCODE.E013);
             }
 
             if (productRequest.optionName) {
@@ -108,7 +108,7 @@ class UserService {
                 );
 
                 if (!option) {
-                    return new ErrorDto(ERRCODE.E202);
+                    return new ErrorDto(ERRCODE.E014);
                 }
             }
 
@@ -213,7 +213,7 @@ class UserService {
 
         if (!targetProduct) {
             // todo: 에러 코드 추가
-            return new ErrorDto(ERRCODE.E203);
+            return new ErrorDto(ERRCODE.E015);
         }
 
         if (param.amount) {

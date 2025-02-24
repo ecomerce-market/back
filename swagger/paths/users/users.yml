@@ -906,7 +906,7 @@
                                                 type: string
                                                 description: "상품 옵션명"
             400:
-                description: "상품을 찾을 수 없음"
+                description: "상품 추가 실패"
                 content:
                     application/json:
                         schema:
@@ -914,10 +914,10 @@
                             properties:
                                 message:
                                     type: string
-                                    example: "product not found"
+                                    example: "장바구니 추가 요청에 필요한 상품 목록 중 상품이 존재하지 않습니다. | 장바구니 추가 요청에 필요한 상품 목록 중 상품의 옵션이 존재하지 않습니다."
                                 code:
                                     type: string
-                                    example: "E201"
+                                    example: "E013 | E014"
     delete:
         tags:
             - Users
@@ -1005,6 +1005,19 @@
                                                 type: string
                                             optionName:
                                                 type: string
+            401:
+                description: "인증 실패"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
             404:
                 description: "상품을 찾을 수 없음"
                 content:
@@ -1014,7 +1027,7 @@
                             properties:
                                 message:
                                     type: string
-                                    example: "product not found in cart"
+                                    example: "장바구니 삭제 요청에 대한 상품이 존재하지 않습니다."
                                 code:
                                     type: string
-                                    example: "E203"
+                                    example: "E015"

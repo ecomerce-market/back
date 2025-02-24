@@ -88,6 +88,26 @@ export const ERRCODE = {
         message: "new password cannot match old password",
         desc: "비밀번호 초기화 요청 시 새 비밀번호가 기존 비밀번호와 같을 때 에러",
     },
+    E013: {
+        message:
+            "장바구니 추가 요청에 필요한 상품 목록 중 상품이 존재하지 않습니다.",
+        code: "E013",
+        status: 400,
+        desc: "장바구니 추가 요청에 필요한 상품 목록 중 상품이 존재하지 않을 때 에러",
+    },
+    E014: {
+        message:
+            "장바구니 추가 요청에 필요한 상품 목록 중 상품의 옵션이 존재하지 않습니다.",
+        code: "E014",
+        status: 400,
+        desc: "장바구니 추가 요청에 필요한 상품 목록 중 상품의 옵션이 존재하지 않을 때 에러",
+    },
+    E015: {
+        message: "장바구니 삭제 요청에 대한 상품이 존재하지 않습니다.",
+        code: "E015",
+        status: 404,
+        desc: "장바구니 삭제 요청에 대한 상품이 존재하지 않을 때 에러",
+    },
 
     // Product Error
     E101: {
