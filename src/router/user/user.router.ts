@@ -195,6 +195,7 @@ userRouter.post(
     }
 );
 
+// 내 장바구니 상품 전체 삭제
 userRouter.delete(
     PATH_USERS + "/carts",
     jwtMiddleware.jwtMiddleWare,
