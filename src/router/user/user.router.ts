@@ -179,6 +179,13 @@ userRouter.get(
 userRouter.post(
     PATH_USERS + "/carts",
     jwtMiddleware.jwtMiddleWare,
+    body("products").exists({ values: "null" }).isArray(),
+    body("products.*.productId")
+        .exists({ values: "null" })
+        .isString()
+        .isMongoId(),
+    body("products.*.amount").exists({ values: "null" }).isNumeric(),
+    body("products.*.optionName").optional().isString(),
     async (req: Request, res: Response) => {
         const response = await userService.addUserCart(req, res);
         response.sendResponse(res);

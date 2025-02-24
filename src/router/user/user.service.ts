@@ -50,6 +50,8 @@ class UserService {
             data: { carts: userInventory.carts },
         });
     }
+
+    @validateRequest
     async addUserCart(req: Request, res: Response): Promise<ResDto> {
         const { user } = await this.getUserByHeader(req);
         if (!user) {
