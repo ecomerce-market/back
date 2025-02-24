@@ -38,6 +38,8 @@ import {
 import productRepository from "../../router/product/repository/product.repository";
 
 class UserService {
+    constructor() {}
+
     async getUserCarts(req: Request, res: Response): Promise<ResDto> {
         const { user } = await this.getUserByHeader(req);
         if (!user) {
@@ -234,10 +236,6 @@ class UserService {
             data: { carts: userInventory.carts },
         });
     }
-    async updateUserCart(req: Request, res: Response): Promise<ResDto> {
-        throw new Error("Method not implemented.");
-    }
-    constructor() {}
 
     @validateRequest
     async deleteUserAddress(req: Request, res: Response): Promise<ResDto> {

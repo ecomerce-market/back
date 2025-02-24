@@ -217,14 +217,4 @@ userRouter.delete(
     }
 );
 
-// 내 장바구니 수정
-userRouter.patch(
-    PATH_USERS + "/carts",
-    jwtMiddleware.jwtMiddleWare,
-    async (req: Request, res: Response) => {
-        const response = await userService.updateUserCart(req, res);
-        response.sendResponse(res);
-    }
-);
-
 export default userRouter;
