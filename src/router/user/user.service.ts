@@ -161,7 +161,7 @@ class UserService {
         });
     }
 
-    async deleteAllUserCarts(req: Request, res: Response) {
+    async clearUserCarts(req: Request, res: Response) {
         const { user } = await this.getUserByHeader(req);
         if (!user) {
             return new ErrorDto(ERRCODE.E002);
