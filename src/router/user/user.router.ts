@@ -184,7 +184,10 @@ userRouter.post(
         .exists({ values: "null" })
         .isString()
         .isMongoId(),
-    body("products.*.amount").exists({ values: "null" }).isNumeric(),
+    body("products.*.amount")
+        .exists({ values: "null" })
+        .isNumeric()
+        .isInt({ min: 1 }),
     body("products.*.optionName").optional().isString(),
     async (req: Request, res: Response) => {
         const response = await userService.addUserCart(req, res);
@@ -196,6 +199,9 @@ userRouter.post(
 userRouter.delete(
     PATH_USERS + "/carts/:productId",
     jwtMiddleware.jwtMiddleWare,
+    param("productId").exists({ values: "null" }).isString().isMongoId(),
+    query("amount").optional().isNumeric().isInt({ min: 1 }),
+    query("optionName").optional().isString(),
     async (req: Request, res: Response) => {
         const response = await userService.deleteUserCart(req, res);
         response.sendResponse(res);

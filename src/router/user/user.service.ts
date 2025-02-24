@@ -30,7 +30,11 @@ import { ResDto } from "../../common/dto/common.res.dto";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
 import { validateRequest } from "../../common/decorators/validate.decorator";
-import { UserCartAddReqDto } from "./dto/userCart.req.dto";
+import {
+    CartItem,
+    UserCartAddReqDto,
+    UserCartDeleteParam,
+} from "./dto/userCart.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
 
 class UserService {
@@ -72,11 +76,23 @@ class UserService {
 
         for (const productRequest of reqDto.products) {
             // 상품이 실제 존재하는 상품인지 확인
-            const productEntity = productEntities.find(
-                (entity) =>
-                    entity._id.toString() ===
-                    productRequest.productId.toString()
-            );
+            const productEntity = productEntities.find((entity) => {
+                if (productRequest.optionName) {
+                    return (
+                        entity._id.toString() ===
+                            productRequest.productId.toString() &&
+                        entity.options.find(
+                            (option: any) =>
+                                option.optName === productRequest.optionName
+                        )
+                    );
+                } else {
+                    return (
+                        entity._id.toString() ===
+                        productRequest.productId.toString()
+                    );
+                }
+            });
 
             if (!productEntity) {
                 return new ErrorDto(ERRCODE.E201);
@@ -112,6 +128,11 @@ class UserService {
                         // 옵션이 다르면 같은 상품이더라도 다른 아이템으로 인식
                         return false;
                     }
+
+                    if (inventoryCart.optionName) {
+                        // 카트에 옵션이 있으면서 요청에 옵션이 없으면 다른 아이템으로 인식
+                        return false;
+                    }
                     // 옵션이 없으면서 같은 상품이면 같은 아이템으로 인식
                     return true;
                 }
@@ -141,8 +162,60 @@ class UserService {
 
         throw new Error("Method not implemented.");
     }
+
+    @validateRequest
     async deleteUserCart(req: Request, res: Response): Promise<ResDto> {
-        throw new Error("Method not implemented.");
+        const { user } = await this.getUserByHeader(req);
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const productId: string = req.params.productId;
+        const param: UserCartDeleteParam = new UserCartDeleteParam(req);
+
+        const userInventory: UserInventory =
+            await userInventoryRepository.findById(user.inventory);
+
+        if (!userInventory.carts) {
+            userInventory.carts = [];
+        }
+
+        const targetProduct = userInventory.carts.find((cart) => {
+            if (param.optionName) {
+                return (
+                    cart.productId.toString() === productId &&
+                    cart.optionName === param.optionName
+                );
+            } else if (cart.optionName) {
+                return false;
+            }
+            return cart.productId.toString() === productId;
+        });
+
+        if (!targetProduct) {
+            // todo: 에러 코드 추가
+            return new ErrorDto(ERRCODE.E203);
+        }
+
+        if (param.amount) {
+            targetProduct.amount -= param.amount;
+            if (targetProduct.amount <= 0) {
+                userInventory.carts = userInventory.carts.filter(
+                    (cart) => cart !== targetProduct
+                );
+            }
+        } else {
+            userInventory.carts = userInventory.carts.filter(
+                (cart) => cart !== targetProduct
+            );
+        }
+
+        await userInventoryRepository.update(userInventory);
+
+        return new ResDto({
+            message: "delete success",
+            data: { carts: userInventory.carts },
+        });
     }
     async updateUserCart(req: Request, res: Response): Promise<ResDto> {
         throw new Error("Method not implemented.");

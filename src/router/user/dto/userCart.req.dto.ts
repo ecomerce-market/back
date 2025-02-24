@@ -11,6 +11,18 @@ export class UserCartAddReqDto {
     }
 }
 
+export class UserCartDeleteParam {
+    amount?: number;
+    optionName?: string;
+
+    constructor(req: Request) {
+        this.amount = req.query.amount ? Number(req.query.amount) : undefined;
+        this.optionName = req.query.optionName
+            ? String(req.query.optionName)
+            : undefined;
+    }
+}
+
 export type CartItem = {
     productId: string;
     amount: number;
