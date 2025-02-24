@@ -2,6 +2,9 @@ import { Model } from "mongoose";
 import { userInventoryModel } from "../model/userInventory.schema";
 
 class UserInventoryRepository {
+    async findById(inventory: any) {
+        return userInventoryModel.findById(inventory);
+    }
     async save(userInventory: Model<any>) {
         return userInventoryModel.create(userInventory);
     }

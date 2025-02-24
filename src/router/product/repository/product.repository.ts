@@ -7,6 +7,12 @@ import { ProductModel } from "../model/product.schema";
 import * as mongoose from "mongoose";
 
 class ProductRepository {
+    async findById(productId: string) {
+        return ProductModel.findOne().where({
+            _id: productId,
+            amount: { $gt: 0 },
+        });
+    }
     findProductByIdsForOrder(productIds: Array<string>) {
         return ProductModel.find({
             _id: { $in: productIds },

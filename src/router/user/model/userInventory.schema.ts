@@ -2,7 +2,6 @@ import { model, Model, Schema } from "mongoose";
 
 export const userInventorySchema: Schema = new Schema(
     {
-        inventory_id: Schema.Types.ObjectId,
         points: {
             type: Number,
             default: 0,
@@ -41,6 +40,26 @@ export const userInventorySchema: Schema = new Schema(
                 },
             },
         ],
+        carts: [
+            {
+                productId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "product",
+                    unique: false,
+                },
+                amount: {
+                    type: Number,
+                    default: 1,
+                },
+                createAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                optionName: {
+                    type: String,
+                },
+            },
+        ],
     },
     {
         autoCreate: true,
@@ -51,3 +70,24 @@ export const userInventoryModel = model(
     "userInventory",
     userInventorySchema
 ) as Model<any>;
+
+export type UserInventory = {
+    _id: string;
+    points: number;
+    tier?: string;
+    coupons?: {
+        coupon: string;
+        createAt: Date;
+        useAt?: Date;
+    }[];
+    likeProducts?: {
+        product: string;
+        createAt: Date;
+    }[];
+    carts?: {
+        productId: string;
+        amount: number;
+        createAt: Date;
+        optionName?: string;
+    }[];
+};

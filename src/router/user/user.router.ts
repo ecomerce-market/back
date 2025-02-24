@@ -165,4 +165,57 @@ userRouter.get(
     }
 );
 
+// 내 장바구니 조회
+userRouter.get(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.getUserCarts(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 상품 추가
+userRouter.post(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    body("products").exists({ values: "null" }).isArray(),
+    body("products.*.productId")
+        .exists({ values: "null" })
+        .isString()
+        .isMongoId(),
+    body("products.*.amount")
+        .exists({ values: "null" })
+        .isNumeric()
+        .isInt({ min: 1 }),
+    body("products.*.optionName").optional().isString(),
+    async (req: Request, res: Response) => {
+        const response = await userService.addUserCart(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 상품 전체 삭제
+userRouter.delete(
+    PATH_USERS + "/carts",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.clearUserCarts(req, res);
+        response.sendResponse(res);
+    }
+);
+
+// 내 장바구니 상품 삭제
+userRouter.delete(
+    PATH_USERS + "/carts/:productId",
+    jwtMiddleware.jwtMiddleWare,
+    param("productId").exists({ values: "null" }).isString().isMongoId(),
+    query("amount").optional().isNumeric().isInt({ min: 1 }),
+    query("optionName").optional().isString(),
+    async (req: Request, res: Response) => {
+        const response = await userService.deleteUserCart(req, res);
+        response.sendResponse(res);
+    }
+);
+
 export default userRouter;
