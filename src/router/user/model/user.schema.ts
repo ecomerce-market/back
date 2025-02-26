@@ -48,3 +48,16 @@ export const userSchema: Schema = new Schema(
 );
 
 export const userModel = model("user", userSchema) as Model<any>;
+
+export type User = {
+    _id: string;
+    loginId: string;
+    loginPw: string;
+    name: string;
+    email: string;
+    phone: string;
+    birth: string;
+    deleteAt: Date;
+    inventory: string;
+    addresses: string[];
+};

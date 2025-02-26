@@ -9,10 +9,14 @@ const orderRouter = Router();
 const orderService = new OrderService();
 
 // 주문서 생성
-orderRouter.post(PATH_ORDERS + "/", jwtMiddleware.jwtMiddleWare, async (req, res) => {
-    const response = await orderService.createOrder(req, res);
-    response.sendResponse(res);
-});
+orderRouter.post(
+    PATH_ORDERS + "/",
+    jwtMiddleware.jwtMiddleWare,
+    async (req, res) => {
+        const response = await orderService.createOrder(req, res);
+        response.sendResponse(res);
+    }
+);
 
 // 주문서 수정 (쿠폰 사용, 포인트 사용, 결제수단 변경, 배송지 변경)
 orderRouter.patch(
