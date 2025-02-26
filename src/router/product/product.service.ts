@@ -22,8 +22,74 @@ import {
 import { ResDto } from "../../common/dto/common.res.dto";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
+import { couponModel } from "../../router/coupon/model/coupon.schema";
+import { ParsedQs } from "qs";
+import userService from "../../router/user/user.service";
+import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 
 class ProductService {
+    async getProductCoupons(req: Request, res: Response): Promise<ResDto> {
+        const { user } = await userService.getUserByHeader(req);
+
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const productId = req.params.productId;
+        if (!productId) {
+            return new ErrorDto(ERRCODE.E101);
+        }
+
+        const couponId = req.params.couponId;
+        if (!couponId) {
+            return new ErrorDto(ERRCODE.E105);
+        }
+
+        const product: any = await productRepository.getProductById(productId);
+
+        if (!product) {
+            return new ErrorDto(ERRCODE.E102);
+        }
+
+        const coupon = product.coupons.find(
+            (coupon: any) => coupon.coupon.toString() === couponId
+        );
+
+        if (!coupon) {
+            return new ErrorDto(ERRCODE.E105);
+        }
+
+        const userInventory: any = await userModel.populate(user, {
+            path: "inventory",
+        });
+
+        if (!userInventory.inventory.coupons) {
+            userInventory.inventory.coupons = [];
+        }
+
+        if (
+            // 이미 쿠폰을 가지고 있는지 확인
+            userInventory.inventory.coupons.some(
+                (coupon: any) => coupon.coupon.toString() === couponId
+            )
+        ) {
+            return new ErrorDto(ERRCODE.E106);
+        }
+
+        userInventory.inventory.coupons.push({
+            coupon: couponId,
+            createAt: new Date(),
+            useAt: null,
+        });
+
+        userInventoryRepository.update(userInventory.inventory);
+
+        return new ResDto({
+            data: {
+                message: "coupon download success",
+            },
+        });
+    }
     // 상품 좋아요
     async likeProduct(req: Request, res: Response): Promise<ResDto> {
         const loginId = req.headers["X-Request-user-id"] as string;
@@ -182,9 +248,15 @@ class ProductService {
 
             const productWithCategories: any = await ProductModel.populate(
                 product,
-                {
-                    path: "categories",
-                }
+                [
+                    {
+                        path: "categories",
+                    },
+                    {
+                        path: "coupons.coupon",
+                        model: "coupon",
+                    },
+                ]
             );
 
             const productWithCategories_doc = productWithCategories._doc;

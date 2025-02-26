@@ -1,4 +1,6 @@
 import * as mongoose from "mongoose";
+import "../router/coupon/model/coupon.schema"; // Importing the schema file to register the schema
+import "../router/product/model/product.schema"; // Importing the schema file to register the schema
 
 class MongooseProvider {
     path: string;

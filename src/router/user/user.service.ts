@@ -41,6 +41,34 @@ import { CartResDto, CartResItem } from "./dto/userCart.res.dto";
 class UserService {
     constructor() {}
 
+    async getUserCoupons(req: Request, res: Response) {
+        const { user } = await this.getUserByHeader(req);
+
+        if (!user) {
+            return new ErrorDto(ERRCODE.E002);
+        }
+
+        const userInventory: UserInventory =
+            await userInventoryRepository.findById(user.inventory);
+
+        const invenWithCoupons: any = await userInventoryModel.populate(
+            userInventory,
+            {
+                path: "coupons.coupon",
+                model: "coupon",
+            }
+        );
+
+        if (!invenWithCoupons.coupons) {
+            invenWithCoupons.coupons = [];
+        }
+
+        const coupons: Array<any> = invenWithCoupons.coupons.filter(
+            (coupon: any) => !coupon.useAt
+        );
+
+        return new ResDto({ data: { coupons } });
+    }
     async getUserCarts(req: Request, res: Response): Promise<ResDto> {
         const { user } = await this.getUserByHeader(req);
         if (!user) {

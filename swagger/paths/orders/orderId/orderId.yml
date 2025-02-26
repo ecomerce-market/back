@@ -193,7 +193,7 @@
                                             example: "CARD"
                                         couponId:
                                             type: string
-                                            description: 쿠폰 고유 번호
+                                            description: 쿠폰 고유 번호 (내 쿠폰 목록의 coupon._id 필드 *반드시 coupon 객체 안의 _id 필드 사용)
                                             example: 65f2d1234567890123456794
 
         responses:

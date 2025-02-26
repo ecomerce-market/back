@@ -164,6 +164,54 @@
                                                         type: string
                                                         example: "2025-12-31T23:59:59.999Z"
                                                         description: 카테고리 등록일
+                                        coupons:
+                                            type: array
+                                            description: 상품의 쿠폰 목록
+                                            items:
+                                                type: object
+                                                properties:
+                                                    createAt:
+                                                        type: string
+                                                        example: "2025-12-31T23:59:59.999Z"
+                                                        description: 상품의 쿠폰 등록일
+                                                    expireAt:
+                                                        type: string
+                                                        example: "2025-12-31T23:59:59.999Z"
+                                                        description: 상품 내 쿠폰 만료일
+                                                    coupon:
+                                                        type: object
+                                                        properties:
+                                                            _id:
+                                                                type: string
+                                                                example: 65f2d1234567890123456794
+                                                                description: 쿠폰 ID (고유 식별자)
+                                                            name:
+                                                                type: string
+                                                                example: "쿠폰"
+                                                                description: 쿠폰명
+                                                            discountPer:
+                                                                type: number
+                                                                example: 10
+                                                                description: 할인율 (없을 경우 null)
+                                                            discountWon:
+                                                                type: number
+                                                                example: 1000
+                                                                description: 할인 금액 (없을 경우 null)
+                                                            useableType:
+                                                                type: array
+                                                                description: 사용 가능한 결제 또는 카드 유형 (all, hyundai-card, samsung-card, shinhan-card, kb-card, lotte-card, bc-card, nh-card, citi-card, kakaopay, naverpay)
+                                                                items:
+                                                                    type: string
+                                                                    example: "hyundai-card"
+                                                                example: ["all"]
+                                                            endAt:
+                                                                type: string
+                                                                example: "2025-12-31T23:59:59.999Z"
+                                                                description: 쿠폰 만료일
+                                                            deleteAt:
+                                                                type: string
+                                                                example: "2025-12-31T23:59:59.999Z"
+                                                                description: 쿠폰 삭제일 (삭제되지 않은 경우 null)
 
 /api/v1/products/:productId/likes:
     post:
@@ -276,3 +324,66 @@
                                 code:
                                     type: string
                                     example: E999
+
+/api/v1/products/:productId/coupons/:couponId:
+    get:
+        tags:
+            - Products/:productId
+        summary: "상품 쿠폰 다운로드"
+        description: 상품 쿠폰 다운로드<br> 상품 상세조회 응답의 coupon._id 필드 이용하여 쿠폰 다운로드
+        parameters:
+            - in: header
+              name: Authorization
+              schema:
+                  type: string
+              description: JWT 토큰
+              required: true
+            - in: path
+              name: productId
+              schema:
+                  type: string
+              description: 상품 ID (고유 식별자)
+              required: true
+            - in: path
+              name: couponId
+              schema:
+                  type: string
+              description: 쿠폰 ID (고유 식별자)
+              required: true
+        responses:
+            200:
+                description: 상품 쿠폰 다운로드 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: success
+            400:
+                description: 상품 쿠폰 다운로드 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: coupon is already downloaded
+                                code:
+                                    type: string
+                                    example: E106
+            404:
+                description: 상품 쿠폰 다운로드 실패
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: product is not found | coupon is not found
+                                code:
+                                    type: string
+                                    example: E102 | E105

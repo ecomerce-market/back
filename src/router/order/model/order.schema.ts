@@ -84,7 +84,7 @@ export type Order = {
     addressInfo: {
         userAddress: string;
     };
-    userCoupon: string;
+    userCoupon: string | null;
     userInfo: {
         user: User | string;
     };

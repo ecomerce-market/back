@@ -78,6 +78,24 @@ export const procuctSchema = new Schema(
                 ref: "productCategory",
             },
         ],
+        coupons: [
+            {
+                coupon: {
+                    type: Schema.Types.ObjectId,
+                    ref: "coupon",
+                    unique: false,
+                },
+                createAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                expireAt: {
+                    type: Date,
+                    default: Date.now,
+                    index: { expires: "7d" },
+                },
+            },
+        ],
     },
     {
         autoCreate: true,
@@ -120,6 +138,7 @@ export type Product = {
         extraDescription: string;
         expirationDate: Date;
     };
+    coupons: ProductCoupon[];
     options: ProductOption[];
     mainImgUrl: string;
     detailInfoHtml: string;
@@ -133,4 +152,10 @@ export type ProductOption = {
     optOrgPrice: number;
     additionalPrice: number;
     optAmount: number;
+};
+
+export type ProductCoupon = {
+    coupon: string;
+    createAt: Date;
+    expireAt?: Date;
 };

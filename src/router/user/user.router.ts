@@ -91,6 +91,16 @@ userRouter.post(
     }
 );
 
+// 사용자 보유 쿠폰 목록 조회
+userRouter.get(
+    PATH_USERS + "/coupons",
+    jwtMiddleware.jwtMiddleWare,
+    async (req: Request, res: Response) => {
+        const response = await userService.getUserCoupons(req, res);
+        response.sendResponse(res);
+    }
+);
+
 // 사용자 주소 목록 조회
 userRouter.get(
     PATH_USERS + "/addresses",
