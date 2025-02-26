@@ -827,6 +827,48 @@
                                             optionName:
                                                 type: string
                                                 description: "상품 옵션명"
+                                            productName: 
+                                                type: string
+                                                description: "상품명"
+                                            orgPrice: 
+                                                type: number
+                                                description: "상품 원가"
+                                            finalPrice:
+                                                type: number
+                                                description: "상품 최종 가격"
+                                            mainImgUrl:
+                                                type: string
+                                                description: "상품 대표 이미지 URL"
+                                            optOrgPrice:
+                                                type: number
+                                                description: "옵션 원가"
+                                            additionalPrice:
+                                                type: number
+                                                description: "옵션 추가 가격"
+                                            deliveryInfo:
+                                                type: string
+                                                description: "배송 정보"
+                                            deliveryFee:
+                                                type: number
+                                                description: "배송비"
+                                totalPrice:
+                                    type: number
+                                    description: "장바구니 총 가격"
+                                    example: 100000
+                                totalDeliveryFee:
+                                    type: number
+                                    description: "장바구니 총 배송비"
+                                    example: 3000
+                                totalDiscountPrice:
+                                    type: number
+                                    description: "장바구니 총 할인 금액"
+                                    example: 10000
+                                finalPrice:
+                                    type: number
+                                    description: "장바구니 최종 가격"
+                                    example: 90000
+                                            
+                                            
             401:
                 description: "인증 실패"
                 content:

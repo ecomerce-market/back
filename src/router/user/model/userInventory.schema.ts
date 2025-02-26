@@ -84,10 +84,12 @@ export type UserInventory = {
         product: string;
         createAt: Date;
     }[];
-    carts?: {
-        productId: string;
-        amount: number;
-        createAt: Date;
-        optionName?: string;
-    }[];
+    carts?: CartItem[];
+};
+
+export type CartItem = {
+    productId: string;
+    amount: number;
+    createAt: Date;
+    optionName?: string;
 };
