@@ -1,5 +1,5 @@
 import * as YAML from "yamljs";
-
+import * as swaggerJSDoc from "swagger-jsdoc";
 // const swaggerDocs = YAML.load("swagger/swagger.yml");
 
 const mergeYamlFiles = () => {
@@ -34,5 +34,10 @@ const mergeYamlFiles = () => {
 };
 
 const swaggerDocs = mergeYamlFiles();
+const options: swaggerJSDoc.Options = {
+    swaggerDefinition: swaggerDocs,
+    apis: ["src/router/**/*.route.ts"],
+};
 
+export const swaggerSpec = swaggerJSDoc(options);
 export default swaggerDocs;

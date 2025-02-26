@@ -1,11 +1,11 @@
-export type OrderProduct = {
+export type OrderProductItem = {
     productId: string;
     amount: number;
     optionName: string;
 };
 
 export interface OrderReqDto {
-    products: Array<OrderProduct>;
+    products: Array<OrderProductItem>;
 }
 
 export interface OrderUpdateDto {

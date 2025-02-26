@@ -1,4 +1,6 @@
 import { model, Model, Schema } from "mongoose";
+import { Product } from "router/product/model/product.schema";
+import { User } from "router/user/model/user.schema";
 
 export const orderSchema = new Schema({
     // _id: Schema.Types.ObjectId,
@@ -84,16 +86,16 @@ export type Order = {
     };
     userCoupon: string;
     userInfo: {
-        user: string;
+        user: User | string;
     };
-    usedPoints: number;
+    usedPoints?: number;
     paymentMethod: string;
     paymentStatus: string;
     approveAt: Date;
 };
 
-export type OrderProduct = {
-    productId: string;
+export type OrderProduct = Product & {
+    productId: Product | string;
     amount: number;
     optionName: string;
     deliveryInfo: {

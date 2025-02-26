@@ -2,6 +2,13 @@ import { Model } from "mongoose";
 import { orderModel } from "../model/order.schema";
 
 class OrderRepository {
+    async update(order: any) {
+        return orderModel.updateOne(
+            { _id: order._id },
+            { $set: order },
+            { upsert: false }
+        );
+    }
     async countByUserId(userId: any) {
         return orderModel.countDocuments({
             "userInfo.user": userId,

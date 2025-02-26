@@ -1,11 +1,15 @@
 import { Request, Response } from "express-serve-static-core";
-import { OrderProduct, OrderReqDto, OrderUpdateDto } from "./dto/order.req.dto";
+import {
+    OrderProductItem,
+    OrderReqDto,
+    OrderUpdateDto,
+} from "./dto/order.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
-import { orderModel } from "./model/order.schema";
-import mongoose, { Types } from "mongoose";
+import { Order, orderModel, OrderProduct } from "./model/order.schema";
+import mongoose, { Document, Types } from "mongoose";
 import orderRepository from "./repository/order.repository";
 import userRepository from "../../router/user/repository/user.repository";
-import { userModel } from "../user/model/user.schema";
+import { User, userModel } from "../user/model/user.schema";
 import userInventoryRepository from "../../router/user/repository/userInventory.repository";
 import orderIdemKeyRepository from "./repository/orderIdemKey.repository";
 import { orderIdemKeyModel } from "./model/orderIdemKey.schema";
@@ -13,6 +17,7 @@ import { ResDto } from "../../common/dto/common.res.dto";
 import { validateRequest } from "../../common/decorators/validate.decorator";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
+import { Product } from "router/product/model/product.schema";
 
 class OrderService {
     async getOrderDetail(req: Request, res: Response): Promise<ResDto> {
@@ -20,28 +25,36 @@ class OrderService {
 
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId, true);
+        const orderEntity: Document = await orderRepository.findById(
+            orderId,
+            true
+        ); // mongoose model
+        const order: Order & { orderId?: string } = orderEntity.toObject(); // 불필요한 컬럼을 제외 한 도큐먼트 데이터
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
-        } else if (order.userInfo["user"].loginId !== loginId) {
+        } else if (
+            typeof order.userInfo["user"] !== "string" &&
+            order.userInfo["user"].loginId !== loginId
+        ) {
             return new ErrorDto(ERRCODE.E205);
         }
+        order.orderId = order._id;
 
-        const orderObj = order.toObject();
-        orderObj.orderId = orderObj._id;
-        delete orderObj._id;
-
+        if (typeof order.products !== "object") {
+            return new ErrorDto(ERRCODE.E999);
+        }
         const nonIcedProducts: Array<any> = order.products.filter(
-            (product: any) => !product.deliveryInfo.isIce
+            (product: OrderProduct) =>
+                !(product.productId as Product).info.isIce
         );
         const icedProducts: Array<any> = order.products.filter(
-            (product: any) => product.deliveryInfo.isIce
+            (product: OrderProduct) => (product.productId as Product).info.isIce
         );
 
         // 일반 상품 배송 상태 결정
         const nonIcedDeliveryStatuses = nonIcedProducts.map(
-            (product: any) => product.deliveryInfo.deliveryStatus
+            (product: OrderProduct) => product.deliveryInfo.deliveryStatus
         );
         let nonIcedProdDelivStatus = "ready";
         if (nonIcedDeliveryStatuses.length > 0) {
@@ -84,12 +97,18 @@ class OrderService {
         let totalOrgPrice = 0;
         let totalDiscountedPrice = 0;
 
-        orderObj.products.forEach((product: any) => {
-            totalOrgPrice += product.productId.orgPrice * product.amount;
-            totalDiscountedPrice +=
-                product.productId.orgPrice * product.amount -
-                product.finalPrice * product.amount;
+        order.products.forEach((product: OrderProduct) => {
+            if (typeof product.productId === "object") {
+                totalOrgPrice += product.productId.orgPrice * product.amount;
+                totalDiscountedPrice +=
+                    product.productId.orgPrice * product.amount -
+                    product.finalPrice * product.amount;
+            }
         });
+
+        // order 객체에서 _id 제거
+        const orderObj: any = Object.assign({}, order);
+        delete orderObj._id;
 
         const data = {
             order: {
@@ -126,27 +145,30 @@ class OrderService {
                     path: "orderId",
                 }
             );
-            const order: any = idemKeyOrder.orderId;
+            const orderEntity: any = idemKeyOrder.orderId;
+            const order: Order = orderEntity.toObject();
             const addedPoints: number = order.totalPrice * 0.01; // 1% 적립 (적립 예시 퍼센트)
 
             return new ResDto({
                 message: "order approve success",
                 data: {
-                    totalPaidPrice: order.totalPrice - order.usedPoints,
+                    totalPaidPrice: order.totalPrice - (order.usedPoints ?? 0),
                     addedPoints,
                     orderId: order._id,
                 },
             });
         }
 
-        const user: any =
+        const userEntity: any =
             await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const user: User = userEntity.toObject();
 
-        const order: any = await orderRepository.findById(orderId, true);
+        const orderEntity: any = await orderRepository.findById(orderId, true);
+        const order: Order = orderEntity.toObject();
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
-        } else if (order.userInfo["user"].loginId !== loginId) {
+        } else if ((order.userInfo["user"] as User).loginId !== loginId) {
             return new ErrorDto(ERRCODE.E205);
         }
         if (order.paymentStatus === "paid") {
@@ -179,7 +201,7 @@ class OrderService {
             userInventory.inventory.points =
                 userInventory.inventory.points - order.usedPoints + addedPoints;
         }
-        const saved: any = await orderRepository.save(order);
+        await orderRepository.update(order);
         await userInventoryRepository.update(userInventory.inventory);
 
         // 중복 요청 방지를 위한 uuid 저장
@@ -188,13 +210,15 @@ class OrderService {
             orderId,
         });
 
+        const data = {
+            totalPaidPrice: order.totalPrice - (order.usedPoints ?? 0),
+            addedPoints,
+            orderId: order._id,
+        };
+
         return new ResDto({
             message: "order approve success",
-            data: {
-                totalPaidPrice: saved.totalPrice - saved.usedPoints,
-                addedPoints,
-                orderId: saved._id,
-            },
+            data,
         });
     }
 
@@ -208,13 +232,14 @@ class OrderService {
         const body: OrderUpdateDto = req.body;
         const orderId = req.params.orderId;
 
-        const order: any = await orderRepository.findById(orderId, true);
+        const orderEntity: any = await orderRepository.findById(orderId, true);
+        const order: Order = orderEntity.toObject();
 
         if (!order) {
             return new ErrorDto(ERRCODE.E203);
         } else if (order.paymentStatus === "paid") {
             return new ErrorDto(ERRCODE.E204);
-        } else if (order.userInfo["user"].loginId !== loginId) {
+        } else if ((order.userInfo["user"] as User).loginId !== loginId) {
             return new ErrorDto(ERRCODE.E205);
         }
 
@@ -269,8 +294,8 @@ class OrderService {
             order.addressInfo.userAddress = body.userAddressId;
         }
 
-        const saved: any = await orderRepository.save(order);
-        const orderData: any = await orderModel.populate(saved, [
+        await orderRepository.update(order);
+        const orderData: any = await orderModel.populate(order, [
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
@@ -288,7 +313,7 @@ class OrderService {
             },
         ]);
 
-        const orderDataObj = orderData.toObject();
+        const orderDataObj: any = Object.assign({}, orderData);
         orderDataObj.orderId = orderDataObj._id;
         delete orderDataObj._id;
 
@@ -305,7 +330,9 @@ class OrderService {
     async createOrder(req: Request, res: Response): Promise<ResDto> {
         const loginId: string = req.headers["X-Request-user-id"] as string;
 
-        const user: any = userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const userEntity: Document =
+            await userRepository.findByLoginIdAndDeleteAtNull(loginId);
+        const user: User = userEntity.toObject();
 
         const body: OrderReqDto = req.body;
 
@@ -354,7 +381,7 @@ class OrderService {
         const userAddresses: Array<any> = populatedUser.addresses;
 
         const order = new orderModel({
-            products: body.products.map((product: OrderProduct) => {
+            products: body.products.map((product: OrderProductItem) => {
                 const productEntity: any = products.find(
                     (entity) => entity._id.toString() === product.productId
                 );
@@ -425,7 +452,7 @@ class OrderService {
 
         const saved: any = await orderRepository.save(order);
 
-        const orderData: any = await orderModel.populate(saved, [
+        const orderData: Document = await orderModel.populate(order, [
             {
                 path: "userInfo.user",
                 model: "user", // 실제 모델명과 일치
