@@ -74,3 +74,32 @@ export const orderSchema = new Schema({
 });
 
 export const orderModel = model("Order", orderSchema) as Model<any>;
+
+export type Order = {
+    _id: string;
+    products: OrderProduct[];
+    totalPrice: number;
+    addressInfo: {
+        userAddress: string;
+    };
+    userCoupon: string;
+    userInfo: {
+        user: string;
+    };
+    usedPoints: number;
+    paymentMethod: string;
+    paymentStatus: string;
+    approveAt: Date;
+};
+
+export type OrderProduct = {
+    productId: string;
+    amount: number;
+    optionName: string;
+    deliveryInfo: {
+        deliveryStatus: string;
+        deliveryComp: string;
+    };
+    orgPrice: number;
+    finalPrice: number;
+};
