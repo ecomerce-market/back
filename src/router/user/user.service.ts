@@ -36,6 +36,7 @@ import {
     UserCartDeleteParam,
 } from "./dto/userCart.req.dto";
 import productRepository from "../../router/product/repository/product.repository";
+import { CartResDto, CartResItem } from "./dto/userCart.res.dto";
 
 class UserService {
     constructor() {}
@@ -52,8 +53,73 @@ class UserService {
         if (!userInventory.carts) {
             userInventory.carts = [];
         }
+
+        const cartResDto: Array<CartResItem> = userInventory.carts.map(
+            (cart) => new CartResItem(cart)
+        );
+        // const cartResDto: Array<CartResItem> = userInventory.carts;
+        const productIds: Array<string> = cartResDto.map(
+            (resDto) => resDto.productId
+        );
+
+        const productEntities: Array<any> =
+            await productRepository.findProductByIdsForOrder(productIds);
+
+        for (const cart of cartResDto) {
+            const productEntity = productEntities.find((entity) => {
+                return (entity._id as mongoose.Types.ObjectId).equals(
+                    cart.productId
+                );
+            });
+
+            if (productEntity) {
+                cart.productName = productEntity.productName;
+                cart.orgPrice = productEntity.orgPrice;
+                cart.finalPrice = productEntity.finalPrice;
+                cart.deliveryInfo = productEntity.info.deliveryInfo;
+                cart.deliveryFee = productEntity.deliveryFee ?? 0; // 배송비 속성 없으면 0원
+                cart.mainImgUrl = productEntity.mainImgUrl;
+
+                if (cart.optionName) {
+                    const productOption: any = productEntity.options.find(
+                        (option: any) => option.optName === cart.optionName
+                    );
+
+                    if (productOption.optOrgPrice === 0) {
+                        cart.orgPrice =
+                            productEntity.orgPrice +
+                            productOption.additionalPrice;
+                    } else {
+                        cart.orgPrice =
+                            productOption.optOrgPrice +
+                            productOption.additionalPrice;
+                    }
+                }
+            }
+        }
+
+        const resDto: CartResDto = {
+            carts: cartResDto,
+            totalPrice: cartResDto.reduce(
+                (acc, cur) => acc + cur.amount * cur.orgPrice,
+                0
+            ),
+            totalDeliveryFee: cartResDto.reduce(
+                (acc, cur) => acc + cur.deliveryFee,
+                0
+            ),
+            totalDiscountPrice: 0,
+            finalPrice: cartResDto.reduce(
+                (acc, cur) => acc + cur.amount * cur.finalPrice,
+                0
+            ),
+        };
+        resDto.finalPrice = resDto.finalPrice + resDto.totalDeliveryFee;
+        resDto.totalDiscountPrice =
+            resDto.totalPrice - resDto.finalPrice - resDto.totalDeliveryFee;
+
         return new ResDto({
-            data: { carts: userInventory.carts },
+            data: { ...resDto },
         });
     }
 
