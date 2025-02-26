@@ -54,6 +54,8 @@ export const procuctSchema = new Schema(
             seller: String, // 판매자
             deliveryComp: String, // 배송회사
             deliveryInfo: String, // 배송정보
+            deliveryFee: Number, // 배송비
+            isIce: Boolean, // 냉장/냉동 상품 여부
             packageType: String, // 포장 타입
             packageDescription: String, // 포장 설명
             productOrigin: String, // 원산지
@@ -87,3 +89,48 @@ export const procuctSchema = new Schema(
 );
 
 export const ProductModel = mongoose.model("product", procuctSchema);
+
+export type Product = {
+    _id: string;
+    productName: string;
+    description: string;
+    orgPrice: number;
+    finalPrice: number;
+    canReward: boolean;
+    amount: number;
+    likeCnt: number;
+    commentCnt: number;
+    sellCnt: number;
+    discount: {
+        discountName: string;
+        discountAmount: number;
+        discountType: string;
+        startAt: Date;
+        endAt: Date;
+    };
+    info: {
+        seller: string;
+        deliveryComp: string;
+        deliveryInfo: string;
+        deliveryFee: number;
+        isIce: boolean;
+        packageType: string;
+        packageDescription: string;
+        productOrigin: string;
+        extraDescription: string;
+        expirationDate: Date;
+    };
+    options: ProductOption[];
+    mainImgUrl: string;
+    detailInfoHtml: string;
+    categories: string[];
+    createAt: Date;
+    updateAt: Date;
+};
+
+export type ProductOption = {
+    optName: string;
+    optOrgPrice: number;
+    additionalPrice: number;
+    optAmount: number;
+};
