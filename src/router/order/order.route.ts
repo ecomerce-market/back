@@ -24,7 +24,7 @@ orderRouter.patch(
     jwtMiddleware.jwtMiddleWare,
     body("paymentMethod").optional().isString(),
     body("usePoint").optional().isNumeric(),
-    body("coupon").optional().isString().isMongoId(),
+    body("coupon").optional(),
     body("userAddressInfo").optional().isString().isMongoId(),
     async (req, res) => {
         const response = await orderService.updateOrder(req, res);

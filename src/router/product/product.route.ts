@@ -47,6 +47,16 @@ productRouter.get(
     }
 );
 
+// 상품의 쿠폰 다운받기
+productRouter.get(
+    PATH_PRODUCTS + "/:productId/coupons/:couponId",
+    jwtMiddleware.optionalJwtMiddleWare,
+    async (req, res) => {
+        const response = await productService.getProductCoupons(req, res);
+        response.sendResponse(res);
+    }
+);
+
 // 상품 좋아요
 productRouter.post(
     PATH_PRODUCTS + "/:productId/likes",

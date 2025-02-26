@@ -135,6 +135,18 @@ export const ERRCODE = {
         status: 400,
         desc: "이미 좋아요 한 상품의 상품 좋아요 취소 요청 시 에러",
     },
+    E105: {
+        message: `coupon is not found`,
+        code: "E105",
+        status: 404,
+        desc: "요청 시 조회 한 쿠폰이 없을 때 에러",
+    },
+    E106: {
+        message: `coupon is already downloaded`,
+        code: "E106",
+        status: 400,
+        desc: "쿠폰 다운로드 중복 요청 시 에러",
+    },
 
     // Order Erorr
     E201: {
@@ -193,6 +205,13 @@ export const ERRCODE = {
         code: "E208",
         status: 400,
         desc: "주문서 배송지 선택이 되지 않았을 때 에러",
+    },
+
+    E209: {
+        message: "사용 가능한 쿠폰이 존재하지 않습니다.",
+        code: "E209",
+        status: 404,
+        desc: "주문서 수정 요청 시 사용 가능한 쿠폰인 존재하지 않을 때 에러",
     },
 } as const;
 

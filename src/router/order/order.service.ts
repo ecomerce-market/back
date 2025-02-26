@@ -17,7 +17,8 @@ import { ResDto } from "../../common/dto/common.res.dto";
 import { validateRequest } from "../../common/decorators/validate.decorator";
 import { ErrorDto } from "../../common/dto/error.res.dto";
 import { ERRCODE } from "../../common/constants/errorCode.constants";
-import { Product } from "router/product/model/product.schema";
+import { Product } from "../../router/product/model/product.schema";
+import { userInventoryModel } from "../../router/user/model/userInventory.schema";
 
 class OrderService {
     async getOrderDetail(req: Request, res: Response): Promise<ResDto> {
@@ -191,16 +192,31 @@ class OrderService {
                 deliveryComp: product.productId.info.deliveryComp,
             };
         });
-        const userInventory: any = await userModel.populate(user, {
-            path: "inventory",
-        });
-
+        const userInventory: any = await userModel.populate(user, [
+            {
+                path: "inventory",
+            },
+        ]);
         const addedPoints: number = order.totalPrice * 0.01; // 1% 적립 (적립 예시 퍼센트)
 
         if (order.usedPoints) {
             userInventory.inventory.points =
                 userInventory.inventory.points - order.usedPoints + addedPoints;
         }
+
+        if (order.userCoupon) {
+            (userInventory.inventory.coupons as Array<any>).forEach(
+                (coupon: any) => {
+                    if (
+                        coupon.coupon.toString() ===
+                        order.userCoupon?.toString()
+                    ) {
+                        coupon.useAt = new Date();
+                    }
+                }
+            );
+        }
+
         await orderRepository.update(order);
         await userInventoryRepository.update(userInventory.inventory);
 
@@ -260,26 +276,35 @@ class OrderService {
             order.usedPoints = body.usePoint;
         }
 
-        // if (body.couponId) {
-        //     const coupons: Array<any> = await userInventoryModel.populate(
-        //         userInventory,
-        //         {
-        //             path: "coupons",
-        //         }
-        //     );
+        if (body.couponId) {
+            const inventoryWithCoupon: any = await userInventoryModel.populate(
+                userInventory,
+                {
+                    path: "inventory.coupons",
+                    model: "coupon",
+                }
+            );
 
-        //     // 쿠폰이 존재하는지 확인
-        //     if (
-        //         !coupons.find(
-        //             (coupon: any) => coupon._id.toString() === body.couponId
-        //         )
-        //     ) {
-        //         return res.status(400).send({
-        //             message: "사용 가능한 쿠폰이 존재하지 않습니다.",
-        //             code: "E207",
-        //         });
-        //     }
-        // }
+            console.log("inventoryWithCoupon: ", inventoryWithCoupon);
+            const coupons: Array<any> = inventoryWithCoupon.inventory.coupons;
+
+            console.log("coupons: ", coupons);
+            // 쿠폰이 존재하는지 확인
+            if (
+                !coupons.find(
+                    (coupon: any) =>
+                        coupon.coupon.toString() === body.couponId &&
+                        coupon.useAt === null
+                )
+            ) {
+                return new ErrorDto(ERRCODE.E209);
+            }
+
+            order.userCoupon = body.couponId;
+        }
+        if (body.couponId === null) {
+            order.userCoupon = null;
+        }
 
         if (body.userAddressId) {
             const addresses: Array<any> = user.addresses;

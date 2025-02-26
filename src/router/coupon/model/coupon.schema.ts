@@ -1,7 +1,7 @@
-import { model, Model, Schema } from "mongoose";
+import { model, Model, Schema, Types } from "mongoose";
 
 export const couponSchema: Schema = new Schema({
-    couponId: Schema.Types.ObjectId,
+    _id: Types.ObjectId,
     name: {
         type: String,
         required: true,
@@ -36,3 +36,14 @@ export const couponSchema: Schema = new Schema({
 });
 
 export const couponModel = model("coupon", couponSchema) as Model<any>;
+
+export type Coupon = {
+    _id: string;
+    name: string;
+    discountPer?: number;
+    discountWon?: number;
+    useableType: string[];
+    startAt?: Date;
+    endAt: Date;
+    deleteAt?: Date;
+};

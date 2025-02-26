@@ -827,10 +827,10 @@
                                             optionName:
                                                 type: string
                                                 description: "상품 옵션명"
-                                            productName: 
+                                            productName:
                                                 type: string
                                                 description: "상품명"
-                                            orgPrice: 
+                                            orgPrice:
                                                 type: number
                                                 description: "상품 원가"
                                             finalPrice:
@@ -867,8 +867,7 @@
                                     type: number
                                     description: "장바구니 최종 가격"
                                     example: 90000
-                                            
-                                            
+
             401:
                 description: "인증 실패"
                 content:
@@ -1073,3 +1072,90 @@
                                 code:
                                     type: string
                                     example: "E015"
+
+/api/v1/users/coupons:
+    get:
+        tags:
+            - Users
+        summary: "사용자 보유 쿠폰 목록 조회"
+        description: "사용자의 보유 쿠폰 목록을 조회합니다."
+        parameters:
+            - in: header
+              name: Authorization
+              required: true
+              schema:
+                  type: string
+              description: "Bearer jwt_token"
+        responses:
+            200:
+                description: "쿠폰 목록 조회 성공"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "success"
+                                coupons:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            coupon:
+                                                type: object
+                                                properties:
+                                                    _id:
+                                                        type: string
+                                                        description: "쿠폰 ID"
+                                                    name:
+                                                        type: string
+                                                        description: "쿠폰 이름"
+                                                    discountPer:
+                                                        type: number
+                                                        example: 10
+                                                        description: 할인율 (없을 경우 null)
+                                                    discountWon:
+                                                        type: number
+                                                        example: 1000
+                                                        description: 할인 금액 (없을 경우 null)
+                                                    useableType:
+                                                        type: array
+                                                        description: 사용 가능한 결제 또는 카드 유형 (all, hyundai-card, samsung-card, shinhan-card, kb-card, lotte-card, bc-card, nh-card, citi-card, kakaopay, naverpay)
+                                                        items:
+                                                            type: string
+                                                            example: "hyundai-card"
+                                                        example: ["all"]
+                                                    endAt:
+                                                        type: string
+                                                        description: "쿠폰 만료일"
+                                                        example: "2025-02-17T06:47:38.378Z"
+                                                    deleteAt:
+                                                        type: boolean
+                                                        description: "쿠폰 삭제 여부"
+                                                        example: false
+                                            createAt:
+                                                type: string
+                                                description: "쿠폰 등록(발급)일"
+                                                example: "2025-02-17T06:47:38.378Z"
+                                            useAt:
+                                                type: string
+                                                description: "쿠폰 사용일"
+                                                example: "2025-02-17T06:47:38.378Z"
+                                            _id:
+                                                type: string
+                                                description: "등록 된 쿠폰 ID (사용 X)"
+
+            401:
+                description: "인증 실패"
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "Unauthorized"
+                                code:
+                                    type: string
+                                    example: "E009"
