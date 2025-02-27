@@ -2,6 +2,21 @@ import { Model } from "mongoose";
 import { userModel } from "../model/user.schema";
 
 class UserRepository {
+    findByLoginIdAndNameAndPhoneAndDeleteAtNull(
+        loginId: string,
+        name: string,
+        phone: string
+    ): Promise<any> {
+        return userModel
+            .findOne()
+            .where({
+                loginId: { $eq: loginId },
+                name: { $eq: name },
+                phone: { $eq: phone },
+                deleteAt: { $eq: null },
+            })
+            .exec();
+    }
     async findByIdAndDeleteAtNull(_id: any) {
         return userModel.findOne().where({
             _id: { $eq: _id },

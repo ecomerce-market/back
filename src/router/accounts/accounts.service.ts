@@ -12,6 +12,7 @@ import resetTokenRepository from "./repository/resetToken.repository";
 import { validateRequest } from "../../common/decorators/validate.decorator";
 import { resetTokenModel } from "./model/resetToken.schema";
 import userService from "../../router/user/user.service";
+import { Document } from "mongoose";
 
 class AccountService {
     @validateRequest
@@ -54,24 +55,33 @@ class AccountService {
             req
         );
 
-        let user: any = undefined;
-        if (reqDto.loginId !== undefined) {
-            user = await userRepository.findByLoginIdAndDeleteAtNull(
-                reqDto.loginId
-            );
-        } else {
-            if (!reqDto.name || !reqDto.phone) {
-                return new ErrorDto(ERRCODE.E010);
-            }
-            user = await userRepository.findByNameAndPhoneAndDeleteAtNull(
+        const userEntity: Document =
+            await userRepository.findByLoginIdAndNameAndPhoneAndDeleteAtNull(
+                reqDto.loginId,
                 reqDto.name,
                 reqDto.phone
             );
-        }
 
-        if (!user) {
+        // let user: any = undefined;
+        // if (reqDto.loginId !== undefined) {
+        //     user = await userRepository.findByLoginIdAndDeleteAtNull(
+        //         reqDto.loginId
+        //     );
+        // } else {
+        //     if (!reqDto.name || !reqDto.phone) {
+        //         return new ErrorDto(ERRCODE.E010);
+        //     }
+        //     user = await userRepository.findByNameAndPhoneAndDeleteAtNull(
+        //         reqDto.name,
+        //         reqDto.phone
+        //     );
+        // }
+
+        if (!userEntity) {
             return new ErrorDto(ERRCODE.E002);
         }
+
+        const user: any = userEntity.toObject();
 
         const savedResetToken: any = await resetTokenRepository.findByUserId(
             user._id
