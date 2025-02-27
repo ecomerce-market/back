@@ -12,6 +12,18 @@ export class AccountFindReqDto {
     }
 }
 
+export class AccountPasswordFindReqDto {
+    name: string;
+    phone: string;
+    loginId: string;
+
+    constructor(req: Request) {
+        this.name = req.body.name as string;
+        this.phone = req.body.phone as string;
+        this.loginId = req.body.loginId as string;
+    }
+}
+
 export class AccountPasswordResetReqDto {
     resetTokenId: string;
     loginPw: string;

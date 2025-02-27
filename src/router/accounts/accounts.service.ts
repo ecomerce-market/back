@@ -2,6 +2,7 @@ import { ResDto } from "../../common/dto/common.res.dto";
 import { Request, Response } from "express";
 import {
     AccountFindReqDto,
+    AccountPasswordFindReqDto,
     AccountPasswordResetReqDto,
 } from "./dto/accounts.req.dto";
 import userRepository from "../../router/user/repository/user.repository";
@@ -49,12 +50,14 @@ class AccountService {
 
     @validateRequest
     async findPassword(req: Request, res: Response): Promise<ResDto> {
-        const reqDto: AccountFindReqDto = new AccountFindReqDto(req);
+        const reqDto: AccountPasswordFindReqDto = new AccountPasswordFindReqDto(
+            req
+        );
 
         let user: any = undefined;
-        if (reqDto.email !== undefined) {
-            user = await userRepository.findByEmailAndDeleteAtNull(
-                reqDto.email
+        if (reqDto.loginId !== undefined) {
+            user = await userRepository.findByLoginIdAndDeleteAtNull(
+                reqDto.loginId
             );
         } else {
             if (!reqDto.name || !reqDto.phone) {

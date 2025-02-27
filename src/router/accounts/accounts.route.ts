@@ -20,7 +20,7 @@ accountRouter.post(
     PATH_ACCOUNTS + "/passwords",
     body("name").optional().isString().isLength({ max: 16 }),
     body("phone").optional().isString().isLength({ min: 3, max: 16 }),
-    body("email").optional().isString().isEmail(),
+    body("loginId").optional().isString().isLength({ min: 8, max: 32 }),
     async (req: Request, res: Response) => {
         const response = await accountService.findPassword(req, res);
         response.sendResponse(res);
