@@ -84,7 +84,7 @@ export type Order = {
     addressInfo: {
         userAddress: string;
     };
-    userCoupon: string | null;
+    userCoupon: string | null | any;
     userInfo: {
         user: User | string;
     };
@@ -101,6 +101,7 @@ export type OrderProduct = Product & {
     deliveryInfo: {
         deliveryStatus: string;
         deliveryComp: string;
+        deliveryFee: number;
     };
     orgPrice: number;
     finalPrice: number;

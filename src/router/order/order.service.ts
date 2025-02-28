@@ -97,6 +97,9 @@ class OrderService {
 
         let totalOrgPrice = 0;
         let totalDiscountedPrice = 0;
+        let totalDeliveryFee = 0;
+        let couponDiscount = 0;
+        let totalPrice = 0;
 
         order.products.forEach((product: OrderProduct) => {
             if (typeof product.productId === "object") {
@@ -104,8 +107,26 @@ class OrderService {
                 totalDiscountedPrice +=
                     product.productId.orgPrice * product.amount -
                     product.finalPrice * product.amount;
+                totalPrice += product.finalPrice * product.amount;
+                totalDeliveryFee += product.productId.info.deliveryFee;
             }
         });
+
+        totalPrice += totalDeliveryFee;
+
+        if (order.userCoupon && typeof order.userCoupon === "object") {
+            const discountPer = order.userCoupon.discountPer;
+            const discountWon = order.userCoupon.discountWon;
+
+            if (discountPer) {
+                couponDiscount = totalPrice * (discountPer / 100);
+            }
+
+            if (discountWon) {
+                couponDiscount = discountWon;
+            }
+            totalPrice -= couponDiscount;
+        }
 
         // order 객체에서 _id 제거
         const orderObj: any = Object.assign({}, order);
@@ -118,9 +139,12 @@ class OrderService {
                     icedProdDelivStatus,
                     nonIcedProdDelivStatus,
                 },
-                totalPrice: orderObj.totalPrice - orderObj.usedPoints,
                 totalOrgPrice,
                 totalDiscountedPrice,
+                totalDeliveryFee,
+                couponDiscount,
+                usedPoints: orderObj.usedPoints,
+                totalPrice,
             },
         };
         return new ResDto({ data: data });
