@@ -4,15 +4,43 @@
     "description": "",
     "main": "src/main.js",
     "scripts": {
+        "prebuild": "rm -rf ./dist",
+        "build": "tsc",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node src/main.js"
+        "prestart": "npm run build",
+        "debug": "tsc-watch --onSuccess \"node --inspect-brk --env-file=.env dist/main.js\"",
+        "start:dev": "tsc-watch --onSuccess \"node --env-file=.env dist/main.js\"",
+        "start": "node --env-file=.env.production dist/main.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "express": "^4.21.2"
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.13.0",
+        "bcrypt": "^5.1.1",
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "express-validator": "^7.2.1",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.9.6",
+        "swagger-cli": "^4.0.4",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui": "^5.18.3",
+        "swagger-ui-express": "^5.0.1",
+        "tsc-watch": "^6.2.1",
+        "typescript": "^5.7.3",
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/cors": "^2.8.17",
+        "@types/dotenv": "^8.2.3",
+        "@types/express-validator": "^3.0.2",
+        "@types/jsonwebtoken": "^9.0.8",
+        "@types/mongoose": "^5.11.97",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "@types/swagger-ui-express": "^4.1.7",
+        "@types/yamljs": "^0.2.34",
         "prettier": "^3.4.2"
     }
 }

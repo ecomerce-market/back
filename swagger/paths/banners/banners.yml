@@ -1,0 +1,41 @@
+/api/v1/banners:
+    get:
+        tags:
+            - Banners
+        summary: "배너 목록 조회"
+        description: 배너 목록 조회<br>배너 노출 시작일과 종료일을 기준으로 현재 날짜에 노출되어야 하는 배너 목록을 조회<br>배너 노출 순서 오름차순으로 정렬
+        responses:
+            200:
+                description: 배너 목록 조회 성공
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                message:
+                                    type: string
+                                    example: "success"
+                                banners:
+                                    type: array
+                                    items:
+                                        type: object
+                                        properties:
+                                            name:
+                                                type: string
+                                                example: "배너 제목"
+                                            imgUrl:
+                                                type: string
+                                                example: "https://www.example.com/banner.jpg"
+                                                description: 배너 이미지 URL
+                                            link:
+                                                type: string
+                                                example: "https://www.example.com"
+                                                description: 배너 클릭 시 이동할 URL
+                                            displayOrder:
+                                                type: integer
+                                                example: 1
+                                                description: 배너 노출 순서
+                                            endAt:
+                                                type: string
+                                                example: "2021-01-01T00:00:00.000Z"
+                                                description: 배너 노출 종료일
