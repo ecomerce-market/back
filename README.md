@@ -55,6 +55,18 @@
     - Database: MongoDB
     - Language: TypeScript
 
+## 프로젝트 실행 방법
+- 백엔드:
+    1. npm 패키지 설치
+    ```shell
+    npm install
+    ```
+    2. .env 파일 설정 (.env.example 파일명을 .env로 변경, mongodb URI 등 환경변수 설정)
+    3. npm 스크립트 실행
+    ```shell
+    npm run start:dev
+    ```
+
 ## 프로젝트 진행 방식
 
 프로젝트는 `figma의 화면기획서`를 보고 FE/BE가 1차/2차 개발에 맞는 기능을 각각 개발하여 API와 화면을 붙여 개발한다.<br>
